@@ -25,6 +25,14 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 
 	const handleClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
+
+		// TODO: Multi-select with Shift+click (future enhancement)
+		// For now, single selection only
+		if (e.shiftKey) {
+			// Multi-select logic would go here
+			console.log("Multi-select not yet implemented");
+		}
+
 		selectComponent(component.id);
 	};
 
@@ -52,18 +60,24 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 	return (
 		<div
 			className={cn(
-				// Simple container with no visible boundaries
+				// Enhanced container with better interaction states
 				"relative cursor-pointer transition-all duration-200",
-				// Selection states - only show when selected
+				"group", // Enable group hover states
+				// Enhanced hover states
+				"hover:ring-1 hover:ring-ring/30 hover:ring-offset-1",
+				"hover:shadow-sm hover:z-[5]",
+				// Selection states - enhanced visual feedback
 				isSelected && [
-					"ring-2 ring-ring/50 ring-offset-1 ring-offset-background",
+					"ring-2 ring-primary/60 ring-offset-1 ring-offset-background",
+					"shadow-md",
 					"z-10", // Bring selected component above others
 				],
 				// Component type specific styling
 				component.type === "text" && "min-h-[60px]",
 				component.type === "image" && "min-h-[120px]",
-				// Interactive states
+				// Enhanced interactive states
 				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+				"focus-visible:ring-offset-2",
 			)}
 			style={{
 				gridColumn,
@@ -97,21 +111,24 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 				{component.type === "image" && <ImageComponent component={component} />}
 			</div>
 
-			{/* Component Type Indicator Badge (always visible) */}
+			{/* Enhanced Component Type Indicator Badge */}
 			<Badge
 				variant="outline"
 				className={cn(
 					"absolute bottom-1 right-1 z-10",
 					"bg-background/80 text-muted-foreground",
 					"border-border/50 text-xs",
-					"opacity-60 hover:opacity-100",
-					"transition-opacity duration-200",
+					// Enhanced visibility states
+					"opacity-0 group-hover:opacity-75 transition-opacity duration-200",
+					isSelected && "opacity-100",
 					// Hide on mobile to save space
 					"hidden sm:inline-flex",
 				)}
 			>
 				{component.type}
 			</Badge>
+
+			{/* Selection Indicator Badge */}
 
 			{/* Resize Handle Indicator (for future resizing feature) */}
 			{isSelected && (
