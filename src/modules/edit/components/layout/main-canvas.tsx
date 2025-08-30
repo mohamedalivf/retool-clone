@@ -64,105 +64,6 @@ export function MainCanvas() {
 		}),
 	);
 
-	// Calculate snap position with improved UX - uses proximity and snap zones
-	const calculateSnapPosition = useCallback(
-		(
-			component: ComponentState,
-			delta: { x: number; y: number },
-			canvasRect: DOMRect,
-			gridConfig: GridConfiguration,
-		): Position => {
-			// Calculate new pixel position directly from delta (much simpler!)
-			// Delta is already relative to the drag start position
-			const dragEndX = delta.x; // How far we dragged horizontally
-			const dragEndY = delta.y; // How far we dragged vertically
-
-			// Convert delta to relative position within canvas
-			// If we dragged more than half the canvas width to the right, go to right column
-			const relativeX =
-				(component.position.x * (canvasRect.width / gridConfig.cols) +
-					dragEndX) /
-				canvasRect.width;
-			const relativeY =
-				(component.position.y * gridConfig.cellHeight + dragEndY) /
-				(gridConfig.cellHeight * 10);
-
-			console.log("🔧 Fixed calculation:", {
-				componentStartX: component.position.x,
-				canvasWidth: canvasRect.width,
-				dragDeltaX: dragEndX,
-				calculatedRelativeX: relativeX,
-				"Should be right?": relativeX > 0.5,
-			});
-
-			console.log("📊 Snap calculation:", {
-				delta,
-				currentPos: component.position,
-				relativeX,
-				relativeY,
-				canvasWidth: canvasRect.width,
-				componentWidth: component.size.width,
-			});
-
-			// Smart column snapping with generous snap zones
-			let snapX = component.position.x; // Default to current position
-
-			if (component.size.width === "full") {
-				// Full-width components always stay at x=0
-				snapX = 0;
-				console.log("🔒 Full-width component, keeping x=0");
-			} else {
-				// Half-width components: snap to left (0) or right (1) column based on final position
-				// Simple rule: left half of screen = left column, right half = right column
-				console.log("🔄 Half-width component, final position check");
-				console.log(
-					"📍 RelativeX:",
-					relativeX,
-					"- Will snap to:",
-					relativeX < 0.5 ? "LEFT (x=0)" : "RIGHT (x=1)",
-				);
-
-				// Much simpler: just check which half of the screen we're in
-				if (relativeX < 0.5) {
-					snapX = 0; // Left half of screen = left column
-					console.log("⬅️ In left half, snapping to left column (x=0)");
-				} else {
-					snapX = 1; // Right half of screen = right column
-					console.log("➡️ In right half, snapping to right column (x=1)");
-				}
-			}
-
-			// Smart row snapping with generous snap zones
-			let snapY = component.position.y; // Default to current position
-
-			// Only snap vertically if there's significant vertical movement
-			if (Math.abs(delta.y) > 15) {
-				// Lower threshold for easier vertical movement
-				// Calculate which row we're closest to
-				const targetRow = Math.round(relativeY * 10); // Scale to row count
-
-				// Use a threshold for easier row snapping (30% of cell height)
-				const rowThreshold = 0.3;
-				const rowProgress = (relativeY * 10) % 1; // Progress within current row
-
-				if (rowProgress < rowThreshold) {
-					snapY = Math.floor(relativeY * 10);
-				} else if (rowProgress > 1 - rowThreshold) {
-					snapY = Math.ceil(relativeY * 10);
-				} else {
-					snapY = Math.round(relativeY * 10);
-				}
-			}
-
-			// Ensure boundaries
-			snapX = Math.max(0, Math.min(snapX, gridConfig.cols - 1));
-			snapY = Math.max(0, snapY);
-
-			return { x: snapX, y: snapY };
-		},
-		[],
-	);
-
 	// Validate drop position based on component size and grid constraints
 	const validateDropPosition = useCallback(
 		(component: ComponentState, newPosition: Position): boolean => {
@@ -256,8 +157,6 @@ export function MainCanvas() {
 		const { active } = event;
 		const componentId = active.id as string;
 
-		console.log("🚀 Drag started for component:", componentId);
-
 		// Update drag state in store
 		useEditStore.setState((state) => ({
 			...state,
@@ -295,20 +194,6 @@ export function MainCanvas() {
 			const relativeX = mouseX / canvasRect.width;
 			const relativeY = mouseY / canvasRect.height;
 
-			console.log("🖱️ Mouse-based calculation:", {
-				mouseClientX: mouseEvent.clientX,
-				mouseClientY: mouseEvent.clientY,
-				deltaX: delta.x,
-				deltaY: delta.y,
-				canvasLeft: canvasRect.left,
-				canvasTop: canvasRect.top,
-				mouseX,
-				mouseY,
-				relativeX,
-				relativeY,
-				"Should be right?": relativeX > 0.5,
-			});
-
 			// Simple snap logic
 			const snapX = relativeX < 0.5 ? 0 : 1;
 			const snapY = Math.max(0, Math.floor(relativeY * 10)); // Assuming 10 rows max
@@ -327,7 +212,7 @@ export function MainCanvas() {
 				},
 			}));
 		},
-		[components, grid, validateDropPosition],
+		[components, validateDropPosition],
 	);
 
 	const handleDragEnd = useCallback(
@@ -335,12 +220,9 @@ export function MainCanvas() {
 			const { active, delta, activatorEvent } = event;
 			const componentId = active.id as string;
 
-			console.log("🏁 Drag ended for component:", componentId, "Delta:", delta);
-
 			// Find the dragged component
 			const draggedComponent = components.find((c) => c.id === componentId);
 			if (!draggedComponent || !canvasRef.current) {
-				console.log("❌ Component not found or canvas ref missing");
 				// Reset drag state
 				useEditStore.setState((state) => ({
 					...state,
@@ -354,8 +236,6 @@ export function MainCanvas() {
 				}));
 				return;
 			}
-
-			console.log("📍 Current position:", draggedComponent.position);
 
 			// Use mouse position for final snap calculation
 			const mouseEvent = activatorEvent as MouseEvent;
@@ -375,29 +255,17 @@ export function MainCanvas() {
 
 			const snapPosition = { x: snapX, y: snapY };
 
-			console.log(
-				"🎯 Mouse-based snap position:",
-				snapPosition,
-				"relativeX:",
-				relativeX,
-			);
-
 			// Validate the new position based on component size constraints
 			const isValidPosition = validateDropPosition(
 				draggedComponent,
 				snapPosition,
 			);
 
-			console.log("✅ Is valid position:", isValidPosition);
-
 			if (isValidPosition) {
-				console.log("🔄 Updating component position to:", snapPosition);
 				// Update component position
 				updateComponent(componentId, {
 					position: snapPosition,
 				});
-			} else {
-				console.log("❌ Invalid position, not updating");
 			}
 
 			// Reset drag state
@@ -412,7 +280,7 @@ export function MainCanvas() {
 				},
 			}));
 		},
-		[components, grid, updateComponent, validateDropPosition],
+		[components, updateComponent, validateDropPosition],
 	);
 
 	// Focus management
@@ -454,7 +322,6 @@ export function MainCanvas() {
 					}}
 					onClick={handleCanvasClick}
 					onKeyDown={handleKeyDown}
-					tabIndex={0}
 					role="application"
 					aria-label="Component canvas - click components to select, use drag handles to reorder, arrow keys to navigate"
 				>
@@ -465,6 +332,11 @@ export function MainCanvas() {
 							className="absolute inset-0 pointer-events-none z-10"
 						/>
 					)}
+
+					<SectorBorders
+						grid={grid}
+						isDragging={useEditStore((state) => state.drag.isDragging)}
+					/>
 
 					{/* Empty State */}
 					{!hasComponents && <EmptyState />}
@@ -586,6 +458,44 @@ function DropZoneIndicators({
 						)}
 					/>
 				</div>
+			))}
+		</div>
+	);
+}
+
+interface SectorBordersProps {
+	grid: GridConfiguration;
+	isDragging: boolean;
+}
+
+function SectorBorders({ isDragging }: SectorBordersProps) {
+	if (!isDragging) {
+		return null;
+	}
+
+	return (
+		<div className="absolute inset-0 pointer-events-none z-20">
+			{/* Vertical grid line - divides left/right columns */}
+			<div
+				className="absolute border-r-2 border-dashed border-primary/40"
+				style={{
+					left: "50%",
+					top: "0%",
+					height: "100%",
+				}}
+			/>
+
+			{/* Horizontal grid lines - show row divisions */}
+			{Array.from({ length: 9 }, (_, i) => (
+				<div
+					key={`horizontal-${i}`}
+					className="absolute border-b-2 border-dashed border-primary/40"
+					style={{
+						left: "0%",
+						top: `${(i + 1) * 10}%`,
+						width: "100%",
+					}}
+				/>
 			))}
 		</div>
 	);
