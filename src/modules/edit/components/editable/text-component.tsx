@@ -28,9 +28,10 @@ export function TextComponent({ component }: TextComponentProps) {
 	return (
 		<div
 			className={cn(
-				"h-full w-full rounded-md",
+				"w-full min-h-[2.5rem]", // Removed rounded-md for sharp corners
 				"flex items-center justify-start",
 				"bg-white border border-gray-200",
+				"py-3 px-4", // Add some padding for better text display
 			)}
 			style={componentStyles}
 		>

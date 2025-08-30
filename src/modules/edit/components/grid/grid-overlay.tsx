@@ -1,7 +1,9 @@
 /**
  * Grid overlay component to show visual grid lines
+ * Enhanced with shadcn/ui components and styling
  */
 
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { GridConfiguration } from "../../store/types";
 
@@ -19,7 +21,13 @@ export function GridOverlay({ grid, className }: GridOverlayProps) {
 
 	return (
 		<div
-			className={cn("absolute inset-0", className)}
+			className={cn(
+				"absolute inset-0",
+				// shadcn/ui styling enhancements
+				"transition-opacity duration-300 ease-in-out",
+				"pointer-events-none select-none",
+				className,
+			)}
 			style={{
 				left: containerPadding.left,
 				top: containerPadding.top,
@@ -27,9 +35,12 @@ export function GridOverlay({ grid, className }: GridOverlayProps) {
 				height: gridHeight,
 			}}
 		>
-			{/* Vertical Grid Lines */}
+			{/* Enhanced Grid Lines with shadcn/ui styling */}
 			<svg
-				className="absolute inset-0 w-full h-full"
+				className={cn(
+					"absolute inset-0 w-full h-full",
+					"text-border/40", // Using shadcn/ui border color with opacity
+				)}
 				xmlns="http://www.w3.org/2000/svg"
 				aria-hidden="true"
 			>
@@ -40,61 +51,67 @@ export function GridOverlay({ grid, className }: GridOverlayProps) {
 						height={cellHeight + gap}
 						patternUnits="userSpaceOnUse"
 					>
-						{/* Vertical lines */}
+						{/* Vertical lines - enhanced with shadcn/ui colors */}
 						<line
 							x1="0"
 							y1="0"
 							x2="0"
 							y2={cellHeight + gap}
-							stroke="currentColor"
+							stroke="hsl(var(--border))"
 							strokeWidth="1"
-							className="text-border opacity-30"
+							opacity="0.3"
+							strokeDasharray="2,2" // Subtle dashed pattern
 						/>
-						{/* Horizontal lines */}
+						{/* Horizontal lines - enhanced with shadcn/ui colors */}
 						<line
 							x1="0"
 							y1="0"
 							x2={`${100 / cols}%`}
 							y2="0"
-							stroke="currentColor"
+							stroke="hsl(var(--border))"
 							strokeWidth="1"
-							className="text-border opacity-30"
+							opacity="0.3"
+							strokeDasharray="2,2" // Subtle dashed pattern
 						/>
 					</pattern>
 				</defs>
 				<rect width="100%" height="100%" fill="url(#grid-pattern)" />
 
-				{/* Right border */}
+				{/* Enhanced border lines */}
 				<line
 					x1="100%"
 					y1="0"
 					x2="100%"
 					y2="100%"
-					stroke="currentColor"
-					strokeWidth="1"
-					className="text-border opacity-30"
+					stroke="hsl(var(--border))"
+					strokeWidth="1.5"
+					opacity="0.4"
 				/>
-
-				{/* Bottom border */}
 				<line
 					x1="0"
 					y1="100%"
 					x2="100%"
 					y2="100%"
-					stroke="currentColor"
-					strokeWidth="1"
-					className="text-border opacity-30"
+					stroke="hsl(var(--border))"
+					strokeWidth="1.5"
+					opacity="0.4"
 				/>
 			</svg>
 
-			{/* Grid Cell Indicators (for debugging) */}
+			{/* Enhanced Grid Cell Indicators using shadcn/ui Badge */}
 			{process.env.NODE_ENV === "development" && (
 				<div className="absolute inset-0">
 					{Array.from({ length: rows }, (_, row) =>
 						Array.from({ length: cols }, (_, col) => (
 							<div
 								key={`cell-${row}-${col}`}
-								className="absolute border border-blue-200 opacity-20 flex items-center justify-center text-xs text-blue-600 font-mono"
+								className={cn(
+									"absolute flex items-center justify-center",
+									"border border-border/20 rounded-sm",
+									"bg-card/10 backdrop-blur-sm",
+									"transition-all duration-200",
+									"hover:bg-card/20 hover:border-border/40",
+								)}
 								style={{
 									left: `${(col / cols) * 100}%`,
 									top: row * (cellHeight + gap),
@@ -102,7 +119,17 @@ export function GridOverlay({ grid, className }: GridOverlayProps) {
 									height: cellHeight,
 								}}
 							>
-								{row},{col}
+								<Badge
+									variant="outline"
+									className={cn(
+										"text-xs font-mono",
+										"bg-background/80 text-muted-foreground",
+										"border-border/30",
+										"pointer-events-none",
+									)}
+								>
+									{row},{col}
+								</Badge>
 							</div>
 						)),
 					)}

@@ -1,5 +1,6 @@
 /**
  * Grid calculation utilities for positioning and collision detection
+ * Enhanced for shadcn/ui-based grid system with auto-sizing support
  */
 
 import type {
@@ -330,4 +331,194 @@ export function calculateRequiredGridHeight(
 		totalRows * gridConfig.cellHeight +
 		(totalRows - 1) * gridConfig.gap
 	);
+}
+
+// ============================================================================
+// ENHANCED UTILITIES FOR SHADCN/UI GRID SYSTEM
+// ============================================================================
+
+/**
+ * Calculate responsive grid dimensions based on container size
+ * Enhanced for shadcn/ui responsive design patterns
+ */
+export function calculateResponsiveGrid(
+	containerWidth: number,
+	containerHeight: number,
+	baseGridConfig: GridConfiguration,
+): GridConfiguration {
+	// Responsive breakpoints following shadcn/ui conventions
+	const isSmall = containerWidth < 640; // sm breakpoint
+	const isMedium = containerWidth >= 640 && containerWidth < 1024; // md breakpoint
+	const isLarge = containerWidth >= 1024; // lg breakpoint
+
+	// Adjust grid configuration based on screen size
+	const responsiveConfig: GridConfiguration = {
+		...baseGridConfig,
+		// Adjust cell height for smaller screens
+		cellHeight: isSmall ? 80 : isMedium ? 100 : baseGridConfig.cellHeight,
+		// Adjust gap for smaller screens
+		gap: isSmall ? 8 : isMedium ? 12 : baseGridConfig.gap,
+		// Adjust padding for smaller screens
+		containerPadding: {
+			top: isSmall ? 12 : 16,
+			right: isSmall ? 12 : 16,
+			bottom: isSmall ? 12 : 16,
+			left: isSmall ? 12 : 16,
+		},
+	};
+
+	return responsiveConfig;
+}
+
+/**
+ * Get optimal component size based on content type and grid constraints
+ * Follows shadcn/ui component sizing patterns
+ */
+export function getOptimalComponentSize(
+	componentType: "text" | "image",
+	contentLength?: number,
+): Size {
+	switch (componentType) {
+		case "text":
+			// Text components should be compact by default
+			// Height is auto-calculated based on content
+			return {
+				width: "half", // Default to half-width
+				height: 1, // Minimum height, will auto-expand
+			};
+		case "image":
+			// Images should maintain aspect ratio
+			return {
+				width: "half", // Default to half-width
+				height: 2, // Good default height for 16:9 aspect ratio
+			};
+		default:
+			return {
+				width: "half",
+				height: 1,
+			};
+	}
+}
+
+/**
+ * Calculate drop zones for drag and drop operations
+ * Enhanced with shadcn/ui visual feedback patterns
+ */
+export function calculateEnhancedDropZones(
+	draggedComponent: ComponentState,
+	allComponents: ComponentState[],
+	gridConfig: GridConfiguration,
+): Array<Position & { isValid: boolean; feedback: string }> {
+	const dropZones: Array<Position & { isValid: boolean; feedback: string }> =
+		[];
+	const maxRows = Math.max(gridConfig.rows, getMaxRowUsed(allComponents) + 3);
+
+	// Calculate all possible drop positions
+	for (let y = 0; y < maxRows; y++) {
+		for (
+			let x = 0;
+			x <= (draggedComponent.size.width === "full" ? 0 : 1);
+			x++
+		) {
+			const position = { x, y };
+			const isValid = !checkCollision(
+				position,
+				draggedComponent.size,
+				allComponents,
+				draggedComponent.id,
+			);
+
+			// Provide helpful feedback for each zone
+			let feedback = "";
+			if (isValid) {
+				feedback = `Drop here (${x === 0 ? "Left" : "Right"} column, Row ${y + 1})`;
+			} else {
+				feedback = "Position occupied";
+			}
+
+			dropZones.push({
+				x,
+				y,
+				isValid,
+				feedback,
+			});
+		}
+	}
+
+	return dropZones;
+}
+
+/**
+ * Get grid cell boundaries for visual indicators
+ * Used by shadcn/ui Badge components in grid overlay
+ */
+export function getGridCellBounds(
+	position: Position,
+	size: Size,
+	gridConfig: GridConfiguration,
+): {
+	left: string;
+	top: string;
+	width: string;
+	height: string;
+} {
+	const { cols, cellHeight, gap } = gridConfig;
+
+	// Calculate dimensions as percentages and pixels
+	const cellWidthPercent = 100 / cols;
+	const widthPercent = size.width === "full" ? 100 : cellWidthPercent;
+
+	return {
+		left: `${position.x * cellWidthPercent}%`,
+		top: `${position.y * (cellHeight + gap)}px`,
+		width: `${widthPercent}%`,
+		height: `${cellHeight * size.height + gap * (size.height - 1)}px`,
+	};
+}
+
+/**
+ * Validate grid configuration for shadcn/ui compatibility
+ * Ensures grid settings work well with shadcn/ui design system
+ */
+export function validateGridConfig(config: GridConfiguration): {
+	isValid: boolean;
+	warnings: string[];
+	suggestions: string[];
+} {
+	const warnings: string[] = [];
+	const suggestions: string[] = [];
+
+	// Check minimum cell height for readability
+	if (config.cellHeight < 60) {
+		warnings.push(
+			"Cell height is very small, may affect component readability",
+		);
+		suggestions.push("Consider increasing cell height to at least 80px");
+	}
+
+	// Check gap size for visual clarity
+	if (config.gap < 8) {
+		warnings.push("Gap is very small, components may appear cramped");
+		suggestions.push(
+			"Consider increasing gap to at least 12px for better visual separation",
+		);
+	}
+
+	// Check padding for proper spacing
+	const minPadding = 16;
+	if (
+		config.containerPadding.top < minPadding ||
+		config.containerPadding.right < minPadding ||
+		config.containerPadding.bottom < minPadding ||
+		config.containerPadding.left < minPadding
+	) {
+		warnings.push("Container padding is small, content may touch edges");
+		suggestions.push("Consider using at least 16px padding on all sides");
+	}
+
+	return {
+		isValid: warnings.length === 0,
+		warnings,
+		suggestions,
+	};
 }

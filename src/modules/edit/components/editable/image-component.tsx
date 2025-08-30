@@ -33,12 +33,19 @@ export function ImageComponent({ component }: ImageComponentProps) {
 
 	return (
 		<div
-			className={cn("h-full w-full", "bg-white border border-gray-200")}
+			className={cn(
+				"w-full bg-white border border-gray-200 rounded-md",
+				"min-h-[200px]", // Minimum height for better UX
+			)}
 			style={componentStyles}
 		>
 			<div
-				className="h-full w-full relative overflow-hidden"
-				style={aspectRatioStyle}
+				className="w-full relative overflow-hidden rounded-md"
+				style={{
+					...aspectRatioStyle,
+					// Default aspect ratio if none specified
+					aspectRatio: aspectRatioStyle.aspectRatio || "16 / 9",
+				}}
 			>
 				{attributes.src ? (
 					<img

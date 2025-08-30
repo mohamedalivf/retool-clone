@@ -370,7 +370,7 @@ export const DEFAULT_GRID_CONFIG: GridConfiguration = {
 	cols: 2,
 	rows: 10,
 	cellHeight: 100,
-	gap: 16,
+	gap: 0, // No gap between grid elements
 	containerPadding: {
 		top: 16,
 		right: 16,

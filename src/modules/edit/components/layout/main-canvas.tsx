@@ -1,5 +1,6 @@
 /**
  * Main canvas area for grid-based component editing
+ * Enhanced with shadcn/ui styling conventions
  */
 
 import { cn } from "@/lib/utils";
@@ -17,10 +18,20 @@ export function MainCanvas() {
 	const hasComponents = components.length > 0;
 
 	return (
-		<div className="relative h-full overflow-auto">
-			{/* Grid Container */}
+		<div className="relative h-full overflow-auto bg-background">
+			{/* Grid Container - Enhanced with shadcn/ui styling */}
 			<div
-				className={cn("min-h-full relative", "transition-all duration-200")}
+				className={cn(
+					// Base layout
+					"min-h-full relative",
+					// shadcn/ui styling conventions
+					"bg-card/30", // Subtle background using card color
+					"border-border/20", // Subtle border
+					// Transitions
+					"transition-all duration-200 ease-in-out",
+					// Focus and interaction states
+					"focus-within:bg-card/40",
+				)}
 				style={{
 					padding: `${grid.containerPadding.top}px ${grid.containerPadding.right}px ${grid.containerPadding.bottom}px ${grid.containerPadding.left}px`,
 				}}
@@ -36,15 +47,32 @@ export function MainCanvas() {
 				{/* Empty State */}
 				{!hasComponents && <EmptyState />}
 
-				{/* Component Grid */}
+				{/* Component Grid - Enhanced with responsive shadcn/ui patterns */}
 				{hasComponents && (
 					<div
-						className="relative"
+						className={cn(
+							// Grid layout with responsive behavior
+							"relative grid",
+							// Base: 2 columns (as per design requirements)
+							"grid-cols-2",
+							// NO GAPS - components should be flush against each other
+							"gap-0",
+							// shadcn/ui spacing and styling
+							"rounded-md p-2 sm:p-3 md:p-4",
+							// Enhanced visual feedback
+							"transition-all duration-200 ease-in-out",
+							// Focus and interaction states
+							"focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+							"hover:bg-card/20",
+							// Mobile optimizations
+							"touch-pan-y", // Better touch scrolling on mobile
+						)}
 						style={{
-							display: "grid",
-							gridTemplateColumns: "repeat(2, 1fr)",
-							gap: `${grid.gap}px`,
-							minHeight: `${grid.cellHeight * grid.rows}px`,
+							gap: "0px", // Force no gap regardless of grid config
+							gridAutoRows: "auto", // Allow rows to size automatically
+							alignItems: "start", // Align items to start of their grid area
+							// Responsive grid adjustments
+							minHeight: "200px", // Ensure minimum usable space
 						}}
 					>
 						{components.map((component) => (
@@ -57,9 +85,16 @@ export function MainCanvas() {
 					</div>
 				)}
 
-				{/* Drop Zones (will be added with drag & drop) */}
-				<div className="absolute inset-0 pointer-events-none">
+				{/* Drop Zones - Enhanced for future drag & drop */}
+				<div
+					className={cn(
+						"absolute inset-0 pointer-events-none",
+						"transition-opacity duration-200",
+						// Will be enhanced when drag & drop is implemented
+					)}
+				>
 					{/* TODO: Add drop zone indicators during drag operations */}
+					{/* Will use shadcn/ui Badge components for drop zone labels */}
 				</div>
 			</div>
 		</div>
