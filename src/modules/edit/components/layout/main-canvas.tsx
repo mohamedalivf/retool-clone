@@ -477,7 +477,7 @@ function SectorBorders({ grid, isDragging }: SectorBordersProps) {
 		<div className="absolute inset-0 pointer-events-none z-20">
 			{/* Vertical grid line - divides left/right columns */}
 			<div
-				className="absolute border-r-2 border-dashed border-primary/40"
+				className="absolute border-r border-dashed border-primary/30"
 				style={{
 					left: "50%",
 					top: 0,
@@ -488,8 +488,8 @@ function SectorBorders({ grid, isDragging }: SectorBordersProps) {
 			{/* Horizontal hug lines - show every HUG_HEIGHT px */}
 			{Array.from({ length: MAX_GRID_ROWS }, (_, i) => (
 				<div
-					key={`hug-${i}`}
-					className="absolute border-b border-dashed border-primary/20"
+					key={`hug-line-${i}`}
+					className="absolute border-b border-dashed border-primary/30"
 					style={{
 						left: 0,
 						top: `${(i + 1) * HUG_HEIGHT}px`, // Every HUG_HEIGHT px
@@ -500,7 +500,7 @@ function SectorBorders({ grid, isDragging }: SectorBordersProps) {
 
 			{/* Left column highlight */}
 			<div
-				className="absolute bg-primary/5 border-2 border-dashed border-primary/30"
+				className="absolute bg-primary/5"
 				style={{
 					left: 0,
 					top: 0,
@@ -511,7 +511,7 @@ function SectorBorders({ grid, isDragging }: SectorBordersProps) {
 
 			{/* Right column highlight */}
 			<div
-				className="absolute bg-primary/5 border-2 border-dashed border-primary/30"
+				className="absolute bg-primary/5"
 				style={{
 					left: "50%",
 					top: 0,
