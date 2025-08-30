@@ -7,8 +7,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import {
+	HUG_HEIGHT,
+	MIN_HUGS,
+	hugsToPixels,
+	pixelsToHugs,
+} from "../../constants/hug-system";
 import type { ComponentState, TextAttributes } from "../../store/types";
 import { useEditStore } from "../../store/use-edit-store";
+
+// Calculate required height in hugs based on content
+function calculateHugsForContent(content: string, fontSize: string): number {
+	if (!content) return MIN_HUGS;
+
+	// Estimate line height based on font size
+	const fontSizeMap = {
+		xs: 12,
+		sm: 14,
+		base: 16,
+		lg: 18,
+		xl: 20,
+		"2xl": 24,
+		"3xl": 30,
+	};
+
+	const baseFontSize = fontSizeMap[fontSize as keyof typeof fontSizeMap] || 16;
+	const lineHeight = Math.ceil(baseFontSize * 1.5); // Typical line height
+
+	// Count lines (including wrapped lines - rough estimation)
+	const lines = content.split("\n");
+	const estimatedLines = lines.reduce((total, line) => {
+		// Rough estimation: assume ~50 characters per line for wrapping
+		const wrappedLines = Math.max(1, Math.ceil(line.length / 50));
+		return total + wrappedLines;
+	}, 0);
+
+	// Calculate required pixel height
+	const requiredHeight = estimatedLines * lineHeight + 24; // Add padding
+
+	// Convert to hugs (round up)
+	return pixelsToHugs(requiredHeight);
+}
 
 interface TextComponentProps {
 	component: ComponentState;
@@ -28,6 +67,13 @@ export const TextComponent = React.memo(function TextComponent({
 	const [isEditing, setIsEditing] = useState(false);
 	const [editValue, setEditValue] = useState(attributes.content || "");
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+	// Calculate required height in hugs
+	const requiredHugs = calculateHugsForContent(
+		attributes.content || "",
+		attributes.fontSize,
+	);
+	const componentHeight = hugsToPixels(requiredHugs);
 
 	// Apply component styles
 	const componentStyles = {
@@ -54,14 +100,21 @@ export const TextComponent = React.memo(function TextComponent({
 
 	// Handle save changes
 	const handleSave = useCallback(() => {
+		// Calculate new height in hugs based on content
+		const newHugs = calculateHugsForContent(editValue, attributes.fontSize);
+
 		updateComponent(component.id, {
 			attributes: {
 				...attributes,
 				content: editValue,
 			},
+			size: {
+				...component.size,
+				height: newHugs, // Update height to match content
+			},
 		});
 		setIsEditing(false);
-	}, [component.id, attributes, editValue, updateComponent]);
+	}, [component.id, component.size, attributes, editValue, updateComponent]);
 
 	// Handle cancel editing
 	const handleCancel = useCallback(() => {
@@ -132,7 +185,7 @@ export const TextComponent = React.memo(function TextComponent({
 	return (
 		<div
 			className={cn(
-				"w-full min-h-[2.5rem]",
+				"w-full",
 				"flex items-center justify-start",
 				"bg-white border border-gray-200",
 				"py-3 px-4",
@@ -143,7 +196,11 @@ export const TextComponent = React.memo(function TextComponent({
 				// Cursor indicates editability when selected
 				isSelected && "cursor-text",
 			)}
-			style={componentStyles}
+			style={{
+				...componentStyles,
+				height: `${componentHeight}px`, // Fixed height based on hugs
+				minHeight: `${HUG_HEIGHT}px`, // Minimum 1 hug
+			}}
 			onDoubleClick={handleDoubleClick}
 			role="textbox"
 			aria-label={`Text component: ${attributes.content || "Empty text"}`}

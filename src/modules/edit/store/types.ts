@@ -366,16 +366,18 @@ export const DEFAULT_COMPONENT_STYLES: ComponentStyles = {
 	opacity: 1,
 };
 
+import { GRID_COLS, HUG_HEIGHT, MAX_GRID_ROWS } from "../constants/hug-system";
+
 export const DEFAULT_GRID_CONFIG: GridConfiguration = {
-	cols: 2,
-	rows: 10,
-	cellHeight: 100,
+	cols: GRID_COLS,
+	rows: MAX_GRID_ROWS,
+	cellHeight: HUG_HEIGHT, // 1 hug = HUG_HEIGHT px
 	gap: 0, // No gap between grid elements
 	containerPadding: {
-		top: 16,
-		right: 16,
-		bottom: 16,
-		left: 16,
+		top: 0, // No padding for full-screen layout
+		right: 0,
+		bottom: 0,
+		left: 0,
 	},
 };
 

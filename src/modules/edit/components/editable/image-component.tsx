@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { AlertCircle, Image as ImageIcon, Loader2 } from "lucide-react";
 import React, { useState, useCallback, useRef, useEffect } from "react";
+import { HUG_HEIGHT, hugsToPixels } from "../../constants/hug-system";
 import type { ComponentState, ImageAttributes } from "../../store/types";
 import { useEditStore } from "../../store/use-edit-store";
 
@@ -26,6 +27,9 @@ export const ImageComponent = React.memo(function ImageComponent({
 	const isSelected = useEditStore(
 		(state) => state.selection.selectedComponentId === component.id,
 	);
+
+	// Calculate height in hugs (images use their size.height directly)
+	const componentHeight = hugsToPixels(component.size.height);
 
 	// Image loading state management
 	const [loadingState, setLoadingState] = useState<ImageLoadingState>("idle");
@@ -101,13 +105,16 @@ export const ImageComponent = React.memo(function ImageComponent({
 			ref={containerRef}
 			className={cn(
 				"w-full bg-white border border-gray-200",
-				"min-h-[200px]", // Minimum height for better UX
 				// Enhanced interaction states
 				"transition-all duration-200",
 				isSelected && "ring-1 ring-primary/50",
 				"hover:bg-gray-50",
 			)}
-			style={componentStyles}
+			style={{
+				...componentStyles,
+				height: `${componentHeight}px`, // Fixed height based on hugs
+				minHeight: `${HUG_HEIGHT}px`, // Minimum 1 hug
+			}}
 			role="img"
 			aria-label={
 				attributes.alt ||

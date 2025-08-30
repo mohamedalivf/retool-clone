@@ -111,7 +111,7 @@ type EditStoreType = EditStoreState & EditStoreActions;
 // ============================================================================
 
 export const useEditStore = create<EditStoreType>((set, get) => ({
-	// Initial state
+	// Initial state - migrate existing components to hug system
 	components: [],
 	selection: initialSelectionState,
 	sidebars: initialSidebarState,

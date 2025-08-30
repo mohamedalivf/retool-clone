@@ -23,6 +23,11 @@ import {
 } from "@dnd-kit/modifiers";
 import type React from "react";
 import { useCallback, useEffect, useRef } from "react";
+import {
+	GRID_COLS,
+	HUG_HEIGHT,
+	MAX_GRID_ROWS,
+} from "../../constants/hug-system";
 import type {
 	ComponentState,
 	GridConfiguration,
@@ -190,13 +195,15 @@ export function MainCanvas() {
 			const mouseX = mouseEvent.clientX + delta.x - canvasRect.left;
 			const mouseY = mouseEvent.clientY + delta.y - canvasRect.top;
 
-			// Convert to relative position (0 to 1)
-			const relativeX = mouseX / canvasRect.width;
-			const relativeY = mouseY / canvasRect.height;
+			// Hug-based grid calculations
+			const columnWidth = canvasRect.width / GRID_COLS; // Each column width in pixels
+			const hugSize = HUG_HEIGHT; // HUG_HEIGHT px per hug
 
-			// Simple snap logic
-			const snapX = relativeX < 0.5 ? 0 : 1;
-			const snapY = Math.max(0, Math.floor(relativeY * 10)); // Assuming 10 rows max
+			// Snap to columns (0 or 1)
+			const snapX = mouseX < columnWidth ? 0 : 1;
+
+			// Snap to hug boundaries (every HUG_HEIGHT px)
+			const snapY = Math.max(0, Math.round(mouseY / hugSize));
 
 			const snapPosition = { x: snapX, y: snapY };
 
@@ -245,13 +252,15 @@ export function MainCanvas() {
 			const mouseX = mouseEvent.clientX + delta.x - canvasRect.left;
 			const mouseY = mouseEvent.clientY + delta.y - canvasRect.top;
 
-			// Convert to relative position (0 to 1)
-			const relativeX = mouseX / canvasRect.width;
-			const relativeY = mouseY / canvasRect.height;
+			// Hug-based grid calculations
+			const columnWidth = canvasRect.width / GRID_COLS; // Each column width in pixels
+			const hugSize = HUG_HEIGHT; // HUG_HEIGHT px per hug
 
-			// Simple snap logic
-			const snapX = relativeX < 0.5 ? 0 : 1;
-			const snapY = Math.max(0, Math.floor(relativeY * 10)); // Assuming 10 rows max
+			// Snap to columns (0 or 1)
+			const snapX = mouseX < columnWidth ? 0 : 1;
+
+			// Snap to hug boundaries (every HUG_HEIGHT px)
+			const snapY = Math.max(0, Math.round(mouseY / hugSize));
 
 			const snapPosition = { x: snapX, y: snapY };
 
@@ -305,11 +314,10 @@ export function MainCanvas() {
 				<div
 					ref={canvasRef}
 					className={cn(
-						// Base layout
-						"min-h-full relative",
+						// Base layout - full height, no padding
+						"h-full relative",
 						// shadcn/ui styling conventions
 						"bg-card/30", // Subtle background using card color
-						"border-border/20", // Subtle border
 						// Transitions
 						"transition-all duration-200 ease-in-out",
 						// Focus and interaction states
@@ -317,9 +325,6 @@ export function MainCanvas() {
 						// Enhanced keyboard navigation
 						"focus:outline-none focus:ring-2 focus:ring-ring/20 focus:ring-inset",
 					)}
-					style={{
-						padding: `${grid.containerPadding.top}px ${grid.containerPadding.right}px ${grid.containerPadding.bottom}px ${grid.containerPadding.left}px`,
-					}}
 					onClick={handleCanvasClick}
 					onKeyDown={handleKeyDown}
 					role="application"
@@ -351,22 +356,17 @@ export function MainCanvas() {
 								"grid-cols-2",
 								// NO GAPS - components should be flush against each other
 								"gap-0",
-								// shadcn/ui spacing and styling
-								"rounded-md p-2 sm:p-3 md:p-4",
+								// Full height, no padding, no rounded corners
+								"h-full",
 								// Enhanced visual feedback
 								"transition-all duration-200 ease-in-out",
-								// Focus and interaction states
-								"focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
-								"hover:bg-card/20",
 								// Mobile optimizations
 								"touch-pan-y", // Better touch scrolling on mobile
 							)}
 							style={{
 								gap: "0px", // Force no gap regardless of grid config
-								gridAutoRows: "auto", // Allow rows to size automatically
+								gridAutoRows: `${HUG_HEIGHT}px`, // Fixed row height = 1 hug
 								alignItems: "start", // Align items to start of their grid area
-								// Responsive grid adjustments
-								minHeight: "200px", // Ensure minimum usable space
 							}}
 						>
 							{components.map((component) => (
@@ -429,10 +429,10 @@ function DropZoneIndicators({
 							: "border-red-400 bg-red-100/30 shadow-red-200/50",
 					)}
 					style={{
-						left: `${(zone.x / grid.cols) * 100}%`,
-						top: `${zone.y * (grid.cellHeight + grid.gap)}px`,
-						width: `${100 / grid.cols}%`,
-						height: `${grid.cellHeight}px`,
+						left: `${(zone.x / GRID_COLS) * 100}%`,
+						top: `${zone.y * HUG_HEIGHT}px`, // Use HUG_HEIGHT directly
+						width: `${100 / GRID_COLS}%`,
+						height: `${HUG_HEIGHT}px`, // Use HUG_HEIGHT directly
 						// Add some margin for better visual feedback
 						margin: "2px",
 						transform: "scale(1.02)", // Slightly larger for better visibility
@@ -468,7 +468,7 @@ interface SectorBordersProps {
 	isDragging: boolean;
 }
 
-function SectorBorders({ isDragging }: SectorBordersProps) {
+function SectorBorders({ grid, isDragging }: SectorBordersProps) {
 	if (!isDragging) {
 		return null;
 	}
@@ -480,23 +480,45 @@ function SectorBorders({ isDragging }: SectorBordersProps) {
 				className="absolute border-r-2 border-dashed border-primary/40"
 				style={{
 					left: "50%",
-					top: "0%",
+					top: 0,
 					height: "100%",
 				}}
 			/>
 
-			{/* Horizontal grid lines - show row divisions */}
-			{Array.from({ length: 9 }, (_, i) => (
+			{/* Horizontal hug lines - show every HUG_HEIGHT px */}
+			{Array.from({ length: MAX_GRID_ROWS }, (_, i) => (
 				<div
-					key={`horizontal-${i}`}
-					className="absolute border-b-2 border-dashed border-primary/40"
+					key={`hug-${i}`}
+					className="absolute border-b border-dashed border-primary/20"
 					style={{
-						left: "0%",
-						top: `${(i + 1) * 10}%`,
+						left: 0,
+						top: `${(i + 1) * HUG_HEIGHT}px`, // Every HUG_HEIGHT px
 						width: "100%",
 					}}
 				/>
 			))}
+
+			{/* Left column highlight */}
+			<div
+				className="absolute bg-primary/5 border-2 border-dashed border-primary/30"
+				style={{
+					left: 0,
+					top: 0,
+					width: "50%",
+					height: "100%",
+				}}
+			/>
+
+			{/* Right column highlight */}
+			<div
+				className="absolute bg-primary/5 border-2 border-dashed border-primary/30"
+				style={{
+					left: "50%",
+					top: 0,
+					width: "50%",
+					height: "100%",
+				}}
+			/>
 		</div>
 	);
 }
