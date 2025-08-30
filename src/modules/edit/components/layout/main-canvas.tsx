@@ -274,7 +274,7 @@ export function MainCanvas() {
 
 	const handleDragOver = useCallback(
 		(event: DragOverEvent) => {
-			const { active, delta } = event;
+			const { active, delta, activatorEvent } = event;
 			const componentId = active.id as string;
 
 			// Find the dragged component
@@ -283,14 +283,37 @@ export function MainCanvas() {
 				return;
 			}
 
-			// Calculate drag position with improved UX strategy
+			// Get the current mouse position from the activator event
+			const mouseEvent = activatorEvent as MouseEvent;
 			const canvasRect = canvasRef.current.getBoundingClientRect();
-			const snapPosition = calculateSnapPosition(
-				draggedComponent,
-				delta,
-				canvasRect,
-				grid,
-			);
+
+			// Calculate mouse position relative to canvas
+			const mouseX = mouseEvent.clientX + delta.x - canvasRect.left;
+			const mouseY = mouseEvent.clientY + delta.y - canvasRect.top;
+
+			// Convert to relative position (0 to 1)
+			const relativeX = mouseX / canvasRect.width;
+			const relativeY = mouseY / canvasRect.height;
+
+			console.log("🖱️ Mouse-based calculation:", {
+				mouseClientX: mouseEvent.clientX,
+				mouseClientY: mouseEvent.clientY,
+				deltaX: delta.x,
+				deltaY: delta.y,
+				canvasLeft: canvasRect.left,
+				canvasTop: canvasRect.top,
+				mouseX,
+				mouseY,
+				relativeX,
+				relativeY,
+				"Should be right?": relativeX > 0.5,
+			});
+
+			// Simple snap logic
+			const snapX = relativeX < 0.5 ? 0 : 1;
+			const snapY = Math.max(0, Math.floor(relativeY * 10)); // Assuming 10 rows max
+
+			const snapPosition = { x: snapX, y: snapY };
 
 			// Validate the position and update drag state for visual feedback
 			const isValidDrop = validateDropPosition(draggedComponent, snapPosition);
@@ -304,12 +327,12 @@ export function MainCanvas() {
 				},
 			}));
 		},
-		[components, grid],
+		[components, grid, validateDropPosition],
 	);
 
 	const handleDragEnd = useCallback(
 		(event: DragEndEvent) => {
-			const { active, delta } = event;
+			const { active, delta, activatorEvent } = event;
 			const componentId = active.id as string;
 
 			console.log("🏁 Drag ended for component:", componentId, "Delta:", delta);
@@ -334,16 +357,30 @@ export function MainCanvas() {
 
 			console.log("📍 Current position:", draggedComponent.position);
 
-			// Calculate snap position with improved UX strategy
+			// Use mouse position for final snap calculation
+			const mouseEvent = activatorEvent as MouseEvent;
 			const canvasRect = canvasRef.current.getBoundingClientRect();
-			const snapPosition = calculateSnapPosition(
-				draggedComponent,
-				delta,
-				canvasRect,
-				grid,
-			);
 
-			console.log("🎯 Calculated snap position:", snapPosition);
+			// Calculate final mouse position relative to canvas
+			const mouseX = mouseEvent.clientX + delta.x - canvasRect.left;
+			const mouseY = mouseEvent.clientY + delta.y - canvasRect.top;
+
+			// Convert to relative position (0 to 1)
+			const relativeX = mouseX / canvasRect.width;
+			const relativeY = mouseY / canvasRect.height;
+
+			// Simple snap logic
+			const snapX = relativeX < 0.5 ? 0 : 1;
+			const snapY = Math.max(0, Math.floor(relativeY * 10)); // Assuming 10 rows max
+
+			const snapPosition = { x: snapX, y: snapY };
+
+			console.log(
+				"🎯 Mouse-based snap position:",
+				snapPosition,
+				"relativeX:",
+				relativeX,
+			);
 
 			// Validate the new position based on component size constraints
 			const isValidPosition = validateDropPosition(
