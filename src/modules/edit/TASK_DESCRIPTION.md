@@ -115,8 +115,8 @@ interface TextAttributes {
 - **Color Picker**: Color input for text color
 
 #### Behavior
-- **Markdown Rendering**: Parse and render markdown syntax
-- **Trim Whitespace**: Remove extra newlines and whitespace
+- **Markdown Rendering**: Parse and render markdown syntax (supports multiple lines)
+- **Default Height**: Single line height by default, expands with content
 - **Click to Edit**: Clicking the text opens the properties sidebar
 
 #### Markdown Processing
@@ -299,11 +299,233 @@ The text component should process markdown but render everything inline:
 - **Code**: `` `code` `` → `<code>code</code>`
 - **Line breaks**: Convert `\n` to spaces for single-line display
 
+#### Markdown Rendering Implementation
+We'll use a custom inline markdown renderer built with `react-markdown` to handle single-line rendering:
+
+**Option 1: Custom Inline Markdown Component (Recommended)**
+```typescript
+// src/modules/edit/components/InlineMarkdownRenderer.tsx
+import ReactMarkdown from 'react-markdown';
+import { cn } from '@/lib/utils';
+
+interface InlineMarkdownRendererProps {
+  content: string;
+  className?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  textAlign?: string;
+  color?: string;
+}
+
+export function InlineMarkdownRenderer({ 
+  content, 
+  className,
+  fontSize = 'base',
+  fontWeight = 'normal',
+  textAlign = 'left',
+  color = '#000000'
+}: InlineMarkdownRendererProps) {
+  // Process content to single line
+  const processedContent = content
+    .replace(/\n+/g, ' ') // Replace newlines with spaces
+    .replace(/\s+/g, ' ') // Collapse multiple spaces
+    .trim();
+
+  return (
+    <div 
+      className={cn(
+        'inline-block w-full overflow-hidden whitespace-nowrap text-ellipsis',
+        `text-${fontSize}`,
+        `font-${fontWeight}`,
+        `text-${textAlign}`,
+        className
+      )}
+      style={{ color }}
+    >
+      <ReactMarkdown
+        components={{
+          // Override all block elements to be inline
+          p: ({ children }) => <span>{children}</span>,
+          h1: ({ children }) => <strong className="text-xl">{children}</strong>,
+          h2: ({ children }) => <strong className="text-lg">{children}</strong>,
+          h3: ({ children }) => <strong className="text-base">{children}</strong>,
+          h4: ({ children }) => <strong>{children}</strong>,
+          h5: ({ children }) => <strong>{children}</strong>,
+          h6: ({ children }) => <strong>{children}</strong>,
+          ul: ({ children }) => <span>{children}</span>,
+          ol: ({ children }) => <span>{children}</span>,
+          li: ({ children }) => <span>{children} </span>,
+          blockquote: ({ children }) => <em>{children}</em>,
+          code: ({ children }) => (
+            <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">
+              {children}
+            </code>
+          ),
+          pre: ({ children }) => <span>{children}</span>,
+          br: () => <span> </span>, // Convert line breaks to spaces
+          // Keep inline elements as-is
+          strong: ({ children }) => <strong>{children}</strong>,
+          em: ({ children }) => <em>{children}</em>,
+          a: ({ href, children }) => (
+            <a href={href} className="text-blue-600 hover:underline">
+              {children}
+            </a>
+          ),
+        }}
+      >
+        {processedContent}
+      </ReactMarkdown>
+    </div>
+  );
+}
+```
+
+**Option 2: Simple Regex-Based Approach (Lighter Alternative)**
+```typescript
+// src/modules/edit/components/SimpleMarkdownRenderer.tsx
+import { cn } from '@/lib/utils';
+
+interface SimpleMarkdownRendererProps {
+  content: string;
+  className?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  textAlign?: string;
+  color?: string;
+}
+
+export function SimpleMarkdownRenderer({ 
+  content, 
+  className,
+  fontSize = 'base',
+  fontWeight = 'normal',
+  textAlign = 'left',
+  color = '#000000'
+}: SimpleMarkdownRendererProps) {
+  // Process content to single line and apply basic markdown
+  const processedContent = content
+    .replace(/\n+/g, ' ') // Replace newlines with spaces
+    .replace(/\s+/g, ' ') // Collapse multiple spaces
+    .trim()
+    // Basic markdown parsing
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+    .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+    .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm">$1</code>') // Code
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>'); // Links
+
+  return (
+    <div 
+      className={cn(
+        'inline-block w-full overflow-hidden whitespace-nowrap text-ellipsis',
+        `text-${fontSize}`,
+        `font-${fontWeight}`,
+        `text-${textAlign}`,
+        className
+      )}
+      style={{ color }}
+      dangerouslySetInnerHTML={{ __html: processedContent }}
+    />
+  );
+}
+```
+
+**Integration with Text Component:**
+```typescript
+// In your TextComponent
+import { InlineMarkdownRenderer } from '../InlineMarkdownRenderer';
+
+export function TextComponent({ component }: { component: ComponentState }) {
+  const { attributes } = component;
+  
+  return (
+    <div className="p-4 border rounded cursor-pointer hover:bg-gray-50">
+      <InlineMarkdownRenderer
+        content={attributes.content}
+        fontSize={attributes.fontSize}
+        fontWeight={attributes.fontWeight}
+        textAlign={attributes.textAlign}
+        color={attributes.color}
+      />
+    </div>
+  );
+}
+```
+
+**Properties Sidebar Integration:**
+```typescript
+// In your TextProperties component
+import { Textarea } from '@/components/ui/textarea';
+
+export function TextProperties({ component, onUpdate }: TextPropertiesProps) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="text-sm font-medium">Content</label>
+        <Textarea
+          value={component.attributes.content}
+          onChange={(e) => onUpdate({
+            attributes: {
+              ...component.attributes,
+              content: e.target.value
+            }
+          })}
+          placeholder="Enter markdown content..."
+          className="mt-1"
+        />
+      </div>
+      {/* Other properties... */}
+    </div>
+  );
+}
+```
+
+**Why Option 1 is Recommended:**
+- ✅ Full markdown support with proper parsing
+- ✅ Single-line rendering as required
+- ✅ Customizable styling through props
+- ✅ Type-safe with TypeScript
+- ✅ Extensible for future markdown features
+- ✅ Proper HTML rendering (safer than dangerouslySetInnerHTML)
+
 ### Grid System Details
-- **Container**: Full width of edit-content-feature
-- **Columns**: 2 equal columns with gap
-- **Rows**: Dynamic based on content, minimum height per row
-- **Responsive**: Grid adapts to container size changes
+- **Container**: Full width and height of edit-content-feature
+- **Columns**: 2 equal columns with 0 gap
+- **Rows**: Dynamic based on content, takes full container height
+- **Padding**: 16px container padding
+- **Responsive**: On mobile, all components become full-width (single column)
 - **Constraints**: Components cannot overlap or exceed boundaries
+
+### Component Specifications (Updated)
+#### Image Component Details
+- **Default Size**: Half-width (50% of container)
+- **Aspect Ratio**: Auto by default (maintains original proportions)
+- **Placeholder**: Uses https://placehold.co/600x400 as default placeholder
+- **Resizing**: Can be dragged to full-width if no adjacent components
+- **Border**: Only visible when selected
+
+#### Text Component Details  
+- **Default Size**: Half-width (50% of container)
+- **Content**: Starts with "Click to edit" placeholder text
+- **Height**: Single line by default, expands with markdown content
+- **Rendering**: Supports multi-line markdown (not single-line as originally planned)
+- **Border**: Only visible when selected
+
+### Interaction Specifications
+#### Drag & Drop Details
+- **Drag Handle**: Dedicated drag handle to avoid interference with resize
+- **Drag Preview**: Same size as original component for visual consistency
+- **Animation Duration**: 300ms for snap-to-grid animation
+- **Invalid Drop**: Red border feedback for invalid drop zones
+
+#### Selection & Properties
+- **Auto-open**: Properties sidebar opens automatically on component click
+- **Selection Mode**: Single component selection only
+- **Deselection**: Click outside component, ESC key, or close properties sidebar
+- **Sidebar**: Sheet component from right side (large width)
+
+#### Mobile Responsiveness
+- **Breakpoint**: On mobile screens, grid becomes single column
+- **Component Width**: All components become full-width on mobile
+- **Sidebar**: Properties sidebar adapts to mobile screen size
 
 This task description serves as the complete specification for implementing the Retool-like edit mode feature.
