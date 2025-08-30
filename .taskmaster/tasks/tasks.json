@@ -174,7 +174,7 @@
           5,
           8
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -274,11 +274,26 @@
         ],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Implement Grid-Based Drag and Drop Positioning",
+        "description": "Implement drag and drop functionality for components with collision detection, allowing half-width components to move in all directions and full-width components to move vertically only.",
+        "details": "1. Create a drag handler system using React DnD or a similar library\n2. Implement grid-based positioning logic that:\n   - Allows half-width components to move left/right/up/down\n   - Restricts full-width components to vertical movement only\n   - Calculates valid drop positions based on component size\n3. Develop collision detection algorithm that:\n   - Identifies occupied grid cells\n   - Prevents overlapping components\n   - Validates potential drop zones based on component width\n4. Add visual indicators for:\n   - Valid drop zones (green highlight)\n   - Invalid drop zones (red highlight)\n   - Current dragging state (shadow/opacity change)\n5. Implement smooth animations for:\n   - Component movement (300ms transitions)\n   - Drop zone highlighting\n   - Component repositioning\n6. Create helper functions to:\n   - Convert mouse/touch coordinates to grid positions\n   - Calculate valid drop zones based on component dimensions\n   - Handle grid boundary conditions\n7. Update the Zustand store with:\n   - Component position state\n   - Dragging state management\n   - History tracking for undo/redo\n8. Optimize performance with:\n   - requestAnimationFrame for smooth animations\n   - Throttling position calculations during drag\n   - Efficient collision detection algorithms\n9. Implement keyboard accessibility:\n   - Arrow key movement for selected components\n   - Keyboard shortcuts to initiate/cancel drag operations\n10. Add touch support for mobile devices with appropriate touch feedback",
+        "testStrategy": "1. Test dragging half-width components in all four directions (left, right, up, down)\n2. Verify full-width components can only be moved vertically\n3. Test collision detection by attempting to drop components onto occupied spaces\n4. Verify visual indicators appear correctly for valid and invalid drop zones\n5. Test edge cases:\n   - Dragging to canvas boundaries\n   - Dragging between different row heights\n   - Rapid dragging movements\n6. Verify smooth animations during drag and drop operations\n7. Test keyboard accessibility:\n   - Moving components with arrow keys\n   - Initiating drag with keyboard shortcuts\n8. Test on touch devices to verify mobile compatibility\n9. Perform performance testing with many components (20+) to ensure smooth operation\n10. Verify undo/redo functionality works correctly for drag operations\n11. Test with different component sizes to ensure proper positioning\n12. Verify drag operations maintain grid alignment",
+        "status": "done",
+        "dependencies": [
+          5,
+          8,
+          10
+        ],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-30T20:25:20.688Z",
-      "updated": "2025-08-30T21:47:57.208Z",
+      "updated": "2025-08-30T22:06:19.291Z",
       "description": "Tasks for master context"
     }
   }
