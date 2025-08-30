@@ -93,7 +93,7 @@ export function createTextComponent(
 ): ComponentState {
 	const textAttributes: Partial<TextAttributes> = content
 		? { content, ...options?.attributes }
-		: options?.attributes;
+		: options?.attributes || {};
 
 	return createComponent(
 		"text",
@@ -118,7 +118,7 @@ export function createImageComponent(
 ): ComponentState {
 	const imageAttributes: Partial<ImageAttributes> = src
 		? { src, ...options?.attributes }
-		: options?.attributes;
+		: options?.attributes || {};
 
 	return createComponent(
 		"image",

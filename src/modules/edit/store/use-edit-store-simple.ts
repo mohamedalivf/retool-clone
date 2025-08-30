@@ -313,12 +313,49 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 }));
 
 // ============================================================================
-// UTILITY HOOKS (Use direct selectors instead of these for better performance)
+// CUSTOM HOOKS FOR ACCESSING STORE SLICES
 // ============================================================================
 
-// These hooks are kept for backward compatibility but it's recommended to use
-// direct selectors like: useEditStore((state) => state.components)
-// This prevents unnecessary re-renders and improves performance.
+export const useComponents = () => {
+	return useEditStore((state) => ({
+		components: state.components,
+		addComponent: state.addComponent,
+		updateComponent: state.updateComponent,
+		deleteComponent: state.deleteComponent,
+		getComponentById: state.getComponentById,
+		exportComponents: state.exportComponents,
+	}));
+};
+
+export const useSelection = () => {
+	return useEditStore((state) => ({
+		selection: state.selection,
+		selectComponent: state.selectComponent,
+		clearSelection: state.clearSelection,
+	}));
+};
+
+export const useSidebars = () => {
+	return useEditStore((state) => ({
+		sidebars: state.sidebars,
+		toggleLeftSidebar: state.toggleLeftSidebar,
+		toggleRightSidebar: state.toggleRightSidebar,
+		setRightSidebarTab: state.setRightSidebarTab,
+	}));
+};
+
+export const useSettings = () => {
+	return useEditStore((state) => ({
+		settings: state.settings,
+		updateSettings: state.updateSettings,
+	}));
+};
+
+export const useGrid = () => {
+	return useEditStore((state) => ({
+		grid: state.grid,
+	}));
+};
 
 export const useSelectedComponent = () => {
 	return useEditStore((state) => {

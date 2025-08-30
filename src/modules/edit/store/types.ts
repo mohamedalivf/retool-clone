@@ -411,28 +411,4 @@ export type AttributeEventHandler<T extends ComponentAttributes> = (
 // EXPORT ALL TYPES
 // ============================================================================
 
-export type {
-	ComponentType,
-	ComponentWidth,
-	ComponentStatus,
-	Position,
-	Size,
-	TextAttributes,
-	ImageAttributes,
-	ComponentAttributes,
-	ComponentStyles,
-	ComponentState,
-	GridConfiguration,
-	GridCell,
-	GridBounds,
-	SelectionState,
-	SidebarState,
-	DragState,
-	ResizeState,
-	EditStore,
-	ComponentFactory,
-	ComponentEventHandler,
-	PositionEventHandler,
-	SizeEventHandler,
-	AttributeEventHandler,
-};
+// All types are exported individually above where they are defined
