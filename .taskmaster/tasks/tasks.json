@@ -1,0 +1,230 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Project Setup and Dependency Installation",
+        "description": "Initialize the project repository with required dependencies and configuration files",
+        "details": "1. Create a new React TypeScript project\n2. Install core dependencies: Zustand, @dnd-kit, react-markdown, lucide-react, TanStack Router, and Tailwind CSS\n3. Configure TypeScript with strict mode enabled\n4. Set up ESLint and Prettier for code quality\n5. Initialize Tailwind CSS configuration\n6. Create folder structure for components, hooks, store, and types\n7. Set up basic routing with TanStack Router\n8. Configure build and development scripts",
+        "testStrategy": "Verify all dependencies are correctly installed and configured by running the development server and checking for any startup errors. Ensure TypeScript compilation works without errors.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Define Core TypeScript Types and Interfaces",
+        "description": "Create TypeScript definitions for component state, attributes, and grid system",
+        "details": "1. Define ComponentState interface as specified in the PRD:\n```typescript\ninterface ComponentState {\n  id: string;\n  type: 'text' | 'image';\n  position: { x: number, y: number }; // x: 0-1, y: 0-∞\n  size: { width: 'half' | 'full', height: number };\n  attributes: TextAttributes | ImageAttributes;\n  styles: ComponentStyles;\n}\n```\n2. Create TextAttributes interface with markdown content and typography properties\n3. Create ImageAttributes interface with source, alt, aspect ratio, and object fit properties\n4. Define ComponentStyles interface for common styling properties\n5. Create GridConfiguration type for managing the responsive grid system\n6. Define SelectionState type for tracking selected components",
+        "testStrategy": "Write unit tests to validate type definitions using TypeScript compiler. Ensure all required properties are present and properly typed. Test with sample data to verify type safety.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement Zustand Store for State Management",
+        "description": "Create a centralized state management system using Zustand to handle component and UI state",
+        "details": "1. Set up Zustand store with TypeScript integration\n2. Define store slices for components, selection, and grid configuration\n3. Implement core state actions:\n   - addComponent(type: 'text' | 'image')\n   - updateComponent(id: string, updates: Partial<ComponentState>)\n   - removeComponent(id: string)\n   - selectComponent(id: string | null)\n   - moveComponent(id: string, position: { x: number, y: number })\n   - resizeComponent(id: string, size: { width: 'half' | 'full', height: number })\n4. Add persistence layer for saving/loading layouts\n5. Implement middleware for logging state changes during development\n6. Create custom hooks for accessing specific parts of the state",
+        "testStrategy": "Write unit tests for each store action to verify correct state transitions. Test edge cases like adding duplicate components, removing non-existent components, and concurrent updates. Verify persistence works correctly.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Create Basic Application Layout",
+        "description": "Implement the main application layout with left sidebar, canvas, and right sidebar",
+        "details": "1. Create a responsive layout container with CSS Grid or Flexbox\n2. Implement the three-panel layout:\n   - Left sidebar: Component selection panel (Sheet component)\n   - Main canvas: Grid-based editing area\n   - Right sidebar: Properties editor\n3. Make layout responsive with single column on mobile devices\n4. Add basic styling with Tailwind CSS\n5. Implement collapsible sidebars for better space utilization\n6. Add header with application title and basic controls\n7. Create placeholder content for each section",
+        "testStrategy": "Test layout responsiveness across different screen sizes. Verify sidebars collapse and expand correctly. Check accessibility of layout elements with keyboard navigation and screen readers.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Implement Grid-Based Canvas System",
+        "description": "Create a responsive grid system for the main canvas with 2-column layout and row-based positioning",
+        "details": "1. Implement a grid container with configurable columns (2 for desktop, 1 for mobile)\n2. Create visual grid lines for development guidance\n3. Set up row-based positioning system with consistent height units\n4. Implement grid cell calculation logic for component placement\n5. Add snap-to-grid functionality for precise positioning\n6. Create utility functions for converting between grid coordinates and pixel values\n7. Implement responsive behavior for different screen sizes\n8. Add visual indicators for component boundaries within the grid",
+        "testStrategy": "Test grid rendering with various screen sizes. Verify correct column count on desktop and mobile. Check that grid cells have consistent sizing. Test boundary calculations with different component positions and sizes.",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Implement Text Component",
+        "description": "Create the Text component with markdown rendering and customizable typography",
+        "details": "1. Create a React component for rendering text content\n2. Integrate react-markdown for markdown rendering\n3. Implement default styling and placeholder content\n4. Add typography controls for font size, weight, alignment, and color\n5. Create component wrapper with selection indicators\n6. Implement inline editing capability\n7. Add accessibility attributes (ARIA roles, labels)\n8. Optimize rendering performance with memoization\n9. Handle text overflow and line wrapping\n10. Implement proper focus management for keyboard users",
+        "testStrategy": "Test markdown rendering with various content types. Verify typography controls affect the rendered output correctly. Test accessibility with screen readers. Check keyboard navigation and focus management. Verify performance with large text content.",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Implement Image Component",
+        "description": "Create the Image component with placeholder system, aspect ratio control, and styling options",
+        "details": "1. Create a React component for displaying images\n2. Implement placeholder system for when no source is provided\n3. Add support for different aspect ratios (1:1, 16:9, 4:3, etc.)\n4. Implement object fit options (cover, contain, fill, scale-down, none)\n5. Add border radius controls (none, small, medium, large, full)\n6. Create alt text input for accessibility\n7. Handle image loading states and errors\n8. Optimize image loading with lazy loading\n9. Add proper ARIA attributes for accessibility\n10. Implement image source validation",
+        "testStrategy": "Test image rendering with various sources and sizes. Verify aspect ratio controls maintain correct proportions. Test placeholder system when no source is provided. Check accessibility with screen readers. Verify error handling with invalid image sources.",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Component Selection System",
+        "description": "Create a system for selecting components with visual indicators and sidebar integration",
+        "details": "1. Implement click-to-select functionality for components\n2. Add visual indicators for selected components (border highlight)\n3. Create selection state management in Zustand store\n4. Implement keyboard selection with arrow keys\n5. Add multi-select capability with Shift+click\n6. Create deselection by clicking canvas background\n7. Implement focus management for accessibility\n8. Add selection history for undo/redo operations\n9. Trigger properties sidebar opening on selection\n10. Add hover states for components",
+        "testStrategy": "Test selection by clicking on components. Verify visual indicators appear correctly. Test keyboard selection with arrow keys. Check multi-select functionality. Verify deselection works as expected. Test focus management with keyboard navigation.",
+        "priority": "medium",
+        "dependencies": [
+          5,
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement @dnd-kit Drag and Drop System",
+        "description": "Integrate @dnd-kit library for drag and drop functionality with grid constraints",
+        "details": "1. Set up @dnd-kit core providers and context\n2. Create draggable wrapper for components\n3. Implement drop zones within the grid system\n4. Add collision detection to prevent component overlap\n5. Create visual feedback for drag operations (previews, animations)\n6. Implement grid constraints for positioning\n7. Add validation for drop positions\n8. Create drag handles for better user experience\n9. Implement keyboard-accessible drag and drop\n10. Add smooth animations for component movement",
+        "testStrategy": "Test dragging components within the canvas. Verify components snap to grid positions. Check collision detection prevents overlap. Test keyboard drag and drop. Verify visual feedback during drag operations. Test on touch devices for mobile compatibility.",
+        "priority": "high",
+        "dependencies": [
+          5,
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement Component Resizing",
+        "description": "Add functionality to toggle components between half-width and full-width sizing",
+        "details": "1. Create resize controls for components\n2. Implement resize logic in Zustand store\n3. Add visual feedback during resize operations\n4. Implement validation for resize constraints\n5. Create smooth animations for size changes (300ms transitions)\n6. Add keyboard shortcuts for resizing (Alt+Left/Right)\n7. Update grid layout when component sizes change\n8. Implement collision detection during resize\n9. Add responsive behavior for different screen sizes\n10. Create undo/redo capability for resize operations",
+        "testStrategy": "Test resizing components between half-width and full-width. Verify animations work smoothly. Check keyboard shortcuts for resizing. Test collision detection during resize. Verify grid updates correctly after resize operations.",
+        "priority": "medium",
+        "dependencies": [
+          5,
+          8,
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement Left Sidebar Component Library",
+        "description": "Create the left sidebar with component selection panel for adding new components",
+        "details": "1. Implement Sheet component for the left sidebar\n2. Create component library with Text and Image options\n3. Add drag-to-add functionality for components\n4. Implement click-to-add alternative for accessibility\n5. Add visual previews of component types\n6. Create component categories for organization\n7. Add search functionality for finding components\n8. Implement keyboard navigation within the sidebar\n9. Add tooltips with component descriptions\n10. Create collapsible sections for better organization",
+        "testStrategy": "Test adding components by dragging from sidebar. Verify click-to-add functionality works. Check keyboard navigation within the sidebar. Test search functionality with various queries. Verify tooltips display correctly.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Implement Right Sidebar Properties Editor",
+        "description": "Create the right sidebar with component-specific property controls",
+        "details": "1. Implement Sheet component for the right sidebar\n2. Create dynamic property editor based on selected component type\n3. Implement Text component properties:\n   - Markdown content editor\n   - Typography controls (font size, weight, alignment, color)\n4. Implement Image component properties:\n   - Source URL input\n   - Alt text input\n   - Aspect ratio selector\n   - Object fit options\n   - Border radius controls\n5. Add common properties section (position, size)\n6. Implement real-time preview of property changes\n7. Add form validation for property inputs\n8. Create responsive layout for mobile devices\n9. Implement keyboard shortcuts for common operations\n10. Add property presets for quick styling",
+        "testStrategy": "Test property editing for both component types. Verify changes reflect immediately in the canvas. Check form validation for inputs. Test keyboard shortcuts for property editing. Verify responsive layout on mobile devices.",
+        "priority": "medium",
+        "dependencies": [
+          6,
+          7,
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Component Addition and Deletion",
+        "description": "Create functionality for adding new components to the canvas and removing existing ones",
+        "details": "1. Implement component addition from the left sidebar\n2. Create automatic positioning logic for new components\n3. Add delete functionality with keyboard shortcut (Delete/Backspace)\n4. Implement confirmation dialog for component deletion\n5. Create undo/redo capability for add/delete operations\n6. Add visual feedback during addition (animation)\n7. Implement duplicate functionality for components\n8. Create bulk operations for multiple selected components\n9. Add keyboard shortcuts for common operations\n10. Implement clipboard operations (cut/copy/paste)",
+        "testStrategy": "Test adding components from the sidebar. Verify deletion works with keyboard and UI controls. Check undo/redo functionality for add/delete operations. Test duplicate functionality. Verify clipboard operations work correctly.",
+        "priority": "medium",
+        "dependencies": [
+          9,
+          11,
+          12
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Implement Accessibility Features",
+        "description": "Ensure the application meets WCAG 2.1 AA standards with keyboard navigation and screen reader support",
+        "details": "1. Add proper ARIA labels and descriptions to all components\n2. Implement keyboard navigation for all interactions\n3. Create focus management system for logical tab order\n4. Add skip links for keyboard users\n5. Ensure color contrast meets WCAG 2.1 AA standards\n6. Implement screen reader announcements for dynamic changes\n7. Add keyboard shortcuts with visible documentation\n8. Create accessible drag and drop alternatives\n9. Implement focus indicators for keyboard users\n10. Add aria-live regions for important updates",
+        "testStrategy": "Test with screen readers (NVDA, VoiceOver, JAWS). Verify keyboard navigation works for all interactions. Check color contrast with automated tools. Test focus management with keyboard-only navigation. Verify aria attributes are correctly implemented.",
+        "priority": "high",
+        "dependencies": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Implement Performance Optimizations",
+        "description": "Optimize the application for smooth animations and efficient rendering",
+        "details": "1. Implement component virtualization for large layouts\n2. Add memoization for expensive calculations\n3. Optimize re-renders with React.memo and useMemo\n4. Implement efficient drag and drop with requestAnimationFrame\n5. Add debouncing for frequent updates (resize, property changes)\n6. Optimize bundle size with code splitting\n7. Implement lazy loading for components\n8. Add performance monitoring with React Profiler\n9. Optimize animations with CSS transitions instead of JS where possible\n10. Implement efficient state updates with immer or immutable patterns",
+        "testStrategy": "Measure performance with React Profiler. Test with large numbers of components (100+). Verify animations run at 60fps. Check bundle size and loading time. Test on lower-end devices to ensure acceptable performance.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          5,
+          6,
+          7,
+          9,
+          10
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-30T20:25:20.688Z",
+      "updated": "2025-08-30T20:33:30.859Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

@@ -1,0 +1,154 @@
+# Retool-Like Component Editor - Product Requirements Document
+
+## Product Overview
+Build a drag-and-drop component editor similar to Retool that allows users to create interactive layouts by adding, positioning, and customizing Text and Image components within a responsive grid-based system.
+
+## Target Users
+- Developers building internal tools
+- Non-technical users creating simple interfaces
+- Product managers prototyping layouts
+
+## Core Value Proposition
+Enable rapid creation of component-based layouts through intuitive drag-and-drop interactions with real-time property editing.
+
+## Key Features
+
+### 1. Component Library
+- **Text Component**: Renders markdown content with customizable typography
+- **Image Component**: Displays images with flexible sizing and styling options
+- **Extensible Architecture**: Foundation for adding more component types
+
+### 2. Grid-Based Layout System
+- **2-Column Grid**: Equal width columns for predictable positioning
+- **Flexible Sizing**: Components can be half-width (1 column) or full-width (2 columns)
+- **Row-Based Positioning**: Consistent height units with snap-to-grid behavior
+- **Responsive Design**: Single column layout on mobile devices
+
+### 3. Interactive Editing
+- **Drag & Drop**: Intuitive component positioning with visual feedback
+- **Real-time Properties**: Live editing of component attributes via sidebar
+- **Component Selection**: Click-to-select with visual indicators
+- **Resize Controls**: Toggle between half-width and full-width sizing
+
+### 4. User Interface
+- **Left Sidebar**: Component selection panel (Sheet component)
+- **Main Canvas**: Grid-based editing area with visual guidelines
+- **Right Sidebar**: Properties editor with component-specific controls
+- **Responsive Layout**: Adapts to different screen sizes
+
+## Technical Requirements
+
+### State Management
+- **Zustand Store**: Centralized state management for components and UI
+- **Component State**: Position, size, attributes, and styling data
+- **Selection State**: Track currently selected component
+- **Grid Configuration**: Dynamic row/column management
+
+### Component Architecture
+```
+ComponentState {
+  id: string
+  type: 'text' | 'image'
+  position: { x: 0-1, y: 0-∞ }
+  size: { width: 'half' | 'full', height: number }
+  attributes: TextAttributes | ImageAttributes
+  styles: ComponentStyles
+}
+```
+
+### Drag & Drop System
+- **@dnd-kit Integration**: Modern drag-and-drop with accessibility
+- **Collision Detection**: Prevent component overlap
+- **Visual Feedback**: Drop zones, drag previews, and animations
+- **Grid Constraints**: Enforce positioning rules
+
+### Component Specifications
+
+#### Text Component
+- **Markdown Support**: Full markdown rendering with inline display
+- **Typography Controls**: Font size, weight, alignment, color
+- **Default Content**: "Click to edit text" placeholder
+- **Real-time Preview**: Live updates as properties change
+
+#### Image Component
+- **Placeholder System**: Default placeholder when no source provided
+- **Aspect Ratio Control**: Predefined ratios (1:1, 16:9, 4:3, etc.)
+- **Object Fit Options**: Cover, contain, fill, scale-down, none
+- **Border Radius**: None, small, medium, large, full
+- **Alt Text Support**: Accessibility compliance
+
+## User Experience Requirements
+
+### Interaction Flow
+1. **Component Addition**: Click component in left sidebar → auto-add to grid → select component → properties sidebar opens
+2. **Component Editing**: Click component → properties sidebar opens → edit attributes → see live updates
+3. **Component Movement**: Drag component → see valid drop zones → snap to grid position
+4. **Component Resizing**: Use resize controls → validate constraints → animate to new size
+5. **Component Deletion**: Select component → delete button → confirm removal
+
+### Visual Design
+- **Grid Visualization**: Subtle grid lines during development
+- **Selection Indicators**: Clear border highlight for selected components
+- **Hover States**: Subtle feedback on component hover
+- **Drop Zone Feedback**: Visual indicators for valid/invalid drop positions
+- **Smooth Animations**: 300ms transitions for all state changes
+
+### Accessibility
+- **Keyboard Navigation**: Full keyboard support for all interactions
+- **Screen Reader Support**: Proper ARIA labels and descriptions
+- **Focus Management**: Clear focus indicators and logical tab order
+- **Color Contrast**: Meet WCAG 2.1 AA standards
+
+## Performance Requirements
+- **60fps Animations**: Smooth drag-and-drop and transitions
+- **Efficient Rendering**: Only re-render affected components
+- **Fast Component Operations**: < 100ms for add/remove/update operations
+- **Minimal Bundle Impact**: Optimize for production bundle size
+
+## Technical Dependencies
+- **Zustand**: State management
+- **@dnd-kit**: Drag and drop functionality
+- **react-markdown**: Markdown rendering for text components
+- **lucide-react**: Icon library for UI elements
+- **TanStack Router**: File-based routing system
+- **Tailwind CSS**: Styling and responsive design
+
+## Success Metrics
+- **Usability**: Users can create a 5-component layout in under 2 minutes
+- **Performance**: All interactions complete within 100ms
+- **Accessibility**: Pass automated accessibility testing
+- **Code Quality**: 90%+ TypeScript coverage, comprehensive testing
+
+## Implementation Phases
+
+### Phase 1: Foundation (Week 1)
+- Set up Zustand store and type definitions
+- Create basic grid layout system
+- Implement component rendering (Text & Image)
+- Add component selection functionality
+
+### Phase 2: Core Features (Week 2)
+- Implement drag & drop with @dnd-kit
+- Add movement constraints and validation
+- Create properties sidebars for both components
+- Implement resize functionality
+
+### Phase 3: Polish & UX (Week 3)
+- Add animations and visual feedback
+- Implement keyboard shortcuts
+- Add accessibility features
+- Optimize performance and error handling
+
+### Phase 4: Testing & Deployment (Week 4)
+- Comprehensive testing suite
+- Cross-browser compatibility
+- Performance optimization
+- Documentation and deployment
+
+## Risk Mitigation
+- **Complexity**: Start with MVP features, iterate based on feedback
+- **Performance**: Implement virtualization if component count grows large
+- **Browser Support**: Test on all major browsers, provide fallbacks
+- **Accessibility**: Regular testing with screen readers and keyboard navigation
+
+This PRD serves as the foundation for building a powerful, user-friendly component editor that rivals commercial tools like Retool while maintaining simplicity and performance.
