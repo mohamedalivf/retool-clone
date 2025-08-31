@@ -1,52 +1,27 @@
-/**
- * Enhanced Text component with inline editing, markdown rendering, and accessibility
- * Optimized with React.memo for performance
- */
-
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import {
-	HUG_HEIGHT,
-	MIN_HUGS,
-	hugsToPixels,
-	pixelsToHugs,
-} from "../../constants/hug-system";
+import { HUG_HEIGHT, MIN_HUGS, pixelsToHugs } from "../../constants/hug-system";
 import type { ComponentState, TextAttributes } from "../../store/types";
 import { useEditStore } from "../../store/use-edit-store";
 
-// Calculate required height in hugs based on content
-function calculateHugsForContent(content: string, fontSize: string): number {
+function calculateHugsFromElement(
+	element: HTMLElement | null,
+	content: string,
+): number {
 	if (!content) return MIN_HUGS;
 
-	// Estimate line height based on font size
-	const fontSizeMap = {
-		xs: 12,
-		sm: 14,
-		base: 16,
-		lg: 18,
-		xl: 20,
-		"2xl": 24,
-		"3xl": 30,
-	};
+	if (!element) {
+		const lines = content.split("\n").length;
+		const estimatedHeight = Math.max(48, lines * 24 + 48); // Rough estimate
+		return pixelsToHugs(estimatedHeight);
+	}
 
-	const baseFontSize = fontSizeMap[fontSize as keyof typeof fontSizeMap] || 16;
-	const lineHeight = Math.ceil(baseFontSize * 1.5); // Typical line height
+	const actualHeight = element.offsetHeight;
+	const hugs = pixelsToHugs(actualHeight);
 
-	// Count lines (including wrapped lines - rough estimation)
-	const lines = content.split("\n");
-	const estimatedLines = lines.reduce((total, line) => {
-		// Rough estimation: assume ~50 characters per line for wrapping
-		const wrappedLines = Math.max(1, Math.ceil(line.length / 50));
-		return total + wrappedLines;
-	}, 0);
-
-	// Calculate required pixel height
-	const requiredHeight = estimatedLines * lineHeight + 24; // Add padding
-
-	// Convert to hugs (round up)
-	return pixelsToHugs(requiredHeight);
+	return hugs;
 }
 
 interface TextComponentProps {
@@ -67,13 +42,45 @@ export const TextComponent = React.memo(function TextComponent({
 	const [isEditing, setIsEditing] = useState(false);
 	const [editValue, setEditValue] = useState(attributes.content || "");
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const componentRef = useRef<HTMLDivElement>(null);
 
-	// Calculate required height in hugs
-	const requiredHugs = calculateHugsForContent(
-		attributes.content || "",
-		attributes.fontSize,
-	);
-	const componentHeight = hugsToPixels(requiredHugs);
+	// Calculate required height in hugs using actual DOM measurement
+	const [requiredHugs, setRequiredHugs] = useState(component.size.height);
+
+	// Measure actual component height after render
+	React.useEffect(() => {
+		if (componentRef.current && attributes.content) {
+			const measuredHugs = calculateHugsFromElement(
+				componentRef.current,
+				attributes.content,
+			);
+			if (measuredHugs !== requiredHugs) {
+				setRequiredHugs(measuredHugs);
+			}
+		}
+	}, [attributes.content, requiredHugs]);
+
+	// Auto-fix height mismatch when measured height differs from stored height
+	React.useEffect(() => {
+		if (
+			component.size.height !== requiredHugs &&
+			attributes.content &&
+			requiredHugs !== component.size.height
+		) {
+			updateComponent(component.id, {
+				size: {
+					...component.size,
+					height: requiredHugs,
+				},
+			});
+		}
+	}, [
+		component.id,
+		component.size,
+		requiredHugs,
+		attributes.content,
+		updateComponent,
+	]);
 
 	// Apply component styles
 	const componentStyles = {
@@ -100,21 +107,17 @@ export const TextComponent = React.memo(function TextComponent({
 
 	// Handle save changes
 	const handleSave = useCallback(() => {
-		// Calculate new height in hugs based on content
-		const newHugs = calculateHugsForContent(editValue, attributes.fontSize);
-
+		// First update the content
 		updateComponent(component.id, {
 			attributes: {
 				...attributes,
 				content: editValue,
 			},
-			size: {
-				...component.size,
-				height: newHugs, // Update height to match content
-			},
 		});
 		setIsEditing(false);
-	}, [component.id, component.size, attributes, editValue, updateComponent]);
+
+		// Height will be measured and updated automatically by the useEffect after render
+	}, [component.id, attributes, editValue, updateComponent]);
 
 	// Handle cancel editing
 	const handleCancel = useCallback(() => {
@@ -165,8 +168,6 @@ export const TextComponent = React.memo(function TextComponent({
 						"w-full min-h-[2rem] resize-none border-0 p-0",
 						"focus:ring-0 focus:outline-none",
 						"bg-transparent",
-						`text-${attributes.fontSize}`,
-						`font-${attributes.fontWeight}`,
 						`text-${attributes.textAlign}`,
 					)}
 					style={{ color: attributes.color }}
@@ -184,6 +185,7 @@ export const TextComponent = React.memo(function TextComponent({
 	// Render display mode
 	return (
 		<div
+			ref={componentRef}
 			className={cn(
 				"w-full",
 				"flex items-center justify-start",
@@ -198,10 +200,10 @@ export const TextComponent = React.memo(function TextComponent({
 			)}
 			style={{
 				...componentStyles,
-				height: `${componentHeight}px`, // Fixed height based on hugs
 				minHeight: `${HUG_HEIGHT}px`, // Minimum 1 hug
 			}}
 			onDoubleClick={handleDoubleClick}
+			// biome-ignore lint/a11y/useSemanticElements: <explanation>
 			role="textbox"
 			aria-label={`Text component: ${attributes.content || "Empty text"}`}
 			aria-readonly={!isSelected}
@@ -210,8 +212,6 @@ export const TextComponent = React.memo(function TextComponent({
 			<div
 				className={cn(
 					"w-full prose prose-sm max-w-none",
-					`text-${attributes.fontSize}`,
-					`font-${attributes.fontWeight}`,
 					`text-${attributes.textAlign}`,
 					// Handle text overflow
 					"overflow-hidden",
@@ -222,16 +222,56 @@ export const TextComponent = React.memo(function TextComponent({
 				{attributes.content ? (
 					<ReactMarkdown
 						components={{
-							// Override paragraph to remove margins
-							p: ({ children }) => <span>{children}</span>,
-							// Keep other inline elements
-							strong: ({ children }) => <strong>{children}</strong>,
-							em: ({ children }) => <em>{children}</em>,
+							// Allow natural paragraph styling with reduced margins
+							p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+							// Headings with proper hierarchy
+							h1: ({ children }) => (
+								<h1 className="text-2xl font-bold mb-2">{children}</h1>
+							),
+							h2: ({ children }) => (
+								<h2 className="text-xl font-semibold mb-2">{children}</h2>
+							),
+							h3: ({ children }) => (
+								<h3 className="text-lg font-medium mb-1">{children}</h3>
+							),
+							h4: ({ children }) => (
+								<h4 className="text-base font-medium mb-1">{children}</h4>
+							),
+							h5: ({ children }) => (
+								<h5 className="text-sm font-medium mb-1">{children}</h5>
+							),
+							h6: ({ children }) => (
+								<h6 className="text-xs font-medium mb-1">{children}</h6>
+							),
+							// Lists with proper spacing
+							ul: ({ children }) => (
+								<ul className="list-disc list-inside mb-2 space-y-1">
+									{children}
+								</ul>
+							),
+							ol: ({ children }) => (
+								<ol className="list-decimal list-inside mb-2 space-y-1">
+									{children}
+								</ol>
+							),
+							li: ({ children }) => <li>{children}</li>,
+							// Inline elements
+							strong: ({ children }) => (
+								<strong className="font-semibold">{children}</strong>
+							),
+							em: ({ children }) => <em className="italic">{children}</em>,
 							code: ({ children }) => (
-								<code className="bg-gray-100 px-1 py-0.5 rounded text-sm">
+								<code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">
 									{children}
 								</code>
 							),
+							// Code blocks
+							pre: ({ children }) => (
+								<pre className="bg-gray-100 p-2 rounded text-sm font-mono overflow-x-auto mb-2">
+									{children}
+								</pre>
+							),
+							// Links
 							a: ({ href, children }) => (
 								<a
 									href={href}
@@ -241,6 +281,12 @@ export const TextComponent = React.memo(function TextComponent({
 								>
 									{children}
 								</a>
+							),
+							// Blockquotes
+							blockquote: ({ children }) => (
+								<blockquote className="border-l-4 border-gray-300 pl-4 italic mb-2">
+									{children}
+								</blockquote>
 							),
 						}}
 					>

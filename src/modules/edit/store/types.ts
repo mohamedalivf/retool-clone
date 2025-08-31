@@ -52,12 +52,10 @@ export interface Size {
 
 /**
  * Text component specific attributes
- * Supports markdown content with customizable typography
+ * Supports markdown content with natural markdown styling
  */
 export interface TextAttributes {
 	content: string; // Markdown content
-	fontSize: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
-	fontWeight: "normal" | "medium" | "semibold" | "bold";
 	textAlign: "left" | "center" | "right" | "justify";
 	color: string; // Hex color or CSS color value
 }
@@ -329,7 +327,7 @@ export interface EditStore {
 export function isTextAttributes(
 	attributes: ComponentAttributes,
 ): attributes is TextAttributes {
-	return "content" in attributes && "fontSize" in attributes;
+	return "content" in attributes && "textAlign" in attributes;
 }
 
 /**
@@ -346,8 +344,6 @@ export function isImageAttributes(
  */
 export const DEFAULT_TEXT_ATTRIBUTES: TextAttributes = {
 	content: "Click to edit text",
-	fontSize: "base",
-	fontWeight: "normal",
 	textAlign: "left",
 	color: "#000000",
 };

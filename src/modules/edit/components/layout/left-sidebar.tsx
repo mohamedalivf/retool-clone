@@ -54,7 +54,7 @@ export function LeftSidebar({ isOpen, width }: LeftSidebarProps) {
 		<Sheet open={isOpen} onOpenChange={toggleLeftSidebar}>
 			<SheetContent
 				side="left"
-				className={cn("w-80 p-0 border-r")}
+				className={cn(" p-0 border-r  min-w-90")}
 				style={{ width }}
 			>
 				<div className="flex flex-col h-full">
@@ -81,7 +81,7 @@ export function LeftSidebar({ isOpen, width }: LeftSidebarProps) {
 											key={component.type}
 											variant="outline"
 											className={cn(
-												"h-auto p-4 flex flex-col items-start gap-3",
+												"h-auto p-4 w-full flex flex-col items-start gap-3",
 												"hover:bg-accent hover:text-accent-foreground",
 												"border-2 border-dashed border-border",
 												"transition-all duration-200",
@@ -111,24 +111,6 @@ export function LeftSidebar({ isOpen, width }: LeftSidebarProps) {
 										</Button>
 									);
 								})}
-							</div>
-						</div>
-
-						{/* Future: More component categories */}
-						<div className="mt-8 space-y-3">
-							<h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-								Coming Soon
-							</h3>
-							<div className="grid gap-3">
-								<div className="h-16 border-2 border-dashed border-border rounded-lg flex items-center justify-center text-muted-foreground">
-									<span className="text-sm">Button Component</span>
-								</div>
-								<div className="h-16 border-2 border-dashed border-border rounded-lg flex items-center justify-center text-muted-foreground">
-									<span className="text-sm">Input Component</span>
-								</div>
-								<div className="h-16 border-2 border-dashed border-border rounded-lg flex items-center justify-center text-muted-foreground">
-									<span className="text-sm">Card Component</span>
-								</div>
 							</div>
 						</div>
 					</div>

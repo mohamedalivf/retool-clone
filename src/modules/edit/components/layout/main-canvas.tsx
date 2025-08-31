@@ -266,23 +266,31 @@ export function MainCanvas() {
 			const columnWidth = canvasRect.width / GRID_COLS; // Each column width in pixels
 			const hugSize = HUG_HEIGHT; // HUG_HEIGHT px per hug
 
-			// Snap to columns (0 or 1)
-			const snapX = mouseX < columnWidth ? 0 : 1;
+			// Snap to columns - for full-width components, always use x=0
+			let snapX: number;
+			if (draggedComponent.size.width === "full") {
+				snapX = 0; // Full-width components always use x=0
+			} else {
+				snapX = mouseX < columnWidth ? 0 : 1; // Half-width can be 0 or 1
+			}
 
 			// Snap to hug boundaries (every HUG_HEIGHT px)
 			const snapY = Math.max(0, Math.round(mouseY / hugSize));
 
 			const snapPosition = { x: snapX, y: snapY };
 
-			// Validate the position and update drag state for visual feedback
+			// Check if current position is valid
 			const isValidDrop = validateDropPosition(draggedComponent, snapPosition);
+
+			// Show only the current drop position for both full-width and half-width components
+			const dropZonesToShow: Position[] = isValidDrop ? [snapPosition] : [];
 
 			useEditStore.setState((state) => ({
 				...state,
 				drag: {
 					...state.drag,
 					isValidDrop,
-					dropZones: isValidDrop ? [snapPosition] : [],
+					dropZones: dropZonesToShow,
 				},
 			}));
 		},
@@ -323,8 +331,13 @@ export function MainCanvas() {
 			const columnWidth = canvasRect.width / GRID_COLS; // Each column width in pixels
 			const hugSize = HUG_HEIGHT; // HUG_HEIGHT px per hug
 
-			// Snap to columns (0 or 1)
-			const snapX = mouseX < columnWidth ? 0 : 1;
+			// Snap to columns - for full-width components, always use x=0
+			let snapX: number;
+			if (draggedComponent.size.width === "full") {
+				snapX = 0; // Full-width components always use x=0
+			} else {
+				snapX = mouseX < columnWidth ? 0 : 1; // Half-width can be 0 or 1
+			}
 
 			// Snap to hug boundaries (every HUG_HEIGHT px)
 			const snapY = Math.max(0, Math.round(mouseY / hugSize));
@@ -582,7 +595,7 @@ function SectorBorders({ isDragging, isResizing }: SectorBordersProps) {
 		return null;
 	}
 
-	// Find the dragged component for preview
+	// Find the dragged component for preview - always get fresh data from store
 	const draggedComponent = draggedComponentId
 		? components.find((c) => c.id === draggedComponentId)
 		: null;
@@ -634,6 +647,7 @@ function SectorBorders({ isDragging, isResizing }: SectorBordersProps) {
 							className={cn(
 								"absolute transition-all duration-200",
 								"border-2 border-solid border-blue-500",
+								"bg-blue-50/20", // Light blue background to hide grid lines
 								"pointer-events-none",
 							)}
 							style={{

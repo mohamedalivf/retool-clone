@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
+import { hugsToPixels } from "../../constants/hug-system";
 import type { ComponentState, GridConfiguration } from "../../store/types";
 import {
 	useEditStore,
@@ -25,7 +26,6 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 		(state) => state.drag.draggedComponentId,
 	);
 
-	// @dnd-kit draggable functionality
 	const {
 		attributes,
 		listeners,
@@ -40,12 +40,10 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 		},
 	});
 
-	// Apply drag transform
 	const style = {
 		transform: CSS.Translate.toString(transform),
 	};
 
-	// Check if this component is being dragged
 	const isBeingDragged =
 		isCurrentlyDragging || draggedComponentId === component.id;
 
@@ -95,35 +93,26 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 		<div
 			ref={setNodeRef}
 			className={cn(
-				// Enhanced container with better interaction states
 				"relative cursor-pointer transition-all duration-300 ease-in-out",
-				"group", // Enable group hover states
-				// Drag states - enhanced visual feedback
+				"group",
 				isBeingDragged && [
 					"opacity-50", // Fade out while dragging
 					"z-50", // Bring dragged component to top
-					// "rotate-2", // Slight rotation for drag feedback
-					// "scale-105", // Slightly larger while dragging
 				],
-				// Enhanced hover states (only when not dragging)
 				!isBeingDragged && [
 					"hover:ring-1 hover:ring-ring/30 hover:ring-offset-1",
 					"hover:shadow-sm hover:z-[5]",
 				],
-				// Selection states - enhanced visual feedback
 				isSelected &&
 					!isBeingDragged && [
 						"ring-2 ring-primary/60 ring-offset-1 ring-offset-background",
 						"shadow-md",
 						"z-10", // Bring selected component above others
 					],
-				// Component type specific styling
-				component.type === "text" && "min-h-[60px]",
-				component.type === "image" && "min-h-[120px]",
-				// Enhanced interactive states
+				component.type === "text" && `min-h-[${hugsToPixels(1)}px]`,
+				component.type === "image" && `min-h-[${hugsToPixels(4)}px]`,
 				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 				"focus-visible:ring-offset-2",
-				// Normal cursor - drag will be handled by drag handle
 				"cursor-pointer",
 			)}
 			style={{
@@ -136,7 +125,6 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 			aria-label={`${component.type} component - click to select, use drag handle to move`}
 			{...attributes}
 		>
-			{/* Enhanced Selection Indicator using shadcn/ui Badge */}
 			{isSelected && (
 				<Badge
 					variant="default"
@@ -152,32 +140,11 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 				</Badge>
 			)}
 
-			{/* Component Content - Direct rendering without wrapper */}
 			<div className="w-full h-full">
 				{component.type === "text" && <TextComponent component={component} />}
 				{component.type === "image" && <ImageComponent component={component} />}
 			</div>
 
-			{/* Enhanced Component Type Indicator Badge */}
-			<Badge
-				variant="outline"
-				className={cn(
-					"absolute bottom-1 right-1 z-10",
-					"bg-background/80 text-muted-foreground",
-					"border-border/50 text-xs",
-					// Enhanced visibility states
-					"opacity-0 group-hover:opacity-75 transition-opacity duration-200",
-					isSelected && "opacity-100",
-					// Hide on mobile to save space
-					"hidden sm:inline-flex",
-					// Hide during drag
-					isBeingDragged && "opacity-0",
-				)}
-			>
-				{component.type}
-			</Badge>
-
-			{/* Drag Handle - Exclusive drag trigger, always available */}
 			<div
 				className={cn(
 					"absolute top-1 right-1 z-20",
@@ -202,7 +169,6 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 
 			{isSelected && !isBeingDragged && (
 				<>
-					{/* Right edge handle - horizontal resize */}
 					<div
 						className={cn(
 							"absolute top-0 right-0 w-1 h-full z-20",
@@ -215,7 +181,6 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 						onMouseDown={handleResizeStart("horizontal")}
 					/>
 
-					{/* Bottom edge handle - vertical resize */}
 					<div
 						className={cn(
 							"absolute bottom-0 left-0 w-full h-1 z-20",
@@ -228,7 +193,6 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 						onMouseDown={handleResizeStart("vertical")}
 					/>
 
-					{/* Bottom-right corner handle - both directions */}
 					<div
 						className={cn(
 							"absolute bottom-0 right-0 w-3 h-3 z-30",
