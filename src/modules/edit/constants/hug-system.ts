@@ -6,7 +6,7 @@
  */
 
 // Core hug system constant - change this value to adjust the entire system
-export const HUG_HEIGHT = 64; // 1 hug = 32px
+export const HUG_HEIGHT = 48; // 1 hug = 48px
 
 // Derived constants
 export const MIN_HUGS = 1; // Minimum component height in hugs

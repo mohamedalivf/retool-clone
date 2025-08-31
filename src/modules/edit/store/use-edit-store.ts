@@ -16,6 +16,10 @@ import type {
 	SidebarState,
 } from "./types";
 
+import {
+	calculateImageHeightInHugs,
+	createDefaultSize,
+} from "../utils/component-factory";
 import { DEFAULT_GRID_CONFIG } from "./types";
 
 import {
@@ -25,6 +29,47 @@ import {
 } from "../utils/component-factory";
 
 import { findNextAvailablePosition } from "../utils/grid-calculations";
+
+// ============================================================================
+// MIGRATION UTILITIES
+// ============================================================================
+
+/**
+ * Fix existing image component heights to match their actual rendered heights
+ */
+export function fixImageComponentHeights(
+	components: ComponentState[],
+	canvasWidth?: number,
+): ComponentState[] {
+	return components.map((component) => {
+		if (component.type === "image") {
+			// Get the aspect ratio from attributes
+			const aspectRatio =
+				(component.attributes as { aspectRatio?: string }).aspectRatio ||
+				"16:9";
+
+			// Calculate correct height based on aspect ratio and width
+			const correctHeight = calculateImageHeightInHugs(
+				aspectRatio,
+				component.size.width,
+				canvasWidth,
+			);
+
+			// Only update if height is different (avoid unnecessary updates)
+			if (component.size.height !== correctHeight) {
+				return {
+					...component,
+					size: {
+						...component.size,
+						height: correctHeight,
+					},
+					updatedAt: Date.now(),
+				};
+			}
+		}
+		return component;
+	});
+}
 
 // ============================================================================
 // INITIAL STATE
@@ -114,6 +159,9 @@ interface EditStoreActions {
 	// Utility actions
 	getComponentById: (id: string) => ComponentState | undefined;
 	exportComponents: () => ComponentState[];
+
+	// Migration actions
+	fixExistingComponentHeights: () => void;
 }
 
 type EditStoreType = EditStoreState & EditStoreActions;
@@ -141,13 +189,12 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 	addComponent: (type: ComponentType, position?: Position) => {
 		const state = get();
 
+		// Calculate the correct size for positioning
+		const componentSize = createDefaultSize(type);
+
 		const targetPosition =
 			position ||
-			findNextAvailablePosition(
-				{ width: "half", height: type === "text" ? 1 : 2 },
-				state.components,
-				state.grid,
-			);
+			findNextAvailablePosition(componentSize, state.components, state.grid);
 
 		if (!targetPosition) {
 			console.warn("No available position for new component");
@@ -418,6 +465,14 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 
 	exportComponents: () => {
 		return get().components;
+	},
+
+	// Migration actions
+	fixExistingComponentHeights: () => {
+		set((state) => ({
+			...state,
+			components: fixImageComponentHeights(state.components),
+		}));
 	},
 }));
 

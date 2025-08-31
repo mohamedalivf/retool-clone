@@ -33,6 +33,7 @@ export function generateComponentId(): string {
 export function calculateImageHeightInHugs(
 	aspectRatio: string,
 	width: "half" | "full",
+	actualCanvasWidth?: number,
 ): number {
 	// Get aspect ratio value
 	let ratio: number;
@@ -59,14 +60,21 @@ export function calculateImageHeightInHugs(
 			ratio = 16 / 9; // Default to 16:9
 	}
 
-	// Assume canvas width is ~800px, so half = ~400px, full = ~800px
-	const assumedCanvasWidth = 800;
-	const componentWidth =
-		width === "half" ? assumedCanvasWidth / 2 : assumedCanvasWidth;
+	// Use actual canvas width if provided, otherwise fall back to assumption
+	const canvasWidth = actualCanvasWidth || 800;
+	const componentWidth = width === "half" ? canvasWidth / 2 : canvasWidth;
 	const componentHeight = componentWidth / ratio;
 
 	// Convert to hugs and round to nearest hug
 	const heightInHugs = Math.max(1, Math.round(componentHeight / HUG_HEIGHT));
+
+	// Debug: Log the calculation
+	console.log(`🧮 Image height calculation:
+		aspectRatio: ${aspectRatio} (ratio: ${ratio})
+		width: ${width} (${componentWidth}px from canvas ${canvasWidth}px)
+		componentHeight: ${componentHeight}px
+		HUG_HEIGHT: ${HUG_HEIGHT}px
+		heightInHugs: ${heightInHugs}`);
 
 	return heightInHugs;
 }

@@ -23,12 +23,11 @@ import {
 	HUG_HEIGHT,
 	MAX_GRID_ROWS,
 } from "../../constants/hug-system";
-import type {
-	ComponentState,
-	GridConfiguration,
-	Position,
-} from "../../store/types";
-import { useEditStore } from "../../store/use-edit-store";
+import type { ComponentState, Position } from "../../store/types";
+import {
+	fixImageComponentHeights,
+	useEditStore,
+} from "../../store/use-edit-store";
 import { checkCollision } from "../../utils/grid-calculations";
 import { ComponentRenderer } from "../editable/component-renderer";
 import { GridOverlay } from "../grid/grid-overlay";
@@ -47,6 +46,9 @@ export function MainCanvas() {
 	const toggleComponentWidth = useEditStore(
 		(state) => state.toggleComponentWidth,
 	);
+	const fixExistingComponentHeights = useEditStore(
+		(state) => state.fixExistingComponentHeights,
+	);
 	const rightSidebarOpen = useEditStore(
 		(state) => state.sidebars.rightSidebar.isOpen,
 	);
@@ -57,6 +59,35 @@ export function MainCanvas() {
 	const endResize = useEditStore((state) => state.endResize);
 
 	const canvasRef = useRef<HTMLDivElement>(null);
+
+	// Fix existing component heights on mount and whenever components change
+	useEffect(() => {
+		const canvasWidth = canvasRef.current?.getBoundingClientRect().width;
+		if (canvasWidth) {
+			// Pass actual canvas width for accurate calculations
+			useEditStore.setState((state) => ({
+				...state,
+				components: fixImageComponentHeights(state.components, canvasWidth),
+			}));
+		} else {
+			fixExistingComponentHeights();
+		}
+	}, [fixExistingComponentHeights]);
+
+	// Also fix heights whenever components array changes (more aggressive)
+	useEffect(() => {
+		if (components.length > 0) {
+			const canvasWidth = canvasRef.current?.getBoundingClientRect().width;
+			if (canvasWidth) {
+				useEditStore.setState((state) => ({
+					...state,
+					components: fixImageComponentHeights(state.components, canvasWidth),
+				}));
+			} else {
+				fixExistingComponentHeights();
+			}
+		}
+	}, [components.length, fixExistingComponentHeights]);
 	const hasComponents = components.length > 0;
 
 	// @dnd-kit sensors for drag and drop
@@ -79,13 +110,21 @@ export function MainCanvas() {
 	// Validate drop position based on component size and grid constraints
 	const validateDropPosition = useCallback(
 		(component: ComponentState, newPosition: Position): boolean => {
+			// Ensure all components have correct heights before collision detection
+			fixExistingComponentHeights();
+
+			// Get the updated component with correct height from the store
+			const updatedComponents = useEditStore.getState().components;
+			const updatedComponent =
+				updatedComponents.find((c) => c.id === component.id) || component;
+
 			// Boundary checks
 			if (newPosition.x < 0 || newPosition.y < 0) {
 				return false;
 			}
 
 			// Size-specific constraints
-			if (component.size.width === "full") {
+			if (updatedComponent.size.width === "full") {
 				// Full-width components can only be at x=0 and move up/down
 				if (newPosition.x !== 0) {
 					return false;
@@ -97,11 +136,20 @@ export function MainCanvas() {
 				}
 			}
 
-			// Check collision with other components
-			const otherComponents = components.filter((c) => c.id !== component.id);
-			return !checkCollision(newPosition, component.size, otherComponents);
+			// Check collision with other components (excluding the dragged component)
+			const otherComponents = updatedComponents.filter(
+				(c) => c.id !== updatedComponent.id,
+			);
+
+			const hasCollision = checkCollision(
+				newPosition,
+				updatedComponent.size,
+				otherComponents,
+			);
+
+			return !hasCollision;
 		},
-		[components],
+		[components, fixExistingComponentHeights],
 	);
 
 	// Handle background click to deselect
@@ -456,9 +504,9 @@ export function MainCanvas() {
 					)}
 
 					<SectorBorders
-						grid={grid}
 						isDragging={useEditStore((state) => state.drag.isDragging)}
 						isResizing={isResizing}
+						canvasRef={canvasRef}
 					/>
 
 					{/* Empty State */}
@@ -499,9 +547,9 @@ export function MainCanvas() {
 
 					{/* Visual feedback during drag and resize operations */}
 					<SectorBorders
-						grid={grid}
 						isDragging={useEditStore((state) => state.drag.isDragging)}
 						isResizing={isResizing}
+						canvasRef={canvasRef}
 					/>
 				</div>
 
@@ -515,73 +563,17 @@ export function MainCanvas() {
 	);
 }
 
-// Drop Zone Indicators Component
-interface DropZoneIndicatorsProps {
-	grid: GridConfiguration;
-	isDragging: boolean;
-	dropZones: Position[];
-	isValidDrop: boolean;
-}
-
-function DropZoneIndicators({
-	grid,
-	isDragging,
-	dropZones,
-	isValidDrop,
-}: DropZoneIndicatorsProps) {
-	const draggedComponentId = useEditStore(
-		(state) => state.drag.draggedComponentId,
-	);
-	const components = useEditStore((state) => state.components);
-
-	if (!isDragging || dropZones.length === 0 || !draggedComponentId) {
-		return null;
-	}
-
-	// Find the dragged component to get its size
-	const draggedComponent = components.find((c) => c.id === draggedComponentId);
-	if (!draggedComponent) {
-		return null;
-	}
-
-	return (
-		<div className="absolute inset-0 pointer-events-none z-30">
-			{dropZones.map((zone, index) => {
-				// Calculate component dimensions
-				const componentWidth =
-					draggedComponent.size.width === "full" ? 100 : 50; // % of canvas width
-				const componentHeight = draggedComponent.size.height * HUG_HEIGHT; // Height in pixels
-
-				return (
-					<div
-						key={`drop-zone-${zone.x}-${zone.y}-${index}`}
-						className={cn(
-							"absolute transition-all duration-200",
-							"border-2 border-solid", // Make sure border is solid and visible
-							isValidDrop
-								? "border-dashed border-blue-500"
-								: "bg-red-200/60 border-red-500",
-						)}
-						style={{
-							left: `${(zone.x / GRID_COLS) * 100}%`,
-							top: `${zone.y * HUG_HEIGHT}px`,
-							width: `${componentWidth}%`,
-							height: `${componentHeight}px`,
-						}}
-					/>
-				);
-			})}
-		</div>
-	);
-}
-
 interface SectorBordersProps {
-	grid: GridConfiguration;
 	isDragging: boolean;
 	isResizing: boolean;
+	canvasRef: React.RefObject<HTMLDivElement | null>;
 }
 
-function SectorBorders({ grid, isDragging, isResizing }: SectorBordersProps) {
+function SectorBorders({
+	isDragging,
+	isResizing,
+	canvasRef,
+}: SectorBordersProps) {
 	const draggedComponentId = useEditStore(
 		(state) => state.drag.draggedComponentId,
 	);
@@ -592,7 +584,6 @@ function SectorBorders({ grid, isDragging, isResizing }: SectorBordersProps) {
 	const isValidResize = useEditStore((state) => state.resize.isValidResize);
 	const components = useEditStore((state) => state.components);
 	const dropZones = useEditStore((state) => state.drag.dropZones);
-	const isValidDrop = useEditStore((state) => state.drag.isValidDrop);
 
 	if (!isDragging && !isResizing) {
 		return null;
@@ -623,7 +614,7 @@ function SectorBorders({ grid, isDragging, isResizing }: SectorBordersProps) {
 			{/* Horizontal hug lines - show every HUG_HEIGHT px */}
 			{Array.from({ length: MAX_GRID_ROWS }, (_, i) => (
 				<div
-					key={`hug-line-${i}`}
+					key={`hug-line-row-${i + 1}`}
 					className="absolute border-b border-dashed border-primary/30"
 					style={{
 						left: 0,
@@ -639,7 +630,52 @@ function SectorBorders({ grid, isDragging, isResizing }: SectorBordersProps) {
 				dropZones.map((zone, index) => {
 					const componentWidth =
 						draggedComponent.size.width === "full" ? 100 : 50;
-					const componentHeight = draggedComponent.size.height * HUG_HEIGHT;
+
+					// Calculate actual rendered height based on component type
+					let componentHeight: number;
+					if (draggedComponent.type === "image") {
+						// For images, calculate height based on aspect ratio and width
+						const canvasRect = canvasRef.current?.getBoundingClientRect();
+						if (canvasRect) {
+							const actualWidth = (canvasRect.width * componentWidth) / 100;
+							const aspectRatio =
+								(draggedComponent.attributes as { aspectRatio?: string })
+									.aspectRatio || "16:9";
+
+							// Get aspect ratio value
+							let ratio: number;
+							switch (aspectRatio) {
+								case "1:1":
+									ratio = 1;
+									break;
+								case "16:9":
+									ratio = 16 / 9;
+									break;
+								case "4:3":
+									ratio = 4 / 3;
+									break;
+								case "3:2":
+									ratio = 3 / 2;
+									break;
+								case "21:9":
+									ratio = 21 / 9;
+									break;
+								case "2:1":
+									ratio = 2 / 1;
+									break;
+								default:
+									ratio = 16 / 9;
+							}
+
+							componentHeight = actualWidth / ratio;
+						} else {
+							// Fallback to hug-based height
+							componentHeight = draggedComponent.size.height * HUG_HEIGHT;
+						}
+					} else {
+						// For text components, use hug-based height
+						componentHeight = draggedComponent.size.height * HUG_HEIGHT;
+					}
 
 					return (
 						<div
