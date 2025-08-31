@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
-import { Header } from "./components/layout/header";
-import { LeftSidebar } from "./components/layout/left-sidebar";
-import { MainCanvas } from "./components/layout/main-canvas";
-import { RightSidebar } from "./components/layout/right-sidebar";
+import { HeaderFeature } from "./features/header/header-feature";
+import { LeftSidebarFeature } from "./features/left-sidebar/left-sidebar-feature";
+import { MainCanvasFeature } from "./features/main-canvas/main-canvas-feature";
+import { RightSidebarFeature } from "./features/right-sidebar/right-sidebar-feature";
 import { useEditStore } from "./store/use-edit-store";
 
 interface AppLayoutProps {
@@ -29,10 +29,10 @@ export function EditScreen({ children }: AppLayoutProps) {
 
 	return (
 		<div className="h-screen flex flex-col bg-background">
-			<Header />
+			<HeaderFeature />
 
 			<div className={cn("flex-1 flex overflow-hidden", "relative")}>
-				<LeftSidebar isOpen={leftSidebarOpen} width={leftSidebarWidth} />
+				<LeftSidebarFeature isOpen={leftSidebarOpen} width={leftSidebarWidth} />
 
 				{/* Main Canvas - Enhanced responsive design */}
 				<main
@@ -49,12 +49,12 @@ export function EditScreen({ children }: AppLayoutProps) {
 						"relative z-10",
 					)}
 				>
-					<MainCanvas />
+					<MainCanvasFeature />
 					{children}
 				</main>
 
 				{/* Right Sidebar - Responsive behavior */}
-				<RightSidebar
+				<RightSidebarFeature
 					isOpen={rightSidebarOpen}
 					width={rightSidebarWidth}
 					activeTab={rightSidebarActiveTab}

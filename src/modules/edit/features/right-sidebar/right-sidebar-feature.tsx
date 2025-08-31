@@ -13,21 +13,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Database, Palette, Settings, X } from "lucide-react";
 import { useEditStore, useSelectedComponent } from "../../store/use-edit-store";
-import { DataPanel } from "../sidebars/data-panel";
-import { PropertiesPanel } from "../sidebars/properties-panel";
-import { StylesPanel } from "../sidebars/styles-panel";
+import { DataPanel } from "./components/data-panel";
+import { PropertiesPanel } from "./components/properties-panel";
+import { StylesPanel } from "./components/styles-panel";
 
-interface RightSidebarProps {
+interface RightSidebarFeatureProps {
 	isOpen: boolean;
 	width: number;
 	activeTab?: "properties" | "styles" | "data";
 }
 
-export function RightSidebar({
+export function RightSidebarFeature({
 	isOpen,
 	width,
 	activeTab = "properties",
-}: RightSidebarProps) {
+}: RightSidebarFeatureProps) {
 	const selectedComponent = useSelectedComponent();
 	// Use specific selectors to prevent unnecessary re-renders
 	const toggleRightSidebar = useEditStore((state) => state.toggleRightSidebar);

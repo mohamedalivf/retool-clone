@@ -18,9 +18,9 @@ import type {
 	ComponentState,
 	ImageAttributes,
 	TextAttributes,
-} from "../../store/types";
-import { isImageAttributes, isTextAttributes } from "../../store/types";
-import { useEditStore } from "../../store/use-edit-store";
+} from "../../../store/types";
+import { isImageAttributes, isTextAttributes } from "../../../store/types";
+import { useEditStore } from "../../../store/use-edit-store";
 
 interface PropertiesPanelProps {
 	component: ComponentState;

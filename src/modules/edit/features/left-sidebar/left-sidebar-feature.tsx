@@ -14,12 +14,12 @@ import { Image, Plus, Type } from "lucide-react";
 import type { ComponentType } from "../../store/types";
 import { useEditStore } from "../../store/use-edit-store";
 
-interface LeftSidebarProps {
+interface LeftSidebarFeatureProps {
 	isOpen: boolean;
 	width: number;
 }
 
-export function LeftSidebar({ isOpen, width }: LeftSidebarProps) {
+export function LeftSidebarFeature({ isOpen, width }: LeftSidebarFeatureProps) {
 	// Use specific selectors to prevent unnecessary re-renders
 	const addComponent = useEditStore((state) => state.addComponent);
 	const toggleLeftSidebar = useEditStore((state) => state.toggleLeftSidebar);

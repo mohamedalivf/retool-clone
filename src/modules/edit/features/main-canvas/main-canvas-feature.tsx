@@ -29,11 +29,11 @@ import {
 	useEditStore,
 } from "../../store/use-edit-store";
 import { checkCollision } from "../../utils/grid-calculations";
-import { ComponentRenderer } from "../editable/component-renderer";
-import { GridOverlay } from "../grid/grid-overlay";
-import { EmptyState } from "./empty-state";
+import { ComponentRenderer } from "./components/editable/component-renderer";
+import { EmptyState } from "./components/empty-state";
+import { GridOverlay } from "./components/grid/grid-overlay";
 
-export function MainCanvas() {
+export function MainCanvasFeature() {
 	// Use specific selectors to prevent unnecessary re-renders
 	const components = useEditStore((state) => state.components);
 	const showGridLines = useEditStore((state) => state.settings.showGridLines);

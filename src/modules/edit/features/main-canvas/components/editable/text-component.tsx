@@ -1,10 +1,17 @@
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import {
+	HUG_HEIGHT,
+	MIN_HUGS,
+	pixelsToHugs,
+} from "@/modules/edit/constants/hug-system";
+import type {
+	ComponentState,
+	TextAttributes,
+} from "@/modules/edit/store/types";
+import { useEditStore } from "@/modules/edit/store/use-edit-store";
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { HUG_HEIGHT, MIN_HUGS, pixelsToHugs } from "../../constants/hug-system";
-import type { ComponentState, TextAttributes } from "../../store/types";
-import { useEditStore } from "../../store/use-edit-store";
 
 function calculateHugsFromElement(
 	element: HTMLElement | null,

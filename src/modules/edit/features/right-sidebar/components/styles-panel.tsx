@@ -12,8 +12,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import type { ComponentState, ComponentStyles } from "../../store/types";
-import { useEditStore } from "../../store/use-edit-store";
+import { useEditStore } from "@/modules/edit/store/use-edit-store";
+import type { ComponentState, ComponentStyles } from "../../../store/types";
 
 interface StylesPanelProps {
 	component: ComponentState;

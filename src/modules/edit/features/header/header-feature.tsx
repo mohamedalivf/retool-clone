@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useEditStore } from "../../store/use-edit-store";
 
-export function Header() {
+export function HeaderFeature() {
 	// Use specific selectors to prevent unnecessary re-renders
 	const leftSidebarOpen = useEditStore(
 		(state) => state.sidebars.leftSidebar.isOpen,

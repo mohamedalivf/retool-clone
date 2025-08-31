@@ -1,17 +1,17 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
-import { hugsToPixels } from "../../constants/hug-system";
-import type { ComponentState, GridConfiguration } from "../../store/types";
+import { hugsToPixels } from "@/modules/edit/constants/hug-system";
+import type { GridConfiguration } from "@/modules/edit/store/types";
+import type { ComponentState } from "@/modules/edit/store/types";
 import {
 	useEditStore,
 	useIsComponentSelected,
-} from "../../store/use-edit-store";
+} from "@/modules/edit/store/use-edit-store";
+import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
 import { ImageComponent } from "./image-component";
 import { TextComponent } from "./text-component";
-
 interface ComponentRendererProps {
 	component: ComponentState;
 	grid: GridConfiguration;

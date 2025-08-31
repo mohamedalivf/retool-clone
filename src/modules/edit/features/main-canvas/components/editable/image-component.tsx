@@ -5,11 +5,14 @@
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { HUG_HEIGHT } from "@/modules/edit/constants/hug-system";
+import type {
+	ComponentState,
+	ImageAttributes,
+} from "@/modules/edit/store/types";
+import { useEditStore } from "@/modules/edit/store/use-edit-store";
 import { AlertCircle, Image as ImageIcon, Loader2 } from "lucide-react";
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { HUG_HEIGHT } from "../../constants/hug-system";
-import type { ComponentState, ImageAttributes } from "../../store/types";
-import { useEditStore } from "../../store/use-edit-store";
 
 interface ImageComponentProps {
 	component: ComponentState;

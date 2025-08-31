@@ -3,8 +3,8 @@
  */
 
 import { Button } from "@/components/ui/button";
+import { useEditStore } from "@/modules/edit/store/use-edit-store";
 import { Image, LayoutGrid, Plus, Type } from "lucide-react";
-import { useEditStore } from "../../store/use-edit-store";
 
 export function EmptyState() {
 	// Use specific selectors to prevent unnecessary re-renders
