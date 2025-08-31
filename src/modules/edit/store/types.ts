@@ -223,6 +223,14 @@ export interface ResizeState {
 	resizedComponentId: string | null;
 	originalSize: Size | null;
 	newSize: Size | null;
+	resizeDirection: "horizontal" | "vertical" | "both" | null;
+	resizePreview?: {
+		x: number;
+		y: number;
+		width: number;
+		height: number;
+	};
+	isValidResize: boolean;
 }
 
 // ============================================================================

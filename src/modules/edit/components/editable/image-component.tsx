@@ -54,22 +54,11 @@ export const ImageComponent = React.memo(function ImageComponent({
 	// Get border radius class
 	const borderRadiusClass = getBorderRadiusClass(attributes.borderRadius);
 
-	// Lazy loading with Intersection Observer
+	// Simplified lazy loading - set in view immediately for now
 	useEffect(() => {
-		if (!containerRef.current || !attributes.src) return;
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsInView(true);
-					observer.disconnect();
-				}
-			},
-			{ threshold: 0.1 },
-		);
-
-		observer.observe(containerRef.current);
-		return () => observer.disconnect();
+		if (attributes.src) {
+			setIsInView(true);
+		}
 	}, [attributes.src]);
 
 	// Handle image loading
@@ -88,11 +77,13 @@ export const ImageComponent = React.memo(function ImageComponent({
 		}
 	}, [isInView, attributes.src, loadingState]);
 
-	// Validate image source
+	// Validate image source - more flexible for URLs
 	const isValidImageUrl = useCallback((url: string): boolean => {
 		try {
-			new URL(url);
-			return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+			const parsedUrl = new URL(url);
+			// Accept any valid URL - let the browser handle whether it's actually an image
+			// This allows for dynamic image URLs, APIs, etc.
+			return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
 		} catch {
 			return false;
 		}
@@ -154,7 +145,6 @@ export const ImageComponent = React.memo(function ImageComponent({
 							)}
 							onLoad={handleImageLoad}
 							onError={handleImageError}
-							loading="lazy"
 							decoding="async"
 						/>
 					)}

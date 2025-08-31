@@ -24,6 +24,10 @@ interface ComponentRendererProps {
 export function ComponentRenderer({ component }: ComponentRendererProps) {
 	// Use specific selectors to prevent unnecessary re-renders
 	const selectComponent = useEditStore((state) => state.selectComponent);
+	const startResize = useEditStore((state) => state.startResize);
+	const toggleComponentWidth = useEditStore(
+		(state) => state.toggleComponentWidth,
+	);
 	const isSelected = useIsComponentSelected(component.id);
 	const draggedComponentId = useEditStore(
 		(state) => state.drag.draggedComponentId,
@@ -73,6 +77,14 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 		}
 	};
 
+	const handleResizeStart =
+		(direction: "horizontal" | "vertical" | "both") =>
+		(e: React.MouseEvent) => {
+			e.stopPropagation();
+			e.preventDefault();
+			startResize(component.id, direction);
+		};
+
 	// Calculate grid position
 	const gridColumn =
 		component.size.width === "full"
@@ -92,7 +104,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 			ref={setNodeRef}
 			className={cn(
 				// Enhanced container with better interaction states
-				"relative cursor-pointer transition-all duration-200",
+				"relative cursor-pointer transition-all duration-300 ease-in-out",
 				"group", // Enable group hover states
 				// Drag states - enhanced visual feedback
 				isBeingDragged && [
@@ -201,21 +213,50 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 
 			{/* Selection Indicator Badge */}
 
-			{/* Resize Handle Indicator (for future resizing feature) */}
-			{isSelected && (
-				<div
-					className={cn(
-						"absolute bottom-0 right-0 w-3 h-3",
-						"bg-ring/60 rounded-tl-sm",
-						"cursor-se-resize",
-						"opacity-60 hover:opacity-100",
-						"transition-opacity duration-200",
-						// Visual indicator lines
-						"after:content-[''] after:absolute after:bottom-0.5 after:right-0.5",
-						"after:w-1 after:h-1 after:bg-background after:rounded-full",
-					)}
-					title="Resize component (coming soon)"
-				/>
+			{/* Resize Handles */}
+			{isSelected && !isBeingDragged && (
+				<>
+					{/* Right edge handle - horizontal resize */}
+					<div
+						className={cn(
+							"absolute top-0 right-0 w-1 h-full z-20",
+							"cursor-ew-resize",
+							"bg-primary/20 hover:bg-primary/40",
+							"transition-all duration-200",
+							"opacity-0 group-hover:opacity-60 hover:opacity-100",
+						)}
+						title="Resize width"
+						onMouseDown={handleResizeStart("horizontal")}
+					/>
+
+					{/* Bottom edge handle - vertical resize */}
+					<div
+						className={cn(
+							"absolute bottom-0 left-0 w-full h-1 z-20",
+							"cursor-ns-resize",
+							"bg-primary/20 hover:bg-primary/40",
+							"transition-all duration-200",
+							"opacity-0 group-hover:opacity-60 hover:opacity-100",
+						)}
+						title="Resize height"
+						onMouseDown={handleResizeStart("vertical")}
+					/>
+
+					{/* Bottom-right corner handle - both directions */}
+					<div
+						className={cn(
+							"absolute bottom-0 right-0 w-3 h-3 z-30",
+							"cursor-nw-resize",
+							"bg-primary/40 hover:bg-primary/60",
+							"transition-all duration-200",
+							"opacity-0 group-hover:opacity-80 hover:opacity-100",
+							"after:content-[''] after:absolute after:bottom-0.5 after:right-0.5",
+							"after:w-1 after:h-1 after:bg-background after:rounded-full",
+						)}
+						title="Resize both width and height"
+						onMouseDown={handleResizeStart("both")}
+					/>
+				</>
 			)}
 		</div>
 	);

@@ -60,6 +60,8 @@ const initialResizeState: ResizeState = {
 	resizedComponentId: null,
 	originalSize: null,
 	newSize: null,
+	resizeDirection: null,
+	isValidResize: false,
 };
 
 // ============================================================================
@@ -90,6 +92,16 @@ interface EditStoreActions {
 	// Selection actions
 	selectComponent: (id: string | null) => void;
 	clearSelection: () => void;
+
+	// Resize actions
+	startResize: (
+		componentId: string,
+		direction: "horizontal" | "vertical" | "both",
+	) => void;
+	updateResize: (newSize: { width: "half" | "full"; height: number }) => void;
+	endResize: () => void;
+	cancelResize: () => void;
+	toggleComponentWidth: (componentId: string) => void;
 
 	// Sidebar actions
 	toggleLeftSidebar: () => void;
@@ -251,6 +263,103 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 			...state,
 			selection: { ...state.selection, selectedComponentId: null },
 		}));
+	},
+
+	// Resize actions
+	startResize: (
+		componentId: string,
+		direction: "horizontal" | "vertical" | "both",
+	) => {
+		set((state) => {
+			const component = state.components.find((c) => c.id === componentId);
+			if (!component) return state;
+
+			return {
+				...state,
+				resize: {
+					isResizing: true,
+					resizedComponentId: componentId,
+					originalSize: { ...component.size },
+					newSize: { ...component.size },
+					resizeDirection: direction,
+					isValidResize: true,
+				},
+			};
+		});
+	},
+
+	updateResize: (newSize: { width: "half" | "full"; height: number }) => {
+		set((state) => ({
+			...state,
+			resize: {
+				...state.resize,
+				newSize,
+			},
+		}));
+	},
+
+	endResize: () => {
+		set((state) => {
+			const { isResizing, resizedComponentId, newSize } = state.resize;
+
+			if (!isResizing || !resizedComponentId || !newSize) {
+				return {
+					...state,
+					resize: initialResizeState,
+				};
+			}
+
+			// Update the component with the new size
+			const updatedComponents = state.components.map((component) =>
+				component.id === resizedComponentId
+					? {
+							...component,
+							size: newSize,
+							updatedAt: Date.now(),
+						}
+					: component,
+			);
+
+			return {
+				...state,
+				components: updatedComponents,
+				resize: initialResizeState,
+			};
+		});
+	},
+
+	cancelResize: () => {
+		set((state) => ({
+			...state,
+			resize: initialResizeState,
+		}));
+	},
+
+	toggleComponentWidth: (componentId: string) => {
+		set((state) => {
+			const component = state.components.find((c) => c.id === componentId);
+			if (!component) return state;
+
+			const newWidth: "half" | "full" =
+				component.size.width === "half" ? "full" : "half";
+			const updatedComponents = state.components.map((c) =>
+				c.id === componentId
+					? {
+							...c,
+							size: { ...c.size, width: newWidth },
+							// Reset position to x=0 if switching to full width
+							position:
+								newWidth === "full" ? { ...c.position, x: 0 } : c.position,
+							updatedAt: Date.now(),
+						}
+					: c,
+			);
+
+			return {
+				...state,
+				components: updatedComponents,
+			};
+		});
 	},
 
 	// Sidebar actions

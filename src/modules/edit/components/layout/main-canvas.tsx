@@ -44,10 +44,17 @@ export function MainCanvas() {
 	);
 	const selectComponent = useEditStore((state) => state.selectComponent);
 	const toggleRightSidebar = useEditStore((state) => state.toggleRightSidebar);
+	const toggleComponentWidth = useEditStore(
+		(state) => state.toggleComponentWidth,
+	);
 	const rightSidebarOpen = useEditStore(
 		(state) => state.sidebars.rightSidebar.isOpen,
 	);
 	const updateComponent = useEditStore((state) => state.updateComponent);
+	const isResizing = useEditStore((state) => state.resize.isResizing);
+	const resizeState = useEditStore((state) => state.resize);
+	const updateResize = useEditStore((state) => state.updateResize);
+	const endResize = useEditStore((state) => state.endResize);
 
 	const canvasRef = useRef<HTMLDivElement>(null);
 	const hasComponents = components.length > 0;
@@ -117,6 +124,17 @@ export function MainCanvas() {
 				? components.findIndex((c) => c.id === selectedComponentId)
 				: -1;
 
+			// Handle Alt + Arrow keys for resizing first
+			if (
+				e.altKey &&
+				selectedComponentId &&
+				(e.key === "ArrowLeft" || e.key === "ArrowRight")
+			) {
+				e.preventDefault();
+				toggleComponentWidth(selectedComponentId);
+				return;
+			}
+
 			switch (e.key) {
 				case "ArrowDown":
 				case "ArrowRight": {
@@ -154,6 +172,7 @@ export function MainCanvas() {
 			hasComponents,
 			rightSidebarOpen,
 			toggleRightSidebar,
+			toggleComponentWidth,
 		],
 	);
 
@@ -292,6 +311,101 @@ export function MainCanvas() {
 		[components, updateComponent, validateDropPosition],
 	);
 
+	// Resize mouse tracking
+	useEffect(() => {
+		if (!isResizing) return;
+
+		const handleMouseMove = (e: MouseEvent) => {
+			if (!canvasRef.current || !resizeState.resizedComponentId) return;
+
+			const canvasRect = canvasRef.current.getBoundingClientRect();
+			const mouseX = e.clientX - canvasRect.left;
+			const mouseY = e.clientY - canvasRect.top;
+
+			// Find the component being resized
+			const component = components.find(
+				(c) => c.id === resizeState.resizedComponentId,
+			);
+			if (!component) return;
+
+			// Calculate current component position in pixels
+			const columnWidth = canvasRect.width / GRID_COLS;
+			const componentX = component.position.x * columnWidth;
+			const componentY = component.position.y * HUG_HEIGHT;
+
+			// Calculate new size based on resize direction
+			let newWidth = component.size.width;
+			let newHeight = component.size.height;
+
+			if (
+				resizeState.resizeDirection === "horizontal" ||
+				resizeState.resizeDirection === "both"
+			) {
+				// Horizontal resize - snap to half or full width
+				const relativeX = mouseX - componentX;
+				const halfWidth = columnWidth;
+				const fullWidth = canvasRect.width;
+
+				// Determine if closer to half or full width
+				if (component.size.width === "half") {
+					// Currently half, check if should become full
+					if (relativeX > halfWidth * 0.7) {
+						newWidth = "full";
+					}
+				} else {
+					// Currently full, check if should become half
+					if (relativeX < fullWidth * 0.7) {
+						newWidth = "half";
+					}
+				}
+			}
+
+			if (
+				resizeState.resizeDirection === "vertical" ||
+				resizeState.resizeDirection === "both"
+			) {
+				// Vertical resize - snap to hug multiples
+				const relativeY = mouseY - componentY;
+				const newHeightInHugs = Math.max(1, Math.round(relativeY / HUG_HEIGHT));
+				newHeight = newHeightInHugs;
+			}
+
+			// Update resize preview
+			const newSize = { width: newWidth, height: newHeight };
+			updateResize(newSize);
+
+			// Calculate preview rectangle for visual feedback
+			const previewWidth = newWidth === "full" ? canvasRect.width : columnWidth;
+			const previewHeight = newHeight * HUG_HEIGHT;
+
+			useEditStore.setState((state) => ({
+				...state,
+				resize: {
+					...state.resize,
+					resizePreview: {
+						x: componentX,
+						y: componentY,
+						width: previewWidth,
+						height: previewHeight,
+					},
+					isValidResize: true, // TODO: Add collision detection
+				},
+			}));
+		};
+
+		const handleMouseUp = () => {
+			endResize();
+		};
+
+		document.addEventListener("mousemove", handleMouseMove);
+		document.addEventListener("mouseup", handleMouseUp);
+
+		return () => {
+			document.removeEventListener("mousemove", handleMouseMove);
+			document.removeEventListener("mouseup", handleMouseUp);
+		};
+	}, [isResizing, resizeState, components, updateResize, endResize]);
+
 	// Focus management
 	useEffect(() => {
 		if (selectedComponentId && canvasRef.current) {
@@ -344,6 +458,7 @@ export function MainCanvas() {
 					<SectorBorders
 						grid={grid}
 						isDragging={useEditStore((state) => state.drag.isDragging)}
+						isResizing={isResizing}
 					/>
 
 					{/* Empty State */}
@@ -382,12 +497,11 @@ export function MainCanvas() {
 						</div>
 					)}
 
-					{/* Drop Zones - Visual feedback during drag operations */}
-					<DropZoneIndicators
+					{/* Visual feedback during drag and resize operations */}
+					<SectorBorders
 						grid={grid}
 						isDragging={useEditStore((state) => state.drag.isDragging)}
-						dropZones={useEditStore((state) => state.drag.dropZones)}
-						isValidDrop={useEditStore((state) => state.drag.isValidDrop)}
+						isResizing={isResizing}
 					/>
 				</div>
 
@@ -464,23 +578,34 @@ function DropZoneIndicators({
 interface SectorBordersProps {
 	grid: GridConfiguration;
 	isDragging: boolean;
+	isResizing: boolean;
 }
 
-function SectorBorders({ grid, isDragging }: SectorBordersProps) {
+function SectorBorders({ grid, isDragging, isResizing }: SectorBordersProps) {
 	const draggedComponentId = useEditStore(
 		(state) => state.drag.draggedComponentId,
 	);
+	const resizedComponentId = useEditStore(
+		(state) => state.resize.resizedComponentId,
+	);
+	const resizePreview = useEditStore((state) => state.resize.resizePreview);
+	const isValidResize = useEditStore((state) => state.resize.isValidResize);
 	const components = useEditStore((state) => state.components);
 	const dropZones = useEditStore((state) => state.drag.dropZones);
 	const isValidDrop = useEditStore((state) => state.drag.isValidDrop);
 
-	if (!isDragging) {
+	if (!isDragging && !isResizing) {
 		return null;
 	}
 
 	// Find the dragged component for preview
 	const draggedComponent = draggedComponentId
 		? components.find((c) => c.id === draggedComponentId)
+		: null;
+
+	// Find the resized component for preview
+	const resizedComponent = resizedComponentId
+		? components.find((c) => c.id === resizedComponentId)
 		: null;
 
 	return (
@@ -533,6 +658,25 @@ function SectorBorders({ grid, isDragging }: SectorBordersProps) {
 						/>
 					);
 				})}
+
+			{/* Resize Preview - Blue dashed border showing new size */}
+			{isResizing && resizedComponent && resizePreview && (
+				<div
+					className={cn(
+						"absolute transition-all duration-200",
+						"border-2 border-dashed",
+						isValidResize ? "border-blue-500" : "border-red-500",
+						"pointer-events-none",
+					)}
+					style={{
+						left: `${resizePreview.x}px`,
+						top: `${resizePreview.y}px`,
+						width: `${resizePreview.width}px`,
+						height: `${resizePreview.height}px`,
+						zIndex: 40,
+					}}
+				/>
+			)}
 
 			{/* Left column highlight */}
 			<div
