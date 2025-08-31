@@ -28,7 +28,7 @@ import {
 	fixImageComponentHeights,
 	useEditStore,
 } from "../../store/use-edit-store";
-import { checkCollision } from "../../utils/grid-calculations";
+import { checkCollisionForDrag } from "../../utils/grid-calculations";
 import { ComponentRenderer } from "./components/editable/component-renderer";
 import { EmptyState } from "./components/empty-state";
 import { GridOverlay } from "./components/grid/grid-overlay";
@@ -49,10 +49,14 @@ export function MainCanvasFeature() {
 	const fixExistingComponentHeights = useEditStore(
 		(state) => state.fixExistingComponentHeights,
 	);
+	const fixComponentZIndex = useEditStore((state) => state.fixComponentZIndex);
 	const rightSidebarOpen = useEditStore(
 		(state) => state.sidebars.rightSidebar.isOpen,
 	);
 	const updateComponent = useEditStore((state) => state.updateComponent);
+	const bringComponentToFront = useEditStore(
+		(state) => state.bringComponentToFront,
+	);
 	const isResizing = useEditStore((state) => state.resize.isResizing);
 	const resizeState = useEditStore((state) => state.resize);
 	const updateResize = useEditStore((state) => state.updateResize);
@@ -72,7 +76,10 @@ export function MainCanvasFeature() {
 		} else {
 			fixExistingComponentHeights();
 		}
-	}, [fixExistingComponentHeights]);
+
+		// Fix z-index for existing components that might not have it
+		fixComponentZIndex();
+	}, [fixExistingComponentHeights, fixComponentZIndex]);
 
 	// Also fix heights whenever components array changes (more aggressive)
 	useEffect(() => {
@@ -137,14 +144,16 @@ export function MainCanvasFeature() {
 			}
 
 			// Check collision with other components (excluding the dragged component)
+			// During drag, we allow overlapping, so this will always return true
 			const otherComponents = updatedComponents.filter(
 				(c) => c.id !== updatedComponent.id,
 			);
 
-			const hasCollision = checkCollision(
+			const hasCollision = checkCollisionForDrag(
 				newPosition,
 				updatedComponent.size,
 				otherComponents,
+				updatedComponent.id,
 			);
 
 			return !hasCollision;
@@ -355,6 +364,9 @@ export function MainCanvasFeature() {
 				updateComponent(componentId, {
 					position: snapPosition,
 				});
+
+				// Bring the dropped component to the front so it appears on top of overlapping components
+				bringComponentToFront(componentId);
 			}
 
 			// Reset drag state
@@ -369,7 +381,7 @@ export function MainCanvasFeature() {
 				},
 			}));
 		},
-		[components, updateComponent, validateDropPosition],
+		[components, updateComponent, bringComponentToFront, validateDropPosition],
 	);
 
 	// Resize mouse tracking
@@ -547,13 +559,15 @@ export function MainCanvasFeature() {
 								alignItems: "start", // Align items to start of their grid area
 							}}
 						>
-							{components.map((component) => (
-								<ComponentRenderer
-									key={component.id}
-									component={component}
-									grid={grid}
-								/>
-							))}
+							{components
+								.sort((a, b) => a.zIndex - b.zIndex) // Sort by z-index to ensure proper rendering order
+								.map((component) => (
+									<ComponentRenderer
+										key={component.id}
+										component={component}
+										grid={grid}
+									/>
+								))}
 						</div>
 					)}
 
@@ -564,10 +578,15 @@ export function MainCanvasFeature() {
 					/>
 				</div>
 
-				{/* @dnd-kit Drag Overlay for visual feedback */}
-				<DragOverlay modifiers={[restrictToWindowEdges]}>
-					{/* TODO: Render dragged component preview */}
-					{/* Will be implemented in next step */}
+				{/* @dnd-kit Drag Overlay - empty to let original component handle drag visuals */}
+				<DragOverlay
+					modifiers={[restrictToWindowEdges]}
+					dropAnimation={{
+						duration: 200,
+						easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+					}}
+				>
+					{/* Empty - we want the original component to be visible, not a clone */}
 				</DragOverlay>
 			</DndContext>
 		</div>

@@ -132,6 +132,7 @@ export interface ComponentState {
 	attributes: ComponentAttributes; // Component-specific properties
 	styles: ComponentStyles; // Common styling properties
 	status?: ComponentStatus; // Current component status
+	zIndex: number; // Stacking order for overlapping components
 	createdAt: number; // Timestamp
 	updatedAt: number; // Timestamp
 }

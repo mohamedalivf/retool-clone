@@ -98,6 +98,53 @@ export function checkCollision(
 }
 
 /**
+ * Check collision for component creation - always prevents overlapping
+ */
+export function checkCollisionForCreation(
+	position: Position,
+	size: Size,
+	components: ComponentState[],
+): boolean {
+	return checkCollision(position, size, components);
+}
+
+/**
+ * Check collision for drag operations - allows overlapping during drag
+ */
+export function checkCollisionForDrag(
+	position: Position,
+	size: Size,
+	components: ComponentState[],
+	excludeId?: string,
+): boolean {
+	// During drag operations, we allow overlapping
+	// Only validate basic grid position constraints
+
+	// Check X bounds
+	if (position.x < 0 || position.x > 1) {
+		return true; // Invalid position
+	}
+
+	// For full-width components, x must be 0
+	if (size.width === "full" && position.x !== 0) {
+		return true; // Invalid position
+	}
+
+	// For half-width components, x must be 0 or 1
+	if (size.width === "half" && position.x > 1) {
+		return true; // Invalid position
+	}
+
+	// Check Y bounds (no upper limit, but must be non-negative)
+	if (position.y < 0) {
+		return true; // Invalid position
+	}
+
+	// All other positions are valid during drag (overlapping allowed)
+	return false;
+}
+
+/**
  * Get all grid cells occupied by a component
  */
 export function getOccupiedCells(position: Position, size: Size): Position[] {
@@ -130,7 +177,7 @@ export function findNextAvailablePosition(
 		for (let x = 0; x <= (size.width === "full" ? 0 : 1); x++) {
 			const position = { x, y };
 
-			if (!checkCollision(position, size, components)) {
+			if (!checkCollisionForCreation(position, size, components)) {
 				return position;
 			}
 		}
@@ -238,7 +285,7 @@ export function calculateDropZones(
 
 			if (
 				isValidGridPosition(position, draggedComponent.size, gridConfig) &&
-				!checkCollision(
+				!checkCollisionForDrag(
 					position,
 					draggedComponent.size,
 					components,
@@ -297,7 +344,7 @@ export function canResize(
 		isValidGridPosition(component.position, newSize, {
 			cols: 2,
 		} as GridConfiguration) &&
-		!checkCollision(component.position, newSize, components, component.id)
+		!checkCollisionForCreation(component.position, newSize, components)
 	);
 }
 
@@ -421,7 +468,7 @@ export function calculateEnhancedDropZones(
 			x++
 		) {
 			const position = { x, y };
-			const isValid = !checkCollision(
+			const isValid = !checkCollisionForDrag(
 				position,
 				draggedComponent.size,
 				allComponents,
@@ -433,7 +480,7 @@ export function calculateEnhancedDropZones(
 			if (isValid) {
 				feedback = `Drop here (${x === 0 ? "Left" : "Right"} column, Row ${y + 1})`;
 			} else {
-				feedback = "Position occupied";
+				feedback = "Invalid position";
 			}
 
 			dropZones.push({

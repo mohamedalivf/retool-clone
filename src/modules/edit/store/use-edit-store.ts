@@ -131,9 +131,11 @@ interface EditStoreActions {
 	// Utility actions
 	getComponentById: (id: string) => ComponentState | undefined;
 	exportComponents: () => ComponentState[];
+	bringComponentToFront: (id: string) => void;
 
 	// Migration actions
 	fixExistingComponentHeights: () => void;
+	fixComponentZIndex: () => void;
 }
 
 type EditStoreType = EditStoreState & EditStoreActions;
@@ -439,11 +441,38 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 		return get().components;
 	},
 
+	bringComponentToFront: (id: string) => {
+		set((state) => {
+			const components = state.components;
+			const maxZIndex = Math.max(...components.map((c) => c.zIndex), 0);
+
+			return {
+				...state,
+				components: components.map((component) =>
+					component.id === id
+						? { ...component, zIndex: maxZIndex + 1, updatedAt: Date.now() }
+						: component,
+				),
+			};
+		});
+	},
+
 	// Migration actions
 	fixExistingComponentHeights: () => {
 		set((state) => ({
 			...state,
 			components: fixImageComponentHeights(state.components),
+		}));
+	},
+
+	// Fix components that don't have z-index (migration)
+	fixComponentZIndex: () => {
+		set((state) => ({
+			...state,
+			components: state.components.map((component, index) => ({
+				...component,
+				zIndex: component.zIndex ?? component.createdAt ?? Date.now() + index,
+			})),
 		}));
 	},
 }));
