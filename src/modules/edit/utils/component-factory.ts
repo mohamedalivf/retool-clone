@@ -2,7 +2,6 @@
  * Component factory utilities for creating new components
  */
 
-import { HUG_HEIGHT } from "../constants/hug-system";
 import type {
 	ComponentAttributes,
 	ComponentState,
@@ -28,58 +27,6 @@ export function generateComponentId(): string {
 }
 
 /**
- * Calculate image height in hugs based on aspect ratio and width
- */
-export function calculateImageHeightInHugs(
-	aspectRatio: string,
-	width: "half" | "full",
-	actualCanvasWidth?: number,
-): number {
-	// Get aspect ratio value
-	let ratio: number;
-	switch (aspectRatio) {
-		case "1:1":
-			ratio = 1;
-			break;
-		case "16:9":
-			ratio = 16 / 9;
-			break;
-		case "4:3":
-			ratio = 4 / 3;
-			break;
-		case "3:2":
-			ratio = 3 / 2;
-			break;
-		case "21:9":
-			ratio = 21 / 9;
-			break;
-		case "2:1":
-			ratio = 2 / 1;
-			break;
-		default:
-			ratio = 16 / 9; // Default to 16:9
-	}
-
-	// Use actual canvas width if provided, otherwise fall back to assumption
-	const canvasWidth = actualCanvasWidth || 800;
-	const componentWidth = width === "half" ? canvasWidth / 2 : canvasWidth;
-	const componentHeight = componentWidth / ratio;
-
-	// Convert to hugs and round to nearest hug
-	const heightInHugs = Math.max(1, Math.round(componentHeight / HUG_HEIGHT));
-
-	// Debug: Log the calculation
-	console.log(`🧮 Image height calculation:
-		aspectRatio: ${aspectRatio} (ratio: ${ratio})
-		width: ${width} (${componentWidth}px from canvas ${canvasWidth}px)
-		componentHeight: ${componentHeight}px
-		HUG_HEIGHT: ${HUG_HEIGHT}px
-		heightInHugs: ${heightInHugs}`);
-
-	return heightInHugs;
-}
-
-/**
  * Create default size based on component type
  */
 export function createDefaultSize(type: ComponentType): Size {
@@ -90,12 +37,10 @@ export function createDefaultSize(type: ComponentType): Size {
 		};
 	}
 
-	// For images, calculate height based on default aspect ratio (16:9)
-	const width = "half";
-	const height = calculateImageHeightInHugs("16:9", width);
+	// For images, use a simple default height that can be resized manually
 	return {
-		width,
-		height,
+		width: "half",
+		height: 4, // Default to 4 hugs, user can resize as needed
 	};
 }
 

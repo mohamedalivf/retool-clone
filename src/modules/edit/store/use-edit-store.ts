@@ -16,10 +16,7 @@ import type {
 	SidebarState,
 } from "./types";
 
-import {
-	calculateImageHeightInHugs,
-	createDefaultSize,
-} from "../utils/component-factory";
+import { createDefaultSize } from "../utils/component-factory";
 import { DEFAULT_GRID_CONFIG } from "./types";
 
 import {
@@ -35,40 +32,16 @@ import { findNextAvailablePosition } from "../utils/grid-calculations";
 // ============================================================================
 
 /**
- * Fix existing image component heights to match their actual rendered heights
+ * Fix existing image component heights - no longer needed since we use manual sizing
+ * Keeping for compatibility but it's essentially a no-op now
  */
 export function fixImageComponentHeights(
 	components: ComponentState[],
 	canvasWidth?: number,
 ): ComponentState[] {
-	return components.map((component) => {
-		if (component.type === "image") {
-			// Get the aspect ratio from attributes
-			const aspectRatio =
-				(component.attributes as { aspectRatio?: string }).aspectRatio ||
-				"16:9";
-
-			// Calculate correct height based on aspect ratio and width
-			const correctHeight = calculateImageHeightInHugs(
-				aspectRatio,
-				component.size.width,
-				canvasWidth,
-			);
-
-			// Only update if height is different (avoid unnecessary updates)
-			if (component.size.height !== correctHeight) {
-				return {
-					...component,
-					size: {
-						...component.size,
-						height: correctHeight,
-					},
-					updatedAt: Date.now(),
-				};
-			}
-		}
-		return component;
-	});
+	// Since we're no longer using aspect ratio calculations,
+	// just return components as-is. Height is now controlled manually via resizing.
+	return components;
 }
 
 // ============================================================================

@@ -3,7 +3,6 @@
  * Optimized with React.memo for performance
  */
 
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { AlertCircle, Image as ImageIcon, Loader2 } from "lucide-react";
@@ -45,9 +44,6 @@ export const ImageComponent = React.memo(function ImageComponent({
 		boxShadow: getShadowValue(styles.shadow),
 	};
 
-	// Get aspect ratio value
-	const aspectRatio = getAspectRatioValue(attributes.aspectRatio);
-
 	// Get border radius class
 	const borderRadiusClass = getBorderRadiusClass(attributes.borderRadius);
 
@@ -88,6 +84,9 @@ export const ImageComponent = React.memo(function ImageComponent({
 
 	const hasValidSrc = attributes.src && isValidImageUrl(attributes.src);
 
+	// Calculate height based on component size in hugs
+	const componentHeight = component.size.height * HUG_HEIGHT;
+
 	return (
 		<div
 			ref={containerRef}
@@ -100,7 +99,7 @@ export const ImageComponent = React.memo(function ImageComponent({
 			)}
 			style={{
 				...componentStyles,
-				// Remove fixed height - let AspectRatio handle it
+				height: `${componentHeight}px`, // Fixed height based on hugs
 				minHeight: `${HUG_HEIGHT}px`, // Minimum 1 hug
 			}}
 			role="img"
@@ -109,7 +108,7 @@ export const ImageComponent = React.memo(function ImageComponent({
 				(hasValidSrc ? "Image component" : "Empty image placeholder")
 			}
 		>
-			<AspectRatio ratio={aspectRatio} className="w-full">
+			<div className="w-full h-full">
 				<div
 					className={cn(
 						"w-full h-full relative overflow-hidden",
@@ -195,12 +194,12 @@ export const ImageComponent = React.memo(function ImageComponent({
 							)}
 						>
 							{loadingState === "loaded"
-								? `${aspectRatio} • ${attributes.objectFit || "cover"}`
+								? `${component.size.width} • ${component.size.height}h • ${attributes.objectFit || "cover"}`
 								: loadingState}
 						</Badge>
 					)}
 				</div>
-			</AspectRatio>
+			</div>
 		</div>
 	);
 });
@@ -217,25 +216,6 @@ function getShadowValue(shadow?: string): string {
 			return "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)";
 		default:
 			return "none";
-	}
-}
-
-function getAspectRatioValue(aspectRatio: string): number {
-	switch (aspectRatio) {
-		case "1:1":
-			return 1; // 1/1
-		case "16:9":
-			return 16 / 9;
-		case "4:3":
-			return 4 / 3;
-		case "3:2":
-			return 3 / 2;
-		case "21:9":
-			return 21 / 9;
-		case "2:1":
-			return 2 / 1;
-		default:
-			return 16 / 9; // Default to 16:9
 	}
 }
 
