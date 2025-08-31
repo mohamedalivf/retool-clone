@@ -11,6 +11,7 @@ import {
 	LayoutGrid,
 	Menu,
 	Palette,
+	Plus,
 	Redo2,
 	Save,
 	Settings,
@@ -72,21 +73,15 @@ export function HeaderFeature() {
 					)}
 					aria-label="Toggle component library"
 				>
-					<Menu className="h-4 w-4" />
+					<Plus className="h-4 w-4" />
 				</Button>
 
 				{/* Application Title */}
 				<div className="flex items-center gap-2">
-					<div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-						<LayoutGrid className="h-4 w-4 text-primary-foreground" />
-					</div>
 					<div>
 						<h1 className="text-lg font-semibold text-foreground">
 							Component Editor
 						</h1>
-						<p className="text-xs text-muted-foreground">
-							Drag & drop interface builder
-						</p>
 					</div>
 				</div>
 			</div>

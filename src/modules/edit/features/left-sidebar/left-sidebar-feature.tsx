@@ -1,5 +1,3 @@
-
-
 import { Button } from "@/components/ui/button";
 import {
 	Sheet,
@@ -18,7 +16,6 @@ interface LeftSidebarFeatureProps {
 }
 
 export function LeftSidebarFeature({ isOpen, width }: LeftSidebarFeatureProps) {
-
 	const addComponent = useEditStore((state) => state.addComponent);
 	const toggleLeftSidebar = useEditStore((state) => state.toggleLeftSidebar);
 
@@ -60,7 +57,7 @@ export function LeftSidebarFeature({ isOpen, width }: LeftSidebarFeatureProps) {
 					<SheetHeader className="p-4 border-b">
 						<SheetTitle className="text-left">Component Library</SheetTitle>
 						<p className="text-sm text-muted-foreground text-left">
-							Drag components to the canvas or click to add
+							Click to add components to the canvas
 						</p>
 					</SheetHeader>
 

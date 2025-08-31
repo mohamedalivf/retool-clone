@@ -9,7 +9,7 @@ import type {
 	GridConfiguration,
 	Position,
 } from "../../../store/types";
-import { GridOverlay } from "./grid/grid-overlay";
+import { GridOverlay } from "./grid-overlay";
 
 interface CanvasOverlaysProps {
 	// Grid overlay props
