@@ -10,7 +10,6 @@ interface AppLayoutProps {
 }
 
 export function EditScreen({ children }: AppLayoutProps) {
-
 	const leftSidebarOpen = useEditStore(
 		(state) => state.sidebars.leftSidebar.isOpen,
 	);
@@ -37,7 +36,6 @@ export function EditScreen({ children }: AppLayoutProps) {
 				{}
 				<main
 					className={cn(
-
 						"flex-1 transition-all duration-300 ease-in-out",
 						"bg-muted/30 border-x border-border",
 						"min-w-0",
