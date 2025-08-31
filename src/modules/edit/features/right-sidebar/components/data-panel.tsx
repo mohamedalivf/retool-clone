@@ -1,6 +1,4 @@
-/**
- * Data panel for component metadata and advanced settings
- */
+
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,15 +11,13 @@ interface DataPanelProps {
 }
 
 export function DataPanel({ component }: DataPanelProps) {
-	// Note: duplicateComponent was removed from simplified store
-	// We'll need to implement this functionality later
 
 	const handleCopyId = () => {
 		navigator.clipboard.writeText(component.id);
 	};
 
 	const handleDuplicate = () => {
-		// TODO: Implement duplicate functionality in simplified store
+
 		console.log("Duplicate functionality not yet implemented");
 	};
 
@@ -31,7 +27,7 @@ export function DataPanel({ component }: DataPanelProps) {
 
 	return (
 		<div className="space-y-6">
-			{/* Component Metadata */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Component Data</h3>
 				<div className="space-y-3">
@@ -81,7 +77,7 @@ export function DataPanel({ component }: DataPanelProps) {
 				</div>
 			</div>
 
-			{/* Position & Size Data */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Layout Data</h3>
 				<div className="space-y-3">
@@ -102,7 +98,7 @@ export function DataPanel({ component }: DataPanelProps) {
 				</div>
 			</div>
 
-			{/* Timestamps */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Timestamps</h3>
 				<div className="space-y-3">
@@ -121,7 +117,7 @@ export function DataPanel({ component }: DataPanelProps) {
 				</div>
 			</div>
 
-			{/* Component Actions */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Actions</h3>
 				<div className="space-y-2">
@@ -146,7 +142,7 @@ export function DataPanel({ component }: DataPanelProps) {
 				</div>
 			</div>
 
-			{/* Raw Data (Development) */}
+			{}
 			{process.env.NODE_ENV === "development" && (
 				<div>
 					<h3 className="font-medium mb-3">Raw Data (Dev)</h3>

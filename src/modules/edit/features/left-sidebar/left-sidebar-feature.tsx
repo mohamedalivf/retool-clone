@@ -1,6 +1,4 @@
-/**
- * Left sidebar for component selection and library
- */
+
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +18,7 @@ interface LeftSidebarFeatureProps {
 }
 
 export function LeftSidebarFeature({ isOpen, width }: LeftSidebarFeatureProps) {
-	// Use specific selectors to prevent unnecessary re-renders
+
 	const addComponent = useEditStore((state) => state.addComponent);
 	const toggleLeftSidebar = useEditStore((state) => state.toggleLeftSidebar);
 
@@ -58,7 +56,7 @@ export function LeftSidebarFeature({ isOpen, width }: LeftSidebarFeatureProps) {
 				style={{ width }}
 			>
 				<div className="flex flex-col h-full">
-					{/* Header */}
+					{}
 					<SheetHeader className="p-4 border-b">
 						<SheetTitle className="text-left">Component Library</SheetTitle>
 						<p className="text-sm text-muted-foreground text-left">
@@ -66,7 +64,7 @@ export function LeftSidebarFeature({ isOpen, width }: LeftSidebarFeatureProps) {
 						</p>
 					</SheetHeader>
 
-					{/* Component Library */}
+					{}
 					<div className="flex-1 overflow-y-auto p-4">
 						<div className="space-y-3">
 							<h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
@@ -115,7 +113,7 @@ export function LeftSidebarFeature({ isOpen, width }: LeftSidebarFeatureProps) {
 						</div>
 					</div>
 
-					{/* Footer */}
+					{}
 					<div className="p-4 border-t bg-muted/30">
 						<div className="text-xs text-muted-foreground">
 							<p className="mb-1">

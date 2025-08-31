@@ -21,7 +21,7 @@ function calculateHugsFromElement(
 
 	if (!element) {
 		const lines = content.split("\n").length;
-		const estimatedHeight = Math.max(48, lines * 24 + 48); // Rough estimate
+		const estimatedHeight = Math.max(48, lines * 24 + 48);
 		return pixelsToHugs(estimatedHeight);
 	}
 
@@ -45,16 +45,13 @@ export const TextComponent = React.memo(function TextComponent({
 		(state) => state.selection.selectedComponentId === component.id,
 	);
 
-	// Inline editing state
 	const [isEditing, setIsEditing] = useState(false);
 	const [editValue, setEditValue] = useState(attributes.content || "");
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const componentRef = useRef<HTMLDivElement>(null);
 
-	// Calculate required height in hugs using actual DOM measurement
 	const [requiredHugs, setRequiredHugs] = useState(component.size.height);
 
-	// Measure actual component height after render
 	React.useEffect(() => {
 		if (componentRef.current && attributes.content) {
 			const measuredHugs = calculateHugsFromElement(
@@ -67,7 +64,6 @@ export const TextComponent = React.memo(function TextComponent({
 		}
 	}, [attributes.content, requiredHugs]);
 
-	// Auto-fix height mismatch when measured height differs from stored height
 	React.useEffect(() => {
 		if (
 			component.size.height !== requiredHugs &&
@@ -89,7 +85,6 @@ export const TextComponent = React.memo(function TextComponent({
 		updateComponent,
 	]);
 
-	// Apply component styles
 	const componentStyles = {
 		backgroundColor: styles.backgroundColor,
 		borderWidth: styles.border?.width,
@@ -100,7 +95,6 @@ export const TextComponent = React.memo(function TextComponent({
 		boxShadow: getShadowValue(styles.shadow),
 	};
 
-	// Handle double-click to enter edit mode
 	const handleDoubleClick = useCallback(
 		(e: React.MouseEvent) => {
 			e.stopPropagation();
@@ -112,9 +106,8 @@ export const TextComponent = React.memo(function TextComponent({
 		[isSelected, attributes.content],
 	);
 
-	// Handle save changes
 	const handleSave = useCallback(() => {
-		// First update the content
+
 		updateComponent(component.id, {
 			attributes: {
 				...attributes,
@@ -123,16 +116,13 @@ export const TextComponent = React.memo(function TextComponent({
 		});
 		setIsEditing(false);
 
-		// Height will be measured and updated automatically by the useEffect after render
 	}, [component.id, attributes, editValue, updateComponent]);
 
-	// Handle cancel editing
 	const handleCancel = useCallback(() => {
 		setEditValue(attributes.content || "");
 		setIsEditing(false);
 	}, [attributes.content]);
 
-	// Handle keyboard shortcuts
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
 			if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
@@ -146,7 +136,6 @@ export const TextComponent = React.memo(function TextComponent({
 		[handleSave, handleCancel],
 	);
 
-	// Focus textarea when entering edit mode
 	useEffect(() => {
 		if (isEditing && textareaRef.current) {
 			textareaRef.current.focus();
@@ -154,14 +143,13 @@ export const TextComponent = React.memo(function TextComponent({
 		}
 	}, [isEditing]);
 
-	// Render editing mode
 	if (isEditing) {
 		return (
 			<div
 				className={cn(
 					"w-full min-h-[2.5rem]",
 					"bg-white border-2 border-primary",
-					"p-2", // Reduced padding for editing mode
+					"p-2",
 				)}
 				style={componentStyles}
 			>
@@ -189,7 +177,6 @@ export const TextComponent = React.memo(function TextComponent({
 		);
 	}
 
-	// Render display mode
 	return (
 		<div
 			ref={componentRef}
@@ -198,19 +185,19 @@ export const TextComponent = React.memo(function TextComponent({
 				"flex items-center justify-start",
 				"bg-white border border-gray-200",
 				"py-3 px-4",
-				// Enhanced interaction states
+
 				"transition-all duration-200",
 				isSelected && "ring-1 ring-primary/50",
 				"hover:bg-gray-50",
-				// Cursor indicates editability when selected
+
 				isSelected && "cursor-text",
 			)}
 			style={{
 				...componentStyles,
-				minHeight: `${HUG_HEIGHT}px`, // Minimum 1 hug
+				minHeight: `${HUG_HEIGHT}px`,
 			}}
 			onDoubleClick={handleDoubleClick}
-			// biome-ignore lint/a11y/useSemanticElements: <explanation>
+
 			role="textbox"
 			aria-label={`Text component: ${attributes.content || "Empty text"}`}
 			aria-readonly={!isSelected}
@@ -220,7 +207,7 @@ export const TextComponent = React.memo(function TextComponent({
 				className={cn(
 					"w-full prose prose-sm max-w-none",
 					`text-${attributes.textAlign}`,
-					// Handle text overflow
+
 					"overflow-hidden",
 					"break-words",
 				)}
@@ -229,9 +216,9 @@ export const TextComponent = React.memo(function TextComponent({
 				{attributes.content ? (
 					<ReactMarkdown
 						components={{
-							// Allow natural paragraph styling with reduced margins
+
 							p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-							// Headings with proper hierarchy
+
 							h1: ({ children }) => (
 								<h1 className="text-2xl font-bold mb-2">{children}</h1>
 							),
@@ -250,7 +237,7 @@ export const TextComponent = React.memo(function TextComponent({
 							h6: ({ children }) => (
 								<h6 className="text-xs font-medium mb-1">{children}</h6>
 							),
-							// Lists with proper spacing
+
 							ul: ({ children }) => (
 								<ul className="list-disc list-inside mb-2 space-y-1">
 									{children}
@@ -262,7 +249,7 @@ export const TextComponent = React.memo(function TextComponent({
 								</ol>
 							),
 							li: ({ children }) => <li>{children}</li>,
-							// Inline elements
+
 							strong: ({ children }) => (
 								<strong className="font-semibold">{children}</strong>
 							),
@@ -272,13 +259,13 @@ export const TextComponent = React.memo(function TextComponent({
 									{children}
 								</code>
 							),
-							// Code blocks
+
 							pre: ({ children }) => (
 								<pre className="bg-gray-100 p-2 rounded text-sm font-mono overflow-x-auto mb-2">
 									{children}
 								</pre>
 							),
-							// Links
+
 							a: ({ href, children }) => (
 								<a
 									href={href}
@@ -289,7 +276,7 @@ export const TextComponent = React.memo(function TextComponent({
 									{children}
 								</a>
 							),
-							// Blockquotes
+
 							blockquote: ({ children }) => (
 								<blockquote className="border-l-4 border-gray-300 pl-4 italic mb-2">
 									{children}

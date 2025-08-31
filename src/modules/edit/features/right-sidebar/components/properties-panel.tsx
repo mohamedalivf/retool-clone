@@ -1,6 +1,4 @@
-/**
- * Properties panel for editing component-specific attributes
- */
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +25,7 @@ interface PropertiesPanelProps {
 }
 
 export function PropertiesPanel({ component }: PropertiesPanelProps) {
-	// Use specific selectors to prevent unnecessary re-renders
+
 	const updateComponent = useEditStore((state) => state.updateComponent);
 	const deleteComponent = useEditStore((state) => state.deleteComponent);
 
@@ -47,7 +45,7 @@ export function PropertiesPanel({ component }: PropertiesPanelProps) {
 
 	return (
 		<div className="space-y-6">
-			{/* Component Info */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Component Information</h3>
 				<div className="space-y-2 text-sm">
@@ -74,7 +72,7 @@ export function PropertiesPanel({ component }: PropertiesPanelProps) {
 				</div>
 			</div>
 
-			{/* Text Component Properties */}
+			{}
 			{isTextAttributes(component.attributes) && (
 				<TextProperties
 					attributes={component.attributes}
@@ -82,7 +80,7 @@ export function PropertiesPanel({ component }: PropertiesPanelProps) {
 				/>
 			)}
 
-			{/* Image Component Properties */}
+			{}
 			{isImageAttributes(component.attributes) && (
 				<ImageProperties
 					attributes={component.attributes}
@@ -90,7 +88,7 @@ export function PropertiesPanel({ component }: PropertiesPanelProps) {
 				/>
 			)}
 
-			{/* Actions */}
+			{}
 			<div className="pt-4 border-t">
 				<Button
 					variant="destructive"

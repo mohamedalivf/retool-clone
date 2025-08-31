@@ -1,13 +1,11 @@
-/**
- * Empty state component for when no components are on the canvas
- */
+
 
 import { Button } from "@/components/ui/button";
 import { useEditStore } from "@/modules/edit/store/use-edit-store";
 import { Image, LayoutGrid, Plus, Type } from "lucide-react";
 
 export function EmptyState() {
-	// Use specific selectors to prevent unnecessary re-renders
+
 	const addComponent = useEditStore((state) => state.addComponent);
 	const toggleLeftSidebar = useEditStore((state) => state.toggleLeftSidebar);
 
@@ -26,12 +24,12 @@ export function EmptyState() {
 	return (
 		<div className="flex items-center justify-center min-h-[60vh]">
 			<div className="text-center max-w-md mx-auto">
-				{/* Icon */}
+				{}
 				<div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
 					<LayoutGrid className="h-12 w-12 text-muted-foreground" />
 				</div>
 
-				{/* Title and Description */}
+				{}
 				<h2 className="text-2xl font-semibold mb-3">
 					Start Building Your Interface
 				</h2>
@@ -41,7 +39,7 @@ export function EmptyState() {
 					component to create the perfect layout.
 				</p>
 
-				{/* Quick Actions */}
+				{}
 				<div className="space-y-4">
 					<div className="flex gap-3 justify-center">
 						<Button onClick={handleAddText} className="flex items-center gap-2">
@@ -70,7 +68,7 @@ export function EmptyState() {
 					</Button>
 				</div>
 
-				{/* Tips */}
+				{}
 				<div className="mt-12 p-4 bg-muted/30 rounded-lg text-left">
 					<h3 className="font-medium mb-2 flex items-center gap-2">
 						💡 Getting Started Tips

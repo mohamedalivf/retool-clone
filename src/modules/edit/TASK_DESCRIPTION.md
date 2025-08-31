@@ -29,8 +29,8 @@ Implement a drag-and-drop component editor similar to Retool, allowing users to 
 interface ComponentState {
   id: string;
   type: 'text' | 'image';
-  position: { x: number; y: number }; // Grid coordinates (x: 0-1, y: 0-∞)
-  size: { width: 'half' | 'full'; height: number }; // Height in grid units
+  position: { x: number; y: number };
+  size: { width: 'half' | 'full'; height: number };
   attributes: TextAttributes | ImageAttributes;
   styles: ComponentStyles;
 }
@@ -39,8 +39,7 @@ interface EditStore {
   components: ComponentState[];
   selectedComponentId: string | null;
   gridConfig: { rows: number; cols: 2 };
-  
-  // Actions
+
   addComponent: (type: 'text' | 'image') => void;
   updateComponent: (id: string, updates: Partial<ComponentState>) => void;
   moveComponent: (id: string, newPosition: Position) => void;
@@ -52,22 +51,21 @@ interface EditStore {
 
 ### Component Attributes
 ```typescript
-// Image Component Attributes
+
 interface ImageAttributes {
-  src: string; // Image URL/path
-  alt: string; // Alt text
+  src: string;
+  alt: string;
   objectFit: 'cover' | 'contain' | 'fill' | 'scale-down' | 'none';
   objectPosition: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   borderRadius: 'none' | 'sm' | 'md' | 'lg' | 'full';
 }
 
-// Text Component Attributes  
 interface TextAttributes {
-  content: string; // Markdown content
+  content: string;
   fontSize: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl';
   fontWeight: 'normal' | 'medium' | 'semibold' | 'bold';
   textAlign: 'left' | 'center' | 'right' | 'justify';
-  color: string; // Hex color or predefined colors
+  color: string;
 }
 ```
 
@@ -121,11 +119,7 @@ interface TextAttributes {
 
 #### Markdown Processing
 ```typescript
-// Text processing rules:
-// 1. Parse markdown syntax (bold, italic, links, etc.)
-// 2. Convert to single line by replacing \n with spaces
-// 3. Trim excessive whitespace
-// 4. Render as inline HTML
+
 ```
 
 ## 🎮 User Interactions
@@ -143,7 +137,7 @@ interface TextAttributes {
 - **Vertical**: Can move up or down to any available row
 - **Constraints**: Cannot move to occupied positions
 
-#### Full-Width Components  
+#### Full-Width Components
 - **Horizontal**: Always positioned at column 0, spans both columns
 - **Vertical**: Can move up or down to any available row
 - **Constraints**: Cannot move to rows with existing components
@@ -215,7 +209,7 @@ interface TextAttributes {
 ```json
 {
   "zustand": "^4.x.x",
-  "@dnd-kit/core": "^6.x.x", 
+  "@dnd-kit/core": "^6.x.x",
   "@dnd-kit/sortable": "^8.x.x",
   "@dnd-kit/utilities": "^3.x.x",
   "react-markdown": "^9.x.x",
@@ -304,7 +298,7 @@ We'll use a custom inline markdown renderer built with `react-markdown` to handl
 
 **Option 1: Custom Inline Markdown Component (Recommended)**
 ```typescript
-// src/modules/edit/components/InlineMarkdownRenderer.tsx
+
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 
@@ -317,22 +311,22 @@ interface InlineMarkdownRendererProps {
   color?: string;
 }
 
-export function InlineMarkdownRenderer({ 
-  content, 
+export function InlineMarkdownRenderer({
+  content,
   className,
   fontSize = 'base',
   fontWeight = 'normal',
   textAlign = 'left',
   color = '#000000'
 }: InlineMarkdownRendererProps) {
-  // Process content to single line
+
   const processedContent = content
-    .replace(/\n+/g, ' ') // Replace newlines with spaces
-    .replace(/\s+/g, ' ') // Collapse multiple spaces
+    .replace(/\n+/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 
   return (
-    <div 
+    <div
       className={cn(
         'inline-block w-full overflow-hidden whitespace-nowrap text-ellipsis',
         `text-${fontSize}`,
@@ -344,7 +338,7 @@ export function InlineMarkdownRenderer({
     >
       <ReactMarkdown
         components={{
-          // Override all block elements to be inline
+
           p: ({ children }) => <span>{children}</span>,
           h1: ({ children }) => <strong className="text-xl">{children}</strong>,
           h2: ({ children }) => <strong className="text-lg">{children}</strong>,
@@ -362,8 +356,8 @@ export function InlineMarkdownRenderer({
             </code>
           ),
           pre: ({ children }) => <span>{children}</span>,
-          br: () => <span> </span>, // Convert line breaks to spaces
-          // Keep inline elements as-is
+          br: () => <span> </span>,
+
           strong: ({ children }) => <strong>{children}</strong>,
           em: ({ children }) => <em>{children}</em>,
           a: ({ href, children }) => (
@@ -382,7 +376,7 @@ export function InlineMarkdownRenderer({
 
 **Option 2: Simple Regex-Based Approach (Lighter Alternative)**
 ```typescript
-// src/modules/edit/components/SimpleMarkdownRenderer.tsx
+
 import { cn } from '@/lib/utils';
 
 interface SimpleMarkdownRendererProps {
@@ -394,27 +388,27 @@ interface SimpleMarkdownRendererProps {
   color?: string;
 }
 
-export function SimpleMarkdownRenderer({ 
-  content, 
+export function SimpleMarkdownRenderer({
+  content,
   className,
   fontSize = 'base',
   fontWeight = 'normal',
   textAlign = 'left',
   color = '#000000'
 }: SimpleMarkdownRendererProps) {
-  // Process content to single line and apply basic markdown
+
   const processedContent = content
-    .replace(/\n+/g, ' ') // Replace newlines with spaces
-    .replace(/\s+/g, ' ') // Collapse multiple spaces
+    .replace(/\n+/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim()
-    // Basic markdown parsing
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-    .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
-    .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm">$1</code>') // Code
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>'); // Links
+
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm">$1</code>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>');
 
   return (
-    <div 
+    <div
       className={cn(
         'inline-block w-full overflow-hidden whitespace-nowrap text-ellipsis',
         `text-${fontSize}`,
@@ -431,12 +425,12 @@ export function SimpleMarkdownRenderer({
 
 **Integration with Text Component:**
 ```typescript
-// In your TextComponent
+
 import { InlineMarkdownRenderer } from '../InlineMarkdownRenderer';
 
 export function TextComponent({ component }: { component: ComponentState }) {
   const { attributes } = component;
-  
+
   return (
     <div className="p-4 border rounded cursor-pointer hover:bg-gray-50">
       <InlineMarkdownRenderer
@@ -453,7 +447,7 @@ export function TextComponent({ component }: { component: ComponentState }) {
 
 **Properties Sidebar Integration:**
 ```typescript
-// In your TextProperties component
+
 import { Textarea } from '@/components/ui/textarea';
 
 export function TextProperties({ component, onUpdate }: TextPropertiesProps) {
@@ -473,7 +467,7 @@ export function TextProperties({ component, onUpdate }: TextPropertiesProps) {
           className="mt-1"
         />
       </div>
-      {/* Other properties... */}
+      {}
     </div>
   );
 }
@@ -499,11 +493,11 @@ export function TextProperties({ component, onUpdate }: TextPropertiesProps) {
 #### Image Component Details
 - **Default Size**: Half-width (50% of container)
 - **Aspect Ratio**: Auto by default (maintains original proportions)
-- **Placeholder**: Uses https://placehold.co/600x400 as default placeholder
+- **Placeholder**: Uses https:
 - **Resizing**: Can be dragged to full-width if no adjacent components
 - **Border**: Only visible when selected
 
-#### Text Component Details  
+#### Text Component Details
 - **Default Size**: Half-width (50% of container)
 - **Content**: Starts with "Click to edit" placeholder text
 - **Height**: Single line by default, expands with markdown content

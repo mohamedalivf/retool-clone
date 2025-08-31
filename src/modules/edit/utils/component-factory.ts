@@ -1,6 +1,4 @@
-/**
- * Component factory utilities for creating new components
- */
+
 
 import type {
 	ComponentAttributes,
@@ -19,34 +17,24 @@ import {
 	DEFAULT_TEXT_ATTRIBUTES,
 } from "../store/types";
 
-/**
- * Generate a unique component ID
- */
 export function generateComponentId(): string {
 	return `component_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-/**
- * Create default size based on component type
- */
 export function createDefaultSize(type: ComponentType): Size {
 	if (type === "text") {
 		return {
 			width: "half",
-			height: 1, // Text starts with 1 hug
+			height: 1,
 		};
 	}
 
-	// For images, use a simple default height that can be resized manually
 	return {
 		width: "half",
-		height: 4, // Default to 4 hugs, user can resize as needed
+		height: 4,
 	};
 }
 
-/**
- * Create default attributes based on component type
- */
 export function createDefaultAttributes(
 	type: ComponentType,
 ): ComponentAttributes {
@@ -60,9 +48,6 @@ export function createDefaultAttributes(
 	}
 }
 
-/**
- * Create a new component with default or provided values
- */
 export function createComponent(
 	type: ComponentType,
 	position: Position,
@@ -87,9 +72,6 @@ export function createComponent(
 	};
 }
 
-/**
- * Create a text component with specific content
- */
 export function createTextComponent(
 	position: Position,
 	content?: string,
@@ -112,9 +94,6 @@ export function createTextComponent(
 	);
 }
 
-/**
- * Create an image component with specific source
- */
 export function createImageComponent(
 	position: Position,
 	src?: string,
@@ -137,9 +116,6 @@ export function createImageComponent(
 	);
 }
 
-/**
- * Clone an existing component with a new ID and position
- */
 export function cloneComponent(
 	component: ComponentState,
 	newPosition: Position,
@@ -155,9 +131,6 @@ export function cloneComponent(
 	};
 }
 
-/**
- * Update component timestamps
- */
 export function updateComponentTimestamp(
 	component: ComponentState,
 ): ComponentState {
@@ -167,12 +140,9 @@ export function updateComponentTimestamp(
 	};
 }
 
-/**
- * Validate component data structure
- */
 export function validateComponent(component: ComponentState): boolean {
 	try {
-		// Check required fields
+
 		if (
 			!component.id ||
 			!component.type ||
@@ -183,7 +153,6 @@ export function validateComponent(component: ComponentState): boolean {
 			return false;
 		}
 
-		// Validate position
 		if (
 			typeof component.position.x !== "number" ||
 			typeof component.position.y !== "number"
@@ -199,7 +168,6 @@ export function validateComponent(component: ComponentState): boolean {
 			return false;
 		}
 
-		// Validate size
 		if (
 			!["half", "full"].includes(component.size.width) ||
 			typeof component.size.height !== "number"
@@ -211,7 +179,6 @@ export function validateComponent(component: ComponentState): boolean {
 			return false;
 		}
 
-		// Validate type-specific attributes
 		if (component.type === "text") {
 			const attrs = component.attributes as TextAttributes;
 			if (typeof attrs.content !== "string") {
@@ -230,9 +197,6 @@ export function validateComponent(component: ComponentState): boolean {
 	}
 }
 
-/**
- * Sanitize component data to ensure type safety
- */
 export function sanitizeComponent(
 	component: Partial<ComponentState>,
 ): ComponentState | null {
@@ -249,12 +213,10 @@ export function sanitizeComponent(
 			component.styles,
 		);
 
-		// Override with provided ID if valid
 		if (component.id && typeof component.id === "string") {
 			sanitized.id = component.id;
 		}
 
-		// Override timestamps if provided
 		if (component.createdAt && typeof component.createdAt === "number") {
 			sanitized.createdAt = component.createdAt;
 		}

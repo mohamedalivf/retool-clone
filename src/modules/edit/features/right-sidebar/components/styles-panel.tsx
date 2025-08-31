@@ -1,6 +1,4 @@
-/**
- * Styles panel for editing component styling properties
- */
+
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +18,7 @@ interface StylesPanelProps {
 }
 
 export function StylesPanel({ component }: StylesPanelProps) {
-	// Use specific selectors to prevent unnecessary re-renders
+
 	const updateComponent = useEditStore((state) => state.updateComponent);
 
 	const handleUpdateStyles = (updates: Partial<ComponentStyles>) => {
@@ -33,7 +31,7 @@ export function StylesPanel({ component }: StylesPanelProps) {
 
 	return (
 		<div className="space-y-6">
-			{/* Background */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Background</h3>
 				<div>
@@ -50,7 +48,7 @@ export function StylesPanel({ component }: StylesPanelProps) {
 				</div>
 			</div>
 
-			{/* Border */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Border</h3>
 				<div className="space-y-4">
@@ -126,7 +124,7 @@ export function StylesPanel({ component }: StylesPanelProps) {
 				</div>
 			</div>
 
-			{/* Spacing */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Padding</h3>
 				<div className="grid grid-cols-2 gap-4">
@@ -217,7 +215,7 @@ export function StylesPanel({ component }: StylesPanelProps) {
 				</div>
 			</div>
 
-			{/* Shadow */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Shadow</h3>
 				<div>
@@ -242,7 +240,7 @@ export function StylesPanel({ component }: StylesPanelProps) {
 				</div>
 			</div>
 
-			{/* Opacity */}
+			{}
 			<div>
 				<h3 className="font-medium mb-3">Opacity</h3>
 				<div>

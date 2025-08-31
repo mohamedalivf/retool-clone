@@ -10,7 +10,7 @@ interface AppLayoutProps {
 }
 
 export function EditScreen({ children }: AppLayoutProps) {
-	// Use specific selectors to prevent unnecessary re-renders
+
 	const leftSidebarOpen = useEditStore(
 		(state) => state.sidebars.leftSidebar.isOpen,
 	);
@@ -34,16 +34,16 @@ export function EditScreen({ children }: AppLayoutProps) {
 			<div className={cn("flex-1 flex overflow-hidden", "relative")}>
 				<LeftSidebarFeature isOpen={leftSidebarOpen} width={leftSidebarWidth} />
 
-				{/* Main Canvas - Enhanced responsive design */}
+				{}
 				<main
 					className={cn(
-						// Base layout
+
 						"flex-1 transition-all duration-300 ease-in-out",
 						"bg-muted/30 border-x border-border",
-						"min-w-0", // Prevent flex item from overflowing
-						"sm:min-w-[400px]", // Minimum width on small screens
-						"md:min-w-[500px]", // Minimum width on medium screens
-						"lg:min-w-[600px]", // Minimum width on large screens
+						"min-w-0",
+						"sm:min-w-[400px]",
+						"md:min-w-[500px]",
+						"lg:min-w-[600px]",
 						leftSidebarOpen && "ml-0",
 						rightSidebarOpen && "mr-0",
 						"relative z-10",
@@ -53,7 +53,7 @@ export function EditScreen({ children }: AppLayoutProps) {
 					{children}
 				</main>
 
-				{/* Right Sidebar - Responsive behavior */}
+				{}
 				<RightSidebarFeature
 					isOpen={rightSidebarOpen}
 					width={rightSidebarWidth}

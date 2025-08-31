@@ -1,7 +1,4 @@
-/**
- * Enhanced Image component with lazy loading, error handling, and accessibility
- * Optimized with React.memo for performance
- */
+
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -18,7 +15,6 @@ interface ImageComponentProps {
 	component: ComponentState;
 }
 
-// Image loading states
 type ImageLoadingState = "idle" | "loading" | "loaded" | "error";
 
 export const ImageComponent = React.memo(function ImageComponent({
@@ -30,13 +26,11 @@ export const ImageComponent = React.memo(function ImageComponent({
 		(state) => state.selection.selectedComponentId === component.id,
 	);
 
-	// Image loading state management
 	const [loadingState, setLoadingState] = useState<ImageLoadingState>("idle");
 	const [isInView, setIsInView] = useState(false);
 	const imgRef = useRef<HTMLImageElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	// Apply component styles
 	const componentStyles = {
 		backgroundColor: styles.backgroundColor,
 		borderWidth: styles.border?.width,
@@ -47,17 +41,14 @@ export const ImageComponent = React.memo(function ImageComponent({
 		boxShadow: getShadowValue(styles.shadow),
 	};
 
-	// Get border radius class
 	const borderRadiusClass = getBorderRadiusClass(attributes.borderRadius);
 
-	// Simplified lazy loading - set in view immediately for now
 	useEffect(() => {
 		if (attributes.src) {
 			setIsInView(true);
 		}
 	}, [attributes.src]);
 
-	// Handle image loading
 	const handleImageLoad = useCallback(() => {
 		setLoadingState("loaded");
 	}, []);
@@ -66,19 +57,16 @@ export const ImageComponent = React.memo(function ImageComponent({
 		setLoadingState("error");
 	}, []);
 
-	// Start loading when in view
 	useEffect(() => {
 		if (isInView && attributes.src && loadingState === "idle") {
 			setLoadingState("loading");
 		}
 	}, [isInView, attributes.src, loadingState]);
 
-	// Validate image source - more flexible for URLs
 	const isValidImageUrl = useCallback((url: string): boolean => {
 		try {
 			const parsedUrl = new URL(url);
-			// Accept any valid URL - let the browser handle whether it's actually an image
-			// This allows for dynamic image URLs, APIs, etc.
+
 			return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
 		} catch {
 			return false;
@@ -87,7 +75,6 @@ export const ImageComponent = React.memo(function ImageComponent({
 
 	const hasValidSrc = attributes.src && isValidImageUrl(attributes.src);
 
-	// Calculate height based on component size in hugs
 	const componentHeight = component.size.height * HUG_HEIGHT;
 
 	return (
@@ -95,15 +82,15 @@ export const ImageComponent = React.memo(function ImageComponent({
 			ref={containerRef}
 			className={cn(
 				"w-full bg-white border border-gray-200",
-				// Enhanced interaction states
+
 				"transition-all duration-200",
 				isSelected && "ring-1 ring-primary/50",
 				"hover:bg-gray-50",
 			)}
 			style={{
 				...componentStyles,
-				height: `${componentHeight}px`, // Fixed height based on hugs
-				minHeight: `${HUG_HEIGHT}px`, // Minimum 1 hug
+				height: `${componentHeight}px`,
+				minHeight: `${HUG_HEIGHT}px`,
 			}}
 			role="img"
 			aria-label={
@@ -118,7 +105,7 @@ export const ImageComponent = React.memo(function ImageComponent({
 						borderRadiusClass,
 					)}
 				>
-					{/* Loading State */}
+					{}
 					{loadingState === "loading" && (
 						<div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
 							<div className="text-center">
@@ -130,7 +117,7 @@ export const ImageComponent = React.memo(function ImageComponent({
 						</div>
 					)}
 
-					{/* Image */}
+					{}
 					{hasValidSrc && isInView && (
 						<img
 							ref={imgRef}
@@ -153,7 +140,7 @@ export const ImageComponent = React.memo(function ImageComponent({
 						/>
 					)}
 
-					{/* Error State */}
+					{}
 					{loadingState === "error" && (
 						<div className="absolute inset-0 flex items-center justify-center bg-red-50 z-10">
 							<div className="text-center">
@@ -166,7 +153,7 @@ export const ImageComponent = React.memo(function ImageComponent({
 						</div>
 					)}
 
-					{/* Placeholder State */}
+					{}
 					{(!hasValidSrc || loadingState === "idle") && (
 						<div
 							className={cn(
@@ -189,7 +176,7 @@ export const ImageComponent = React.memo(function ImageComponent({
 						</div>
 					)}
 
-					{/* Status Badge for Selected Component */}
+					{}
 					{isSelected && (
 						<Badge
 							variant="secondary"

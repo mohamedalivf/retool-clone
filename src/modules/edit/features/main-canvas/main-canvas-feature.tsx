@@ -34,7 +34,7 @@ import { EmptyState } from "./components/empty-state";
 import { GridOverlay } from "./components/grid/grid-overlay";
 
 export function MainCanvasFeature() {
-	// Use specific selectors to prevent unnecessary re-renders
+
 	const components = useEditStore((state) => state.components);
 	const showGridLines = useEditStore((state) => state.settings.showGridLines);
 	const grid = useEditStore((state) => state.grid);
@@ -63,11 +63,10 @@ export function MainCanvasFeature() {
 
 	const canvasRef = useRef<HTMLDivElement>(null);
 
-	// Fix existing component heights on mount and whenever components change
 	useEffect(() => {
 		const canvasWidth = canvasRef.current?.getBoundingClientRect().width;
 		if (canvasWidth) {
-			// Pass actual canvas width for accurate calculations
+
 			useEditStore.setState((state) => ({
 				...state,
 				components: fixImageComponentHeights(state.components),
@@ -77,7 +76,6 @@ export function MainCanvasFeature() {
 		}
 	}, [fixExistingComponentHeights]);
 
-	// Also fix heights whenever components array changes (more aggressive)
 	useEffect(() => {
 		if (components.length > 0) {
 			const canvasWidth = canvasRef.current?.getBoundingClientRect().width;
@@ -93,54 +91,46 @@ export function MainCanvasFeature() {
 	}, [components.length, fixExistingComponentHeights]);
 	const hasComponents = components.length > 0;
 
-	// @dnd-kit sensors for drag and drop
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
 			activationConstraint: {
-				distance: 8, // 8px movement required to start drag
+				distance: 8,
 			},
 		}),
 		useSensor(KeyboardSensor, {
-			coordinateGetter: () => ({ x: 0, y: 0 }), // Will implement custom keyboard navigation
+			coordinateGetter: () => ({ x: 0, y: 0 }),
 		}),
 	);
 
-	// Make the canvas a droppable area
 	const { setNodeRef: setDroppableRef } = useDroppable({
 		id: "canvas-drop-zone",
 	});
 
-	// Validate drop position based on component size and grid constraints
 	const validateDropPosition = useCallback(
 		(component: ComponentState, newPosition: Position): boolean => {
-			// Ensure all components have correct heights before collision detection
+
 			fixExistingComponentHeights();
 
-			// Get the updated component with correct height from the store
 			const updatedComponents = useEditStore.getState().components;
 			const updatedComponent =
 				updatedComponents.find((c) => c.id === component.id) || component;
 
-			// Boundary checks
 			if (newPosition.x < 0 || newPosition.y < 0) {
 				return false;
 			}
 
-			// Size-specific constraints
 			if (updatedComponent.size.width === "full") {
-				// Full-width components can only be at x=0 and move up/down
+
 				if (newPosition.x !== 0) {
 					return false;
 				}
 			} else {
-				// Half-width components can be at x=0 or x=1 (left or right column)
+
 				if (newPosition.x > 1) {
 					return false;
 				}
 			}
 
-			// Check collision with other components (excluding the dragged component)
-			// During drag, we allow overlapping, so this will always return true
 			const otherComponents = updatedComponents.filter(
 				(c) => c.id !== updatedComponent.id,
 			);
@@ -157,10 +147,9 @@ export function MainCanvasFeature() {
 		[fixExistingComponentHeights],
 	);
 
-	// Handle background click to deselect
 	const handleCanvasClick = useCallback(
 		(e: React.MouseEvent) => {
-			// Only deselect if clicking directly on the canvas background
+
 			if (e.target === e.currentTarget) {
 				selectComponent(null);
 			}
@@ -168,7 +157,6 @@ export function MainCanvasFeature() {
 		[selectComponent],
 	);
 
-	// Handle keyboard navigation
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
 			if (!hasComponents) return;
@@ -177,7 +165,6 @@ export function MainCanvasFeature() {
 				? components.findIndex((c) => c.id === selectedComponentId)
 				: -1;
 
-			// Handle Alt + Arrow keys for resizing first
 			if (
 				e.altKey &&
 				selectedComponentId &&
@@ -229,16 +216,13 @@ export function MainCanvasFeature() {
 		],
 	);
 
-	// Drag and drop event handlers
 	const handleDragStart = useCallback(
 		(event: DragStartEvent) => {
 			const { active } = event;
 			const componentId = active.id as string;
 
-			// Select component for drag (brings it on top without opening sidebar)
 			selectComponentForDrag(componentId);
 
-			// Update drag state in store
 			useEditStore.setState((state) => ({
 				...state,
 				drag: {
@@ -256,41 +240,33 @@ export function MainCanvasFeature() {
 			const { active, delta, activatorEvent } = event;
 			const componentId = active.id as string;
 
-			// Find the dragged component
 			const draggedComponent = components.find((c) => c.id === componentId);
 			if (!draggedComponent || !canvasRef.current) {
 				return;
 			}
 
-			// Get the current mouse position from the activator event
 			const mouseEvent = activatorEvent as MouseEvent;
 			const canvasRect = canvasRef.current.getBoundingClientRect();
 
-			// Calculate mouse position relative to canvas
 			const mouseX = mouseEvent.clientX + delta.x - canvasRect.left;
 			const mouseY = mouseEvent.clientY + delta.y - canvasRect.top;
 
-			// Hug-based grid calculations
-			const columnWidth = canvasRect.width / GRID_COLS; // Each column width in pixels
-			const hugSize = HUG_HEIGHT; // HUG_HEIGHT px per hug
+			const columnWidth = canvasRect.width / GRID_COLS;
+			const hugSize = HUG_HEIGHT;
 
-			// Snap to columns - for full-width components, always use x=0
 			let snapX: number;
 			if (draggedComponent.size.width === "full") {
-				snapX = 0; // Full-width components always use x=0
+				snapX = 0;
 			} else {
-				snapX = mouseX < columnWidth ? 0 : 1; // Half-width can be 0 or 1
+				snapX = mouseX < columnWidth ? 0 : 1;
 			}
 
-			// Snap to hug boundaries (every HUG_HEIGHT px)
 			const snapY = Math.max(0, Math.round(mouseY / hugSize));
 
 			const snapPosition = { x: snapX, y: snapY };
 
-			// Check if current position is valid
 			const isValidDrop = validateDropPosition(draggedComponent, snapPosition);
 
-			// Show only the current drop position for both full-width and half-width components
 			const dropZonesToShow: Position[] = isValidDrop ? [snapPosition] : [];
 
 			useEditStore.setState((state) => ({
@@ -310,10 +286,9 @@ export function MainCanvasFeature() {
 			const { active, delta, activatorEvent } = event;
 			const componentId = active.id as string;
 
-			// Find the dragged component
 			const draggedComponent = components.find((c) => c.id === componentId);
 			if (!draggedComponent || !canvasRef.current) {
-				// Reset drag state and clear drag selection flag
+
 				useEditStore.setState((state) => ({
 					...state,
 					drag: {
@@ -331,45 +306,38 @@ export function MainCanvasFeature() {
 				return;
 			}
 
-			// Use mouse position for final snap calculation
 			const mouseEvent = activatorEvent as MouseEvent;
 			const canvasRect = canvasRef.current.getBoundingClientRect();
 
-			// Calculate final mouse position relative to canvas
 			const mouseX = mouseEvent.clientX + delta.x - canvasRect.left;
 			const mouseY = mouseEvent.clientY + delta.y - canvasRect.top;
 
-			// Hug-based grid calculations
-			const columnWidth = canvasRect.width / GRID_COLS; // Each column width in pixels
-			const hugSize = HUG_HEIGHT; // HUG_HEIGHT px per hug
+			const columnWidth = canvasRect.width / GRID_COLS;
+			const hugSize = HUG_HEIGHT;
 
-			// Snap to columns - for full-width components, always use x=0
 			let snapX: number;
 			if (draggedComponent.size.width === "full") {
-				snapX = 0; // Full-width components always use x=0
+				snapX = 0;
 			} else {
-				snapX = mouseX < columnWidth ? 0 : 1; // Half-width can be 0 or 1
+				snapX = mouseX < columnWidth ? 0 : 1;
 			}
 
-			// Snap to hug boundaries (every HUG_HEIGHT px)
 			const snapY = Math.max(0, Math.round(mouseY / hugSize));
 
 			const snapPosition = { x: snapX, y: snapY };
 
-			// Validate the new position based on component size constraints
 			const isValidPosition = validateDropPosition(
 				draggedComponent,
 				snapPosition,
 			);
 
 			if (isValidPosition) {
-				// Update component position
+
 				updateComponent(componentId, {
 					position: snapPosition,
 				});
 			}
 
-			// Reset drag state and clear drag selection flag
 			useEditStore.setState((state) => ({
 				...state,
 				drag: {
@@ -388,7 +356,6 @@ export function MainCanvasFeature() {
 		[components, updateComponent, validateDropPosition],
 	);
 
-	// Resize mouse tracking
 	useEffect(() => {
 		if (!isResizing) return;
 
@@ -399,18 +366,15 @@ export function MainCanvasFeature() {
 			const mouseX = e.clientX - canvasRect.left;
 			const mouseY = e.clientY - canvasRect.top;
 
-			// Find the component being resized
 			const component = components.find(
 				(c) => c.id === resizeState.resizedComponentId,
 			);
 			if (!component) return;
 
-			// Calculate current component position in pixels
 			const columnWidth = canvasRect.width / GRID_COLS;
 			const componentX = component.position.x * columnWidth;
 			const componentY = component.position.y * HUG_HEIGHT;
 
-			// Calculate new size based on resize direction
 			let newWidth = component.size.width;
 			let newHeight = component.size.height;
 
@@ -418,19 +382,18 @@ export function MainCanvasFeature() {
 				resizeState.resizeDirection === "horizontal" ||
 				resizeState.resizeDirection === "both"
 			) {
-				// Horizontal resize - snap to half or full width
+
 				const relativeX = mouseX - componentX;
 				const halfWidth = columnWidth;
 				const fullWidth = canvasRect.width;
 
-				// Determine if closer to half or full width
 				if (component.size.width === "half") {
-					// Currently half, check if should become full
+
 					if (relativeX > halfWidth * 0.7) {
 						newWidth = "full";
 					}
 				} else {
-					// Currently full, check if should become half
+
 					if (relativeX < fullWidth * 0.7) {
 						newWidth = "half";
 					}
@@ -441,17 +404,15 @@ export function MainCanvasFeature() {
 				resizeState.resizeDirection === "vertical" ||
 				resizeState.resizeDirection === "both"
 			) {
-				// Vertical resize - snap to hug multiples
+
 				const relativeY = mouseY - componentY;
 				const newHeightInHugs = Math.max(1, Math.round(relativeY / HUG_HEIGHT));
 				newHeight = newHeightInHugs;
 			}
 
-			// Update resize preview
 			const newSize = { width: newWidth, height: newHeight };
 			updateResize(newSize);
 
-			// Calculate preview rectangle for visual feedback
 			const previewWidth = newWidth === "full" ? canvasRect.width : columnWidth;
 			const previewHeight = newHeight * HUG_HEIGHT;
 
@@ -465,7 +426,7 @@ export function MainCanvasFeature() {
 						width: previewWidth,
 						height: previewHeight,
 					},
-					isValidResize: true, // TODO: Add collision detection
+					isValidResize: true,
 				},
 			}));
 		};
@@ -483,7 +444,6 @@ export function MainCanvasFeature() {
 		};
 	}, [isResizing, resizeState, components, updateResize, endResize]);
 
-	// Focus management
 	useEffect(() => {
 		if (selectedComponentId && canvasRef.current) {
 			canvasRef.current.focus();
@@ -492,7 +452,7 @@ export function MainCanvasFeature() {
 
 	return (
 		<div className="relative h-full overflow-auto bg-background">
-			{/* @dnd-kit Drag and Drop Context */}
+			{}
 			<DndContext
 				sensors={sensors}
 				collisionDetection={closestCenter}
@@ -501,22 +461,22 @@ export function MainCanvasFeature() {
 				onDragEnd={handleDragEnd}
 				modifiers={[restrictToParentElement]}
 			>
-				{/* Enhanced Grid Container with selection system */}
+				{}
 				<div
 					ref={(node) => {
 						canvasRef.current = node;
 						setDroppableRef(node);
 					}}
 					className={cn(
-						// Base layout - full height, no padding
+
 						"h-full relative",
-						// shadcn/ui styling conventions
-						"bg-card/30", // Subtle background using card color
-						// Transitions
+
+						"bg-card/30",
+
 						"transition-all duration-200 ease-in-out",
-						// Focus and interaction states
+
 						"focus-within:bg-card/40",
-						// Enhanced keyboard navigation
+
 						"focus:outline-none focus:ring-2 focus:ring-ring/20 focus:ring-inset",
 					)}
 					onClick={handleCanvasClick}
@@ -524,7 +484,7 @@ export function MainCanvasFeature() {
 					role="application"
 					aria-label="Component canvas - click components to select, use drag handles to reorder, arrow keys to navigate"
 				>
-					{/* Grid Overlay */}
+					{}
 					{showGridLines && (
 						<GridOverlay
 							grid={grid}
@@ -537,30 +497,30 @@ export function MainCanvasFeature() {
 						isResizing={isResizing}
 					/>
 
-					{/* Empty State */}
+					{}
 					{!hasComponents && <EmptyState />}
 
-					{/* Component Grid - Enhanced with responsive shadcn/ui patterns */}
+					{}
 					{hasComponents && (
 						<div
 							className={cn(
-								// Grid layout with responsive behavior
+
 								"relative grid",
-								// Base: 2 columns (as per design requirements)
+
 								"grid-cols-2",
-								// NO GAPS - components should be flush against each other
+
 								"gap-0",
-								// Full height, no padding, no rounded corners
+
 								"h-full",
-								// Enhanced visual feedback
+
 								"transition-all duration-200 ease-in-out",
-								// Mobile optimizations
-								"touch-pan-y", // Better touch scrolling on mobile
+
+								"touch-pan-y",
 							)}
 							style={{
-								gap: "0px", // Force no gap regardless of grid config
-								gridAutoRows: `${HUG_HEIGHT}px`, // Fixed row height = 1 hug
-								alignItems: "start", // Align items to start of their grid area
+								gap: "0px",
+								gridAutoRows: `${HUG_HEIGHT}px`,
+								alignItems: "start",
 							}}
 						>
 							{components.map((component) => (
@@ -573,17 +533,17 @@ export function MainCanvasFeature() {
 						</div>
 					)}
 
-					{/* Visual feedback during drag and resize operations */}
+					{}
 					<SectorBorders
 						isDragging={useEditStore((state) => state.drag.isDragging)}
 						isResizing={isResizing}
 					/>
 				</div>
 
-				{/* @dnd-kit Drag Overlay for visual feedback */}
+				{}
 				<DragOverlay modifiers={[restrictToWindowEdges]}>
-					{/* TODO: Render dragged component preview */}
-					{/* Will be implemented in next step */}
+					{}
+					{}
 				</DragOverlay>
 			</DndContext>
 		</div>
@@ -611,19 +571,17 @@ function SectorBorders({ isDragging, isResizing }: SectorBordersProps) {
 		return null;
 	}
 
-	// Find the dragged component for preview - always get fresh data from store
 	const draggedComponent = draggedComponentId
 		? components.find((c) => c.id === draggedComponentId)
 		: null;
 
-	// Find the resized component for preview
 	const resizedComponent = resizedComponentId
 		? components.find((c) => c.id === resizedComponentId)
 		: null;
 
 	return (
 		<div className="absolute inset-0 pointer-events-none z-20">
-			{/* Vertical grid line - divides left/right columns */}
+			{}
 			<div
 				className="absolute border-r border-dashed border-primary/30"
 				style={{
@@ -633,28 +591,26 @@ function SectorBorders({ isDragging, isResizing }: SectorBordersProps) {
 				}}
 			/>
 
-			{/* Horizontal hug lines - show every HUG_HEIGHT px */}
+			{}
 			{Array.from({ length: MAX_GRID_ROWS }, (_, i) => (
 				<div
 					key={`hug-line-row-${i + 1}`}
 					className="absolute border-b border-dashed border-primary/30"
 					style={{
 						left: 0,
-						top: `${(i + 1) * HUG_HEIGHT}px`, // Every HUG_HEIGHT px
+						top: `${(i + 1) * HUG_HEIGHT}px`,
 						width: "100%",
 					}}
 				/>
 			))}
 
-			{/* Drop Preview - Blue border showing where component will land */}
+			{}
 			{draggedComponent &&
 				dropZones.length > 0 &&
 				dropZones.map((zone, index) => {
 					const componentWidth =
 						draggedComponent.size.width === "full" ? 100 : 50;
 
-					// Calculate height based on component's actual size in hugs
-					// Since we removed aspect ratio control, all components use hug-based height
 					const componentHeight = draggedComponent.size.height * HUG_HEIGHT;
 
 					return (
@@ -663,7 +619,7 @@ function SectorBorders({ isDragging, isResizing }: SectorBordersProps) {
 							className={cn(
 								"absolute transition-all duration-200",
 								"border-2 border-solid border-blue-500",
-								"bg-blue-50/20", // Light blue background to hide grid lines
+								"bg-blue-50/20",
 								"pointer-events-none",
 							)}
 							style={{
@@ -677,7 +633,7 @@ function SectorBorders({ isDragging, isResizing }: SectorBordersProps) {
 					);
 				})}
 
-			{/* Resize Preview - Blue dashed border showing new size */}
+			{}
 			{isResizing && resizedComponent && resizePreview && (
 				<div
 					className={cn(
@@ -696,7 +652,7 @@ function SectorBorders({ isDragging, isResizing }: SectorBordersProps) {
 				/>
 			)}
 
-			{/* Left column highlight */}
+			{}
 			<div
 				className="absolute bg-primary/5"
 				style={{
@@ -707,7 +663,7 @@ function SectorBorders({ isDragging, isResizing }: SectorBordersProps) {
 				}}
 			/>
 
-			{/* Right column highlight */}
+			{}
 			<div
 				className="absolute bg-primary/5"
 				style={{

@@ -1,6 +1,4 @@
-/**
- * Right sidebar for component properties and styling
- */
+
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +27,7 @@ export function RightSidebarFeature({
 	activeTab = "properties",
 }: RightSidebarFeatureProps) {
 	const selectedComponent = useSelectedComponent();
-	// Use specific selectors to prevent unnecessary re-renders
+
 	const toggleRightSidebar = useEditStore((state) => state.toggleRightSidebar);
 	const setRightSidebarTab = useEditStore((state) => state.setRightSidebarTab);
 
@@ -41,7 +39,7 @@ export function RightSidebarFeature({
 				style={{ width }}
 			>
 				<div className="flex flex-col h-full">
-					{/* Header */}
+					{}
 					<SheetHeader className="p-4 border-b">
 						<div className="flex items-center justify-between">
 							<SheetTitle className="text-left">
@@ -55,7 +53,7 @@ export function RightSidebarFeature({
 						)}
 					</SheetHeader>
 
-					{/* Content */}
+					{}
 					<div className="flex-1 overflow-hidden">
 						{selectedComponent ? (
 							<Tabs
@@ -65,7 +63,7 @@ export function RightSidebarFeature({
 								}
 								className="h-full flex flex-col"
 							>
-								{/* Tab Navigation */}
+								{}
 								<TabsList className="grid w-full grid-cols-3 m-4 mb-0">
 									<TabsTrigger
 										value="properties"
@@ -87,7 +85,7 @@ export function RightSidebarFeature({
 									</TabsTrigger>
 								</TabsList>
 
-								{/* Tab Content */}
+								{}
 								<div className="flex-1 overflow-y-auto">
 									<TabsContent value="properties" className="m-0 p-4">
 										<PropertiesPanel component={selectedComponent} />
