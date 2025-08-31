@@ -11,11 +11,23 @@ import { PreviewComponentRenderer } from "./components/preview-component-rendere
 export function PreviewCanvasFeature() {
 	const components = usePreviewComponents();
 
-	// Sort components by creation time to ensure proper layering
-	// Earlier components (lower createdAt) should render first, later ones on top
-	const sortedComponents = [...components].sort(
-		(a, b) => a.createdAt - b.createdAt,
-	);
+	// Sort components for proper rendering order
+	// On desktop: sort by creation time for proper layering
+	// On mobile: sort by position (row first, then column) for logical flow
+	const sortedComponents = [...components].sort((a, b) => {
+		// Primary sort: by row (y position)
+		if (a.position.y !== b.position.y) {
+			return a.position.y - b.position.y;
+		}
+
+		// Secondary sort: by column (x position) within the same row
+		if (a.position.x !== b.position.x) {
+			return a.position.x - b.position.x;
+		}
+
+		// Tertiary sort: by creation time for components in the same position
+		return a.createdAt - b.createdAt;
+	});
 
 	const hasComponents = sortedComponents.length > 0;
 
@@ -38,8 +50,8 @@ export function PreviewCanvasFeature() {
 							className={cn(
 								// Grid layout with responsive behavior
 								"relative grid",
-								// Base: 2 columns (as per design requirements)
-								"grid-cols-2",
+								// Desktop: 2 columns, Mobile/Tablet: 1 column
+								"grid-cols-1 md:grid-cols-2",
 								// NO GAPS - components should be flush against each other
 								"gap-0",
 								// Full height, no padding, no rounded corners
@@ -51,12 +63,22 @@ export function PreviewCanvasFeature() {
 								alignItems: "start", // Align items to start of their grid area
 							}}
 						>
-							{sortedComponents.map((component) => (
-								<PreviewComponentRenderer
-									key={component.id}
-									component={component}
-								/>
-							))}
+							{sortedComponents.map((component, index) => {
+								// Calculate mobile row start based on previous components' heights
+								let mobileRowStart = 1;
+								for (let i = 0; i < index; i++) {
+									const prevComponent = sortedComponents[i];
+									mobileRowStart += prevComponent.size.height;
+								}
+
+								return (
+									<PreviewComponentRenderer
+										key={component.id}
+										component={component}
+										mobileRowStart={mobileRowStart}
+									/>
+								);
+							})}
 						</div>
 					)}
 				</div>
@@ -69,27 +91,7 @@ function PreviewEmptyState() {
 	return (
 		<div className="flex items-center justify-center h-full min-h-[400px]">
 			<div className="text-center">
-				<div className="mx-auto h-12 w-12 text-gray-400 mb-4">
-					<svg
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						aria-hidden="true"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={1}
-							d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-						/>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={1}
-							d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-						/>
-					</svg>
-				</div>
+				<div className="mx-auto h-12 w-12 text-gray-400 mb-4" />
 				<h3 className="text-lg font-medium text-gray-900 mb-2">
 					No components to preview
 				</h3>
