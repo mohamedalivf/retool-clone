@@ -181,16 +181,53 @@
         "id": 10,
         "title": "Implement Component Resizing",
         "description": "Add functionality to toggle components between half-width and full-width sizing",
-        "details": "1. Create resize controls for components\n2. Implement resize logic in Zustand store\n3. Add visual feedback during resize operations\n4. Implement validation for resize constraints\n5. Create smooth animations for size changes (300ms transitions)\n6. Add keyboard shortcuts for resizing (Alt+Left/Right)\n7. Update grid layout when component sizes change\n8. Implement collision detection during resize\n9. Add responsive behavior for different screen sizes\n10. Create undo/redo capability for resize operations",
-        "testStrategy": "Test resizing components between half-width and full-width. Verify animations work smoothly. Check keyboard shortcuts for resizing. Test collision detection during resize. Verify grid updates correctly after resize operations.",
-        "priority": "medium",
+        "status": "pending",
         "dependencies": [
           5,
           8,
           9
         ],
-        "status": "pending",
-        "subtasks": []
+        "priority": "medium",
+        "details": "1. Create resize controls for components\n2. Implement resize logic in Zustand store\n3. Add visual feedback during resize operations (leverage existing SectorBorders component)\n4. Implement validation for resize constraints\n5. Create smooth animations for size changes (300ms transitions)\n6. Add keyboard shortcuts for resizing (Alt+Left/Right)\n7. Update grid layout when component sizes change\n8. Implement collision detection during resize (use existing drop zone calculation logic)\n9. Add responsive behavior for different screen sizes\n10. Create undo/redo capability for resize operations\n11. Integrate with existing hug-based positioning system for accurate resizing",
+        "testStrategy": "Test resizing components between half-width and full-width. Verify animations work smoothly. Check keyboard shortcuts for resizing. Test collision detection during resize. Verify grid updates correctly after resize operations. Ensure visual feedback matches Retool's design patterns with appropriate border indicators.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Leverage existing SectorBorders component for resize visualization",
+            "description": "Adapt the SectorBorders component from main-canvas.tsx to show resize previews similar to how it shows drop indicators",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement resize visual feedback",
+            "description": "Use the existing visual feedback patterns (border-primary/30 for structure, border-blue-500 for preview) to show resize operations",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Integrate with hug-based positioning system",
+            "description": "Ensure resize operations work with the existing hug-based positioning system for pixel-perfect accuracy",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Adapt collision detection from drag system",
+            "description": "Reuse the drop zone calculation logic from handleDragMove to detect collisions during resize operations",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 11,
@@ -289,11 +326,26 @@
         ],
         "priority": "medium",
         "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Implement Drop Indicator System",
+        "description": "Create a visual feedback system for drag and drop operations showing exact component placement with blue border preview and gray grid structure.",
+        "details": "1. Create a SectorBorders component in main-canvas.tsx that renders visual indicators for potential drop zones\n2. Implement onDragMove event handlers to track component position during drag operations\n3. Develop a hug-based positioning system that shows exact placement preview\n4. Add blue border indicators to highlight valid drop zones\n5. Implement gray grid structure visualization to show component alignment\n6. Create logic to calculate valid drop positions based on:\n   - Component width (half or full)\n   - Existing component positions\n   - Grid structure constraints\n7. Add visual differentiation between valid and invalid drop zones\n8. Implement smooth transitions for indicator appearance/disappearance\n9. Ensure indicators update in real-time as components are dragged\n10. Optimize rendering performance to prevent lag during drag operations\n11. Add accessibility considerations for users who can't see visual indicators\n12. Implement proper z-index management to ensure indicators appear above content but below dragged items",
+        "testStrategy": "1. Test indicator appearance by dragging components over different areas of the canvas\n2. Verify blue border preview appears in the correct position based on component size and grid structure\n3. Check that gray grid structure accurately represents the underlying grid system\n4. Test with both half-width and full-width components to ensure proper positioning\n5. Verify indicators update in real-time during drag operations\n6. Test edge cases like dragging near canvas boundaries\n7. Ensure indicators disappear properly when drag operation ends\n8. Verify performance remains smooth when dragging over complex layouts\n9. Test with keyboard-triggered drag operations for accessibility\n10. Verify the system works correctly on different screen sizes and device types",
+        "status": "done",
+        "dependencies": [
+          5,
+          8,
+          16
+        ],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-30T20:25:20.688Z",
-      "updated": "2025-08-30T22:06:19.291Z",
+      "updated": "2025-08-31T00:26:40.168Z",
       "description": "Tasks for master context"
     }
   }
