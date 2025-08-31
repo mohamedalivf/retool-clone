@@ -101,13 +101,14 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 				],
 				!isBeingDragged && [
 					"hover:ring-1 hover:ring-ring/30 hover:ring-offset-1",
-					"hover:shadow-sm hover:z-[5]",
+					"hover:shadow-sm",
+					// Remove hover:z-[5] to prevent z-index changes on hover
 				],
 				isSelected &&
 					!isBeingDragged && [
 						"ring-2 ring-primary/60 ring-offset-1 ring-offset-background",
 						"shadow-md",
-						"z-10", // Bring selected component above others
+						// Remove z-10 to prevent z-index changes on selection
 					],
 				component.type === "text" && `min-h-[${hugsToPixels(1)}px]`,
 				component.type === "image" && `min-h-[${hugsToPixels(4)}px]`,
