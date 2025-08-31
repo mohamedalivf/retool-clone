@@ -135,10 +135,15 @@ export const ImageComponent = React.memo(function ImageComponent({
 							alt={attributes.alt || ""}
 							className={cn(
 								"w-full h-full transition-opacity duration-300",
-								`object-${attributes.objectFit || "cover"}`,
 								borderRadiusClass,
 								loadingState === "loaded" ? "opacity-100" : "opacity-0",
 							)}
+							style={{
+								objectFit: attributes.objectFit || "cover",
+								objectPosition: getObjectPositionValue(
+									attributes.objectPosition || "center",
+								),
+							}}
 							onLoad={handleImageLoad}
 							onError={handleImageError}
 							decoding="async"
@@ -231,5 +236,28 @@ function getBorderRadiusClass(borderRadius: string): string {
 			return "rounded-full";
 		default:
 			return "rounded-none";
+	}
+}
+
+function getObjectPositionValue(objectPosition: string): string {
+	switch (objectPosition) {
+		case "top":
+			return "top";
+		case "bottom":
+			return "bottom";
+		case "left":
+			return "left";
+		case "right":
+			return "right";
+		case "top-left":
+			return "top left";
+		case "top-right":
+			return "top right";
+		case "bottom-left":
+			return "bottom left";
+		case "bottom-right":
+			return "bottom right";
+		default:
+			return "center";
 	}
 }

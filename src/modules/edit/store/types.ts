@@ -71,6 +71,16 @@ export interface ImageAttributes {
 	alt: string; // Alt text for accessibility
 	aspectRatio: "1:1" | "16:9" | "4:3" | "3:2" | "auto";
 	objectFit: "cover" | "contain" | "fill" | "scale-down" | "none";
+	objectPosition:
+		| "center"
+		| "top"
+		| "bottom"
+		| "left"
+		| "right"
+		| "top-left"
+		| "top-right"
+		| "bottom-left"
+		| "bottom-right";
 	borderRadius: "none" | "sm" | "md" | "lg" | "full";
 }
 
@@ -348,6 +358,7 @@ export const DEFAULT_IMAGE_ATTRIBUTES: ImageAttributes = {
 	alt: "Image",
 	aspectRatio: "auto",
 	objectFit: "cover",
+	objectPosition: "center",
 	borderRadius: "none",
 };
 
