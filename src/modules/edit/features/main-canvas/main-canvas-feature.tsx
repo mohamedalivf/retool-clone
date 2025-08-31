@@ -42,6 +42,7 @@ export function MainCanvasFeature() {
 		(state) => state.selection.selectedComponentId,
 	);
 	const selectComponent = useEditStore((state) => state.selectComponent);
+	const selectComponentForDrag = useEditStore((state) => state.selectComponentForDrag);
 	const toggleRightSidebar = useEditStore((state) => state.toggleRightSidebar);
 	const toggleComponentWidth = useEditStore(
 		(state) => state.toggleComponentWidth,
@@ -231,6 +232,9 @@ export function MainCanvasFeature() {
 		const { active } = event;
 		const componentId = active.id as string;
 
+		// Select component for drag (brings it on top without opening sidebar)
+		selectComponentForDrag(componentId);
+
 		// Update drag state in store
 		useEditStore.setState((state) => ({
 			...state,
@@ -240,10 +244,7 @@ export function MainCanvasFeature() {
 				draggedComponentId: componentId,
 			},
 		}));
-
-		// Don't auto-select on drag - let users click component body to select
-		// This prevents the sidebar from opening when dragging
-	}, []);
+	}, [selectComponentForDrag]);
 
 	const handleDragMove = useCallback(
 		(event: DragMoveEvent) => {
@@ -307,7 +308,7 @@ export function MainCanvasFeature() {
 			// Find the dragged component
 			const draggedComponent = components.find((c) => c.id === componentId);
 			if (!draggedComponent || !canvasRef.current) {
-				// Reset drag state
+				// Reset drag state and clear drag selection flag
 				useEditStore.setState((state) => ({
 					...state,
 					drag: {
@@ -316,6 +317,10 @@ export function MainCanvasFeature() {
 						draggedComponentId: null,
 						dropZones: [],
 						isValidDrop: false,
+					},
+					selection: {
+						...state.selection,
+						isSelectedForDrag: false,
 					},
 				}));
 				return;
@@ -359,7 +364,7 @@ export function MainCanvasFeature() {
 				});
 			}
 
-			// Reset drag state
+			// Reset drag state and clear drag selection flag
 			useEditStore.setState((state) => ({
 				...state,
 				drag: {
@@ -368,6 +373,10 @@ export function MainCanvasFeature() {
 					draggedComponentId: null,
 					dropZones: [],
 					isValidDrop: false,
+				},
+				selection: {
+					...state.selection,
+					isSelectedForDrag: false,
 				},
 			}));
 		},

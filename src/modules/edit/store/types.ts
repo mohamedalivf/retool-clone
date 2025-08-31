@@ -189,6 +189,7 @@ export interface SelectionState {
 	selectedComponentId: string | null;
 	isMultiSelect: boolean; // Future feature for multi-selection
 	selectionHistory: string[]; // Track selection history
+	isSelectedForDrag: boolean; // True when selection is made for dragging (prevents sidebar opening)
 }
 
 /**

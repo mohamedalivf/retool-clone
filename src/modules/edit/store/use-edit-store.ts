@@ -51,6 +51,7 @@ const initialSelectionState: SelectionState = {
 	selectedComponentId: null,
 	isMultiSelect: false,
 	selectionHistory: [],
+	isSelectedForDrag: false,
 };
 
 const initialSidebarState: SidebarState = {
@@ -108,6 +109,7 @@ interface EditStoreActions {
 
 	// Selection actions
 	selectComponent: (id: string | null) => void;
+	selectComponentForDrag: (id: string) => void;
 	clearSelection: () => void;
 
 	// Resize actions
@@ -229,6 +231,10 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 				selectionHistory: state.selection.selectionHistory.filter(
 					(historyId) => historyId !== id,
 				),
+				isSelectedForDrag: 
+					state.selection.selectedComponentId === id
+						? false
+						: state.selection.isSelectedForDrag,
 			},
 			sidebars: {
 				...state.sidebars,
@@ -249,7 +255,11 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 			if (!id) {
 				return {
 					...state,
-					selection: { ...state.selection, selectedComponentId: null },
+					selection: { 
+						...state.selection, 
+						selectedComponentId: null,
+						isSelectedForDrag: false,
+					},
 				};
 			}
 
@@ -268,6 +278,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 					...state.selection,
 					selectedComponentId: id,
 					selectionHistory: newHistory,
+					isSelectedForDrag: false, // Reset drag flag for normal selection
 				},
 				sidebars: {
 					...state.sidebars,
@@ -277,10 +288,38 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 		});
 	},
 
+	selectComponentForDrag: (id: string) => {
+		set((state) => {
+			const newHistory = state.selection.selectionHistory.filter(
+				(historyId) => historyId !== id,
+			);
+			newHistory.push(id);
+
+			if (newHistory.length > 10) {
+				newHistory.shift();
+			}
+
+			return {
+				...state,
+				selection: {
+					...state.selection,
+					selectedComponentId: id,
+					selectionHistory: newHistory,
+					isSelectedForDrag: true, // Mark as selected for drag
+				},
+				// Don't open sidebar when selecting for drag
+			};
+		});
+	},
+
 	clearSelection: () => {
 		set((state) => ({
 			...state,
-			selection: { ...state.selection, selectedComponentId: null },
+			selection: { 
+				...state.selection, 
+				selectedComponentId: null,
+				isSelectedForDrag: false,
+			},
 		}));
 	},
 
