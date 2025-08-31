@@ -4,8 +4,10 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "@tanstack/react-router";
 import {
 	Download,
+	Eye,
 	LayoutGrid,
 	Menu,
 	Palette,
@@ -30,6 +32,8 @@ export function HeaderFeature() {
 	const toggleRightSidebar = useEditStore((state) => state.toggleRightSidebar);
 	const updateSettings = useEditStore((state) => state.updateSettings);
 
+	const navigate = useNavigate();
+
 	const handleExport = () => {
 		// TODO: Implement export functionality
 		console.log("Export layout");
@@ -47,6 +51,10 @@ export function HeaderFeature() {
 
 	const toggleGridLines = () => {
 		updateSettings({ showGridLines: !showGridLines });
+	};
+
+	const handlePreview = () => {
+		navigate({ to: "/preview" });
 	};
 
 	return (
@@ -155,6 +163,19 @@ export function HeaderFeature() {
 
 			{/* Right Section */}
 			<div className="flex items-center gap-2">
+				{/* Preview Button */}
+				<Button
+					variant="default"
+					size="sm"
+					onClick={handlePreview}
+					className="gap-2"
+				>
+					<Eye className="h-4 w-4" />
+					Preview
+				</Button>
+
+				<div className="w-px h-6 bg-border mx-2" />
+
 				{/* Theme Toggle */}
 				<Button
 					variant="ghost"
