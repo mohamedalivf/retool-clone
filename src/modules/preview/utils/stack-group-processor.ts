@@ -107,10 +107,9 @@ export function processComponentsForStacking(components: ComponentState[]): {
 				...component,
 				stackGroupId: stackGroup.id,
 				stackPosition: {
-					// For now, all components in a stack start at 0,0 within the group
-					// This can be enhanced later for more complex positioning
-					x: 0,
-					y: 0,
+					// Calculate relative position within the stack group
+					x: component.position.x - stackGroup.position.x,
+					y: component.position.y - stackGroup.position.y,
 				},
 			};
 			processedComponents.push(processedComponent);

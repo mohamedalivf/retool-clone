@@ -122,10 +122,17 @@ export function PreviewCanvasFeature() {
 										);
 									}
 
+									// Get processed components for this stack group
+									const stackGroupProcessedComponents =
+										processedComponents.filter(
+											(comp) => comp.stackGroupId === item.stackGroup.id,
+										);
+
 									return (
 										<StackGroupWrapper
 											key={`desktop-stack-${item.stackGroup.id}`}
 											stackGroup={item.stackGroup}
+											processedComponents={stackGroupProcessedComponents}
 											isDesktop={true}
 										/>
 									);
@@ -156,10 +163,17 @@ export function PreviewCanvasFeature() {
 										);
 									}
 
+									// Get processed components for this stack group
+									const stackGroupProcessedComponents =
+										processedComponents.filter(
+											(comp) => comp.stackGroupId === item.stackGroup.id,
+										);
+
 									return (
 										<StackGroupWrapper
 											key={`mobile-stack-${item.stackGroup.id}`}
 											stackGroup={item.stackGroup}
+											processedComponents={stackGroupProcessedComponents}
 											isDesktop={false}
 											mobileRowStart={mobileRowStart}
 										/>
