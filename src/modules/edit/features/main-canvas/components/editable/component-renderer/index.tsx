@@ -3,77 +3,30 @@ import { cn } from "@/lib/utils";
 import { hugsToPixels } from "@/modules/edit/constants/hug-system";
 import type { GridConfiguration } from "@/modules/edit/store/types";
 import type { ComponentState } from "@/modules/edit/store/types";
-import {
-	useEditStore,
-	useIsComponentSelected,
-} from "@/modules/edit/store/use-edit-store";
-import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
-import { ImageComponent } from "./image-component";
-import { TextComponent } from "./text-component";
+import { ImageComponent } from "../image-component";
+import { TextComponent } from "../text-component";
+import { useComponentState } from "./hooks/use-component-state";
 interface ComponentRendererProps {
 	component: ComponentState;
 	grid: GridConfiguration;
 }
 
 export function ComponentRenderer({ component }: ComponentRendererProps) {
-	// Use specific selectors to prevent unnecessary re-renders
-	const selectComponent = useEditStore((state) => state.selectComponent);
-	const startResize = useEditStore((state) => state.startResize);
-	const isSelected = useIsComponentSelected(component.id);
-	const draggedComponentId = useEditStore(
-		(state) => state.drag.draggedComponentId,
-	);
-
+	// Use custom hook to manage all component state and logic
 	const {
-		attributes,
-		listeners,
+		isSelected,
+		isBeingDragged,
+		isInsideAnotherComponent,
+		getComponentZIndex,
+		dragAttributes,
+		dragListeners,
 		setNodeRef,
-		transform,
-		isDragging: isCurrentlyDragging,
-	} = useDraggable({
-		id: component.id,
-		data: {
-			type: "component",
-			component,
-		},
-	});
-
-	const style = {
-		transform: CSS.Translate.toString(transform),
-	};
-
-	const isBeingDragged =
-		isCurrentlyDragging || draggedComponentId === component.id;
-
-	const handleClick = (e: React.MouseEvent) => {
-		e.stopPropagation();
-
-		// TODO: Multi-select with Shift+click (future enhancement)
-		// For now, single selection only
-		if (e.shiftKey) {
-			// Multi-select logic would go here
-			console.log("Multi-select not yet implemented");
-		}
-
-		selectComponent(component.id);
-	};
-
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Enter" || e.key === " ") {
-			e.preventDefault();
-			selectComponent(component.id);
-		}
-	};
-
-	const handleResizeStart =
-		(direction: "horizontal" | "vertical" | "both") =>
-		(e: React.MouseEvent) => {
-			e.stopPropagation();
-			e.preventDefault();
-			startResize(component.id, direction);
-		};
+		dragStyle,
+		handleClick,
+		handleKeyDown,
+		handleResizeStart,
+	} = useComponentState({ component });
 
 	// Calculate grid position
 	const gridColumn =
@@ -93,23 +46,24 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 		<div
 			ref={setNodeRef}
 			className={cn(
-				"relative cursor-pointer transition-all duration-300 ease-in-out",
+				"relative cursor-pointer transition-all duration-200 ease-in-out",
 				"group",
-				isBeingDragged && [
-					"opacity-50", // Fade out while dragging
-					"z-50", // Bring dragged component to top
-				],
+				"pointer-events-auto",
+				getComponentZIndex(),
+				isBeingDragged && "opacity-50",
 				!isBeingDragged && [
 					"hover:ring-1 hover:ring-ring/30 hover:ring-offset-1",
 					"hover:shadow-sm",
-					// Remove hover:z-[5] to prevent z-index changes on hover
 				],
 				isSelected &&
 					!isBeingDragged && [
 						"ring-2 ring-primary/60 ring-offset-1 ring-offset-background",
 						"shadow-md",
-						// Remove z-10 to prevent z-index changes on selection
 					],
+				isInsideAnotherComponent && [
+					"hover:ring-2 hover:ring-primary/40", // More prominent hover for nested components
+					"hover:shadow-md",
+				],
 				component.type === "text" && `min-h-[${hugsToPixels(1)}px]`,
 				component.type === "image" && `min-h-[${hugsToPixels(4)}px]`,
 				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -119,12 +73,12 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 			style={{
 				gridColumn,
 				gridRow,
-				...style, // Apply drag transform
+				...dragStyle, // Apply drag transform
 			}}
 			onClick={handleClick}
 			onKeyDown={handleKeyDown}
 			aria-label={`${component.type} component - click to select, use drag handle to move`}
-			{...attributes}
+			{...dragAttributes}
 		>
 			{isSelected && (
 				<Badge
@@ -163,7 +117,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 				title="Drag to reorder component (won't open properties)"
 				onClick={(e) => e.stopPropagation()} // Prevent selection when clicking drag handle
 				onMouseDown={(e) => e.stopPropagation()} // Prevent any selection on mouse down
-				{...listeners} // Only the drag handle has drag listeners
+				{...dragListeners} // Only the drag handle has drag listeners
 			>
 				<GripVertical className="h-3 w-3" />
 			</div>

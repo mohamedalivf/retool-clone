@@ -118,6 +118,8 @@ export function processComponentsForStacking(components: ComponentState[]): {
 			processedComponents.push(component);
 		}
 	}
+	console.log("processedComponents", processedComponents);
+	console.log("stackGroups", stackGroups);
 
 	return { stackGroups, processedComponents };
 }
