@@ -249,27 +249,6 @@ function ImageProperties({
 
 				<div className="grid grid-cols-2 gap-4">
 					<div>
-						<Label htmlFor="aspect-ratio">Aspect Ratio</Label>
-						<Select
-							value={attributes.aspectRatio}
-							onValueChange={(value: ImageAttributes["aspectRatio"]) =>
-								onUpdate({ aspectRatio: value })
-							}
-						>
-							<SelectTrigger id="aspect-ratio" className="mt-1">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="auto">Auto</SelectItem>
-								<SelectItem value="1:1">Square (1:1)</SelectItem>
-								<SelectItem value="16:9">Widescreen (16:9)</SelectItem>
-								<SelectItem value="4:3">Standard (4:3)</SelectItem>
-								<SelectItem value="3:2">Photo (3:2)</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-
-					<div>
 						<Label htmlFor="object-fit">Object Fit</Label>
 						<Select
 							value={attributes.objectFit}
@@ -286,6 +265,31 @@ function ImageProperties({
 								<SelectItem value="fill">Fill</SelectItem>
 								<SelectItem value="scale-down">Scale Down</SelectItem>
 								<SelectItem value="none">None</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+
+					<div>
+						<Label htmlFor="object-position">Object Position</Label>
+						<Select
+							value={attributes.objectPosition}
+							onValueChange={(value: ImageAttributes["objectPosition"]) =>
+								onUpdate({ objectPosition: value })
+							}
+						>
+							<SelectTrigger id="object-position" className="mt-1">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="center">Center</SelectItem>
+								<SelectItem value="top">Top</SelectItem>
+								<SelectItem value="bottom">Bottom</SelectItem>
+								<SelectItem value="left">Left</SelectItem>
+								<SelectItem value="right">Right</SelectItem>
+								<SelectItem value="top-left">Top Left</SelectItem>
+								<SelectItem value="top-right">Top Right</SelectItem>
+								<SelectItem value="bottom-left">Bottom Left</SelectItem>
+								<SelectItem value="bottom-right">Bottom Right</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>

@@ -1,8 +1,3 @@
-/**
- * Component renderer that displays components on the canvas
- * Enhanced with shadcn/ui Card and Badge components for boundary indicators
- */
-
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
@@ -25,9 +20,6 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 	// Use specific selectors to prevent unnecessary re-renders
 	const selectComponent = useEditStore((state) => state.selectComponent);
 	const startResize = useEditStore((state) => state.startResize);
-	const toggleComponentWidth = useEditStore(
-		(state) => state.toggleComponentWidth,
-	);
 	const isSelected = useIsComponentSelected(component.id);
 	const draggedComponentId = useEditStore(
 		(state) => state.drag.draggedComponentId,
@@ -194,13 +186,10 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 					"text-primary",
 					"transition-all duration-200",
 					"cursor-grab active:cursor-grabbing",
-					// Enhanced visual feedback
 					"hover:bg-primary/20 hover:scale-110",
-					// Enhanced visibility - always show on hover, more visible when selected
 					"opacity-0 group-hover:opacity-60 hover:opacity-100",
 					isSelected && "opacity-80 hover:opacity-100",
 					isBeingDragged && "opacity-100",
-					// Animation
 					"animate-in fade-in-0 slide-in-from-top-1 duration-200",
 				)}
 				title="Drag to reorder component (won't open properties)"
@@ -211,9 +200,6 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 				<GripVertical className="h-3 w-3" />
 			</div>
 
-			{/* Selection Indicator Badge */}
-
-			{/* Resize Handles */}
 			{isSelected && !isBeingDragged && (
 				<>
 					{/* Right edge handle - horizontal resize */}
