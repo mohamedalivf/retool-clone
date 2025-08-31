@@ -10,7 +10,14 @@ import { PreviewComponentRenderer } from "./components/preview-component-rendere
 
 export function PreviewCanvasFeature() {
 	const components = usePreviewComponents();
-	const hasComponents = components.length > 0;
+
+	// Sort components by creation time to ensure proper layering
+	// Earlier components (lower createdAt) should render first, later ones on top
+	const sortedComponents = [...components].sort(
+		(a, b) => a.createdAt - b.createdAt,
+	);
+
+	const hasComponents = sortedComponents.length > 0;
 
 	return (
 		<div className="flex-1 overflow-auto bg-gray-50">
@@ -44,7 +51,7 @@ export function PreviewCanvasFeature() {
 								alignItems: "start", // Align items to start of their grid area
 							}}
 						>
-							{components.map((component) => (
+							{sortedComponents.map((component) => (
 								<PreviewComponentRenderer
 									key={component.id}
 									component={component}

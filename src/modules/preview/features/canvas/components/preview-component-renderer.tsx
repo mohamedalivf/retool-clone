@@ -30,10 +30,6 @@ export function PreviewComponentRenderer({
 			? `${component.position.y + 1}`
 			: `${component.position.y + 1} / span ${component.size.height}`;
 
-	// Calculate z-index based on creation time to handle overlapping components
-	// More recent components (higher createdAt) should appear on top
-	const zIndex = Math.floor(component.createdAt / 1000) % 1000; // Convert timestamp to reasonable z-index
-
 	return (
 		<div
 			className={cn(
@@ -41,11 +37,13 @@ export function PreviewComponentRenderer({
 				// Remove all interactive states since this is preview-only
 				component.type === "text" && `min-h-[${hugsToPixels(1)}px]`,
 				component.type === "image" && `min-h-[${hugsToPixels(4)}px]`,
+				// Add z-index classes similar to edit mode for proper layering
+				component.type === "text" && "z-10", // Text components get higher z-index
+				component.type === "image" && "z-0", // Image components get lower z-index
 			)}
 			style={{
 				gridColumn,
 				gridRow,
-				zIndex, // Ensure proper layering for overlapping components
 			}}
 			aria-label={`${component.type} component in preview mode`}
 		>
