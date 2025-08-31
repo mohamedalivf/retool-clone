@@ -22,6 +22,11 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 	const selectComponent = useEditStore((state) => state.selectComponent);
 	const startResize = useEditStore((state) => state.startResize);
 	const isSelected = useIsComponentSelected(component.id);
+	const isSelectedForDrag = useEditStore(
+		(state) =>
+			state.selection.isSelectedForDrag &&
+			state.selection.selectedComponentId === component.id,
+	);
 	const draggedComponentId = useEditStore(
 		(state) => state.drag.draggedComponentId,
 	);
@@ -107,7 +112,11 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 					!isBeingDragged && [
 						"ring-2 ring-primary/60 ring-offset-1 ring-offset-background",
 						"shadow-md",
-						"z-10", // Bring selected component above others
+					],
+				// Only bring component to front when selected for dragging, not regular selection
+				isSelectedForDrag &&
+					!isBeingDragged && [
+						"z-10", // Bring component above others only when selected for drag
 					],
 				component.type === "text" && `min-h-[${hugsToPixels(1)}px]`,
 				component.type === "image" && `min-h-[${hugsToPixels(4)}px]`,
