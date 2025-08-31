@@ -42,7 +42,9 @@ export function MainCanvasFeature() {
 		(state) => state.selection.selectedComponentId,
 	);
 	const selectComponent = useEditStore((state) => state.selectComponent);
-	const selectComponentForDrag = useEditStore((state) => state.selectComponentForDrag);
+	const selectComponentForDrag = useEditStore(
+		(state) => state.selectComponentForDrag,
+	);
 	const toggleRightSidebar = useEditStore((state) => state.toggleRightSidebar);
 	const toggleComponentWidth = useEditStore(
 		(state) => state.toggleComponentWidth,
@@ -228,23 +230,26 @@ export function MainCanvasFeature() {
 	);
 
 	// Drag and drop event handlers
-	const handleDragStart = useCallback((event: DragStartEvent) => {
-		const { active } = event;
-		const componentId = active.id as string;
+	const handleDragStart = useCallback(
+		(event: DragStartEvent) => {
+			const { active } = event;
+			const componentId = active.id as string;
 
-		// Select component for drag (brings it on top without opening sidebar)
-		selectComponentForDrag(componentId);
+			// Select component for drag (brings it on top without opening sidebar)
+			selectComponentForDrag(componentId);
 
-		// Update drag state in store
-		useEditStore.setState((state) => ({
-			...state,
-			drag: {
-				...state.drag,
-				isDragging: true,
-				draggedComponentId: componentId,
-			},
-		}));
-	}, [selectComponentForDrag]);
+			// Update drag state in store
+			useEditStore.setState((state) => ({
+				...state,
+				drag: {
+					...state.drag,
+					isDragging: true,
+					draggedComponentId: componentId,
+				},
+			}));
+		},
+		[selectComponentForDrag],
+	);
 
 	const handleDragMove = useCallback(
 		(event: DragMoveEvent) => {

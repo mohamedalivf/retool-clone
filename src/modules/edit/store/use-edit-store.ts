@@ -231,7 +231,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 				selectionHistory: state.selection.selectionHistory.filter(
 					(historyId) => historyId !== id,
 				),
-				isSelectedForDrag: 
+				isSelectedForDrag:
 					state.selection.selectedComponentId === id
 						? false
 						: state.selection.isSelectedForDrag,
@@ -255,8 +255,8 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 			if (!id) {
 				return {
 					...state,
-					selection: { 
-						...state.selection, 
+					selection: {
+						...state.selection,
 						selectedComponentId: null,
 						isSelectedForDrag: false,
 					},
@@ -315,8 +315,8 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 	clearSelection: () => {
 		set((state) => ({
 			...state,
-			selection: { 
-				...state.selection, 
+			selection: {
+				...state.selection,
 				selectedComponentId: null,
 				isSelectedForDrag: false,
 			},
