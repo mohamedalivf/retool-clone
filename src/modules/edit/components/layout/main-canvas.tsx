@@ -646,6 +646,7 @@ function SectorBorders({ grid, isDragging, isResizing }: SectorBordersProps) {
 							key={`drop-preview-${zone.x}-${zone.y}-${index}`}
 							className={cn(
 								"absolute transition-all duration-200",
+								"border-2 border-solid border-blue-500",
 								"pointer-events-none",
 							)}
 							style={{

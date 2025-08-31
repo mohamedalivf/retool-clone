@@ -2,6 +2,7 @@
  * Component factory utilities for creating new components
  */
 
+import { HUG_HEIGHT } from "../constants/hug-system";
 import type {
 	ComponentAttributes,
 	ComponentState,
@@ -27,12 +28,66 @@ export function generateComponentId(): string {
 }
 
 /**
+ * Calculate image height in hugs based on aspect ratio and width
+ */
+export function calculateImageHeightInHugs(
+	aspectRatio: string,
+	width: "half" | "full",
+): number {
+	// Get aspect ratio value
+	let ratio: number;
+	switch (aspectRatio) {
+		case "1:1":
+			ratio = 1;
+			break;
+		case "16:9":
+			ratio = 16 / 9;
+			break;
+		case "4:3":
+			ratio = 4 / 3;
+			break;
+		case "3:2":
+			ratio = 3 / 2;
+			break;
+		case "21:9":
+			ratio = 21 / 9;
+			break;
+		case "2:1":
+			ratio = 2 / 1;
+			break;
+		default:
+			ratio = 16 / 9; // Default to 16:9
+	}
+
+	// Assume canvas width is ~800px, so half = ~400px, full = ~800px
+	const assumedCanvasWidth = 800;
+	const componentWidth =
+		width === "half" ? assumedCanvasWidth / 2 : assumedCanvasWidth;
+	const componentHeight = componentWidth / ratio;
+
+	// Convert to hugs and round to nearest hug
+	const heightInHugs = Math.max(1, Math.round(componentHeight / HUG_HEIGHT));
+
+	return heightInHugs;
+}
+
+/**
  * Create default size based on component type
  */
 export function createDefaultSize(type: ComponentType): Size {
+	if (type === "text") {
+		return {
+			width: "half",
+			height: 1, // Text starts with 1 hug
+		};
+	}
+
+	// For images, calculate height based on default aspect ratio (16:9)
+	const width = "half";
+	const height = calculateImageHeightInHugs("16:9", width);
 	return {
-		width: "half", // Default to half-width for both types
-		height: type === "text" ? 1 : 2, // Text: 1 unit, Image: 2 units
+		width,
+		height,
 	};
 }
 
