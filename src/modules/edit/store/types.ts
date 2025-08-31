@@ -1,5 +1,3 @@
-
-
 export type ComponentType = "text" | "image";
 
 export type ComponentWidth = "half" | "full";
@@ -153,7 +151,6 @@ export interface ResizeState {
 }
 
 export interface EditStore {
-
 	components: ComponentState[];
 
 	selection: SelectionState;
@@ -171,7 +168,6 @@ export interface EditStore {
 	};
 
 	actions: {
-
 		addComponent: (type: ComponentType, position?: Position) => string;
 		updateComponent: (id: string, updates: Partial<ComponentState>) => void;
 		moveComponent: (id: string, newPosition: Position) => void;
@@ -297,4 +293,3 @@ export type AttributeEventHandler<T extends ComponentAttributes> = (
 	componentId: string,
 	attributes: Partial<T>,
 ) => void;
-

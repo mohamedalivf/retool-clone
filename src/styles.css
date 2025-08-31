@@ -132,31 +132,3 @@ code {
 		@apply bg-background text-foreground;
 	}
 }
-
-@layer components {
-	/* Responsive grid row behavior for preview text components */
-	.preview-text-responsive {
-		/* Mobile: use calculated mobile row position */
-		grid-row: var(--mobile-grid-row);
-	}
-
-	/* Desktop: use explicit positioning from desktop custom property */
-	@media (min-width: 768px) {
-		.preview-text-responsive {
-			grid-row: var(--desktop-grid-row);
-		}
-	}
-
-	/* Responsive grid row behavior for preview image components */
-	.preview-image-responsive {
-		/* Mobile: use calculated mobile row position with spanning */
-		grid-row: var(--mobile-grid-row);
-	}
-
-	/* Desktop: use explicit positioning from desktop custom property */
-	@media (min-width: 768px) {
-		.preview-image-responsive {
-			grid-row: var(--desktop-grid-row);
-		}
-	}
-}

@@ -6,15 +6,25 @@
 import { cn } from "@/lib/utils";
 import { HUG_HEIGHT } from "@/modules/edit/constants/hug-system";
 import { usePreviewComponents } from "../../store/use-preview-store";
-import { PreviewComponentRenderer } from "./components/preview-component-renderer";
+import { processComponentsForStacking } from "../../utils/stack-group-processor";
+import { PreviewDesktopRenderer } from "./components/preview-desktop-renderer";
+import { PreviewMobileRenderer } from "./components/preview-mobile-renderer";
+import { StackGroupWrapper } from "./components/stack-group-wrapper";
 
 export function PreviewCanvasFeature() {
 	const components = usePreviewComponents();
 
-	// Sort components for proper rendering order
-	// On desktop: sort by creation time for proper layering
-	// On mobile: sort by position (row first, then column) for logical flow
-	const sortedComponents = [...components].sort((a, b) => {
+	// Process components to detect and group overlapping components
+	const { stackGroups, processedComponents } =
+		processComponentsForStacking(components);
+
+	// Separate individual components from stacked components
+	const individualComponents = processedComponents.filter(
+		(component) => !component.stackGroupId,
+	);
+
+	// Sort individual components for proper rendering order
+	const sortedIndividualComponents = [...individualComponents].sort((a, b) => {
 		// Primary sort: by row (y position)
 		if (a.position.y !== b.position.y) {
 			return a.position.y - b.position.y;
@@ -29,7 +39,44 @@ export function PreviewCanvasFeature() {
 		return a.createdAt - b.createdAt;
 	});
 
-	const hasComponents = sortedComponents.length > 0;
+	// Sort stack groups by position
+	const sortedStackGroups = [...stackGroups].sort((a, b) => {
+		if (a.position.y !== b.position.y) {
+			return a.position.y - b.position.y;
+		}
+		return a.position.x - b.position.x;
+	});
+
+	// Create a unified rendering list with proper ordering
+	const renderingItems: Array<
+		| { type: "component"; component: (typeof sortedIndividualComponents)[0] }
+		| { type: "stackGroup"; stackGroup: (typeof sortedStackGroups)[0] }
+	> = [];
+
+	// Add individual components
+	for (const component of sortedIndividualComponents) {
+		renderingItems.push({ type: "component", component });
+	}
+
+	// Add stack groups
+	for (const stackGroup of sortedStackGroups) {
+		renderingItems.push({ type: "stackGroup", stackGroup });
+	}
+
+	// Sort all items by position for final rendering order
+	renderingItems.sort((a, b) => {
+		const aPos =
+			a.type === "component" ? a.component.position : a.stackGroup.position;
+		const bPos =
+			b.type === "component" ? b.component.position : b.stackGroup.position;
+
+		if (aPos.y !== bPos.y) {
+			return aPos.y - bPos.y;
+		}
+		return aPos.x - bPos.x;
+	});
+
+	const hasComponents = renderingItems.length > 0;
 
 	return (
 		<div className="flex-1 overflow-auto bg-gray-50">
@@ -63,22 +110,62 @@ export function PreviewCanvasFeature() {
 								alignItems: "start", // Align items to start of their grid area
 							}}
 						>
-							{sortedComponents.map((component, index) => {
-								// Calculate mobile row start based on previous components' heights
-								let mobileRowStart = 1;
-								for (let i = 0; i < index; i++) {
-									const prevComponent = sortedComponents[i];
-									mobileRowStart += prevComponent.size.height;
-								}
+							{/* Desktop View - Hidden on mobile */}
+							<div className="hidden md:contents">
+								{renderingItems.map((item) => {
+									if (item.type === "component") {
+										return (
+											<PreviewDesktopRenderer
+												key={`desktop-${item.component.id}`}
+												component={item.component}
+											/>
+										);
+									}
 
-								return (
-									<PreviewComponentRenderer
-										key={component.id}
-										component={component}
-										mobileRowStart={mobileRowStart}
-									/>
-								);
-							})}
+									return (
+										<StackGroupWrapper
+											key={`desktop-stack-${item.stackGroup.id}`}
+											stackGroup={item.stackGroup}
+											isDesktop={true}
+										/>
+									);
+								})}
+							</div>
+
+							{/* Mobile View - Hidden on desktop */}
+							<div className="contents md:hidden">
+								{renderingItems.map((item, index) => {
+									// Calculate mobile row start based on previous items' heights
+									let mobileRowStart = 1;
+									for (let i = 0; i < index; i++) {
+										const prevItem = renderingItems[i];
+										const height =
+											prevItem.type === "component"
+												? prevItem.component.size.height
+												: prevItem.stackGroup.height;
+										mobileRowStart += height;
+									}
+
+									if (item.type === "component") {
+										return (
+											<PreviewMobileRenderer
+												key={`mobile-${item.component.id}`}
+												component={item.component}
+												mobileRowStart={mobileRowStart}
+											/>
+										);
+									}
+
+									return (
+										<StackGroupWrapper
+											key={`mobile-stack-${item.stackGroup.id}`}
+											stackGroup={item.stackGroup}
+											isDesktop={false}
+											mobileRowStart={mobileRowStart}
+										/>
+									);
+								})}
+							</div>
 						</div>
 					)}
 				</div>
@@ -91,7 +178,27 @@ function PreviewEmptyState() {
 	return (
 		<div className="flex items-center justify-center h-full min-h-[400px]">
 			<div className="text-center">
-				<div className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+				<div className="mx-auto h-12 w-12 text-gray-400 mb-4">
+					<svg
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						aria-hidden="true"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={1}
+							d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+						/>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={1}
+							d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+						/>
+					</svg>
+				</div>
 				<h3 className="text-lg font-medium text-gray-900 mb-2">
 					No components to preview
 				</h3>
