@@ -1,19 +1,14 @@
-/**
- * Main canvas area for grid-based component editing
- * Enhanced with shadcn/ui styling conventions
- */
-
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
 	DndContext,
 	type DragEndEvent,
-	type DragOverEvent,
+	type DragMoveEvent,
 	DragOverlay,
 	type DragStartEvent,
 	KeyboardSensor,
 	PointerSensor,
 	closestCenter,
+	useDroppable,
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
@@ -68,6 +63,11 @@ export function MainCanvas() {
 			coordinateGetter: () => ({ x: 0, y: 0 }), // Will implement custom keyboard navigation
 		}),
 	);
+
+	// Make the canvas a droppable area
+	const { setNodeRef: setDroppableRef } = useDroppable({
+		id: "canvas-drop-zone",
+	});
 
 	// Validate drop position based on component size and grid constraints
 	const validateDropPosition = useCallback(
@@ -176,8 +176,8 @@ export function MainCanvas() {
 		// This prevents the sidebar from opening when dragging
 	}, []);
 
-	const handleDragOver = useCallback(
-		(event: DragOverEvent) => {
+	const handleDragMove = useCallback(
+		(event: DragMoveEvent) => {
 			const { active, delta, activatorEvent } = event;
 			const componentId = active.id as string;
 
@@ -306,13 +306,16 @@ export function MainCanvas() {
 				sensors={sensors}
 				collisionDetection={closestCenter}
 				onDragStart={handleDragStart}
-				onDragOver={handleDragOver}
+				onDragMove={handleDragMove}
 				onDragEnd={handleDragEnd}
 				modifiers={[restrictToParentElement]}
 			>
 				{/* Enhanced Grid Container with selection system */}
 				<div
-					ref={canvasRef}
+					ref={(node) => {
+						canvasRef.current = node;
+						setDroppableRef(node);
+					}}
 					className={cn(
 						// Base layout - full height, no padding
 						"h-full relative",
@@ -412,53 +415,48 @@ function DropZoneIndicators({
 	dropZones,
 	isValidDrop,
 }: DropZoneIndicatorsProps) {
-	if (!isDragging || dropZones.length === 0) {
+	const draggedComponentId = useEditStore(
+		(state) => state.drag.draggedComponentId,
+	);
+	const components = useEditStore((state) => state.components);
+
+	if (!isDragging || dropZones.length === 0 || !draggedComponentId) {
+		return null;
+	}
+
+	// Find the dragged component to get its size
+	const draggedComponent = components.find((c) => c.id === draggedComponentId);
+	if (!draggedComponent) {
 		return null;
 	}
 
 	return (
 		<div className="absolute inset-0 pointer-events-none z-30">
-			{dropZones.map((zone, index) => (
-				<div
-					key={`drop-zone-${zone.x}-${zone.y}-${index}`}
-					className={cn(
-						"absolute border-2 border-dashed rounded-lg transition-all duration-300",
-						"shadow-lg backdrop-blur-sm",
-						isValidDrop
-							? "border-green-400 bg-green-100/30 shadow-green-200/50"
-							: "border-red-400 bg-red-100/30 shadow-red-200/50",
-					)}
-					style={{
-						left: `${(zone.x / GRID_COLS) * 100}%`,
-						top: `${zone.y * HUG_HEIGHT}px`, // Use HUG_HEIGHT directly
-						width: `${100 / GRID_COLS}%`,
-						height: `${HUG_HEIGHT}px`, // Use HUG_HEIGHT directly
-						// Add some margin for better visual feedback
-						margin: "2px",
-						transform: "scale(1.02)", // Slightly larger for better visibility
-					}}
-				>
-					<Badge
-						variant={isValidDrop ? "default" : "destructive"}
-						className={cn(
-							"absolute top-2 left-2 text-xs font-medium",
-							"animate-pulse shadow-sm",
-							isValidDrop ? "bg-green-600" : "bg-red-600",
-						)}
-					>
-						{isValidDrop ? "✓ Drop Here" : "✗ Invalid"}
-					</Badge>
+			{dropZones.map((zone, index) => {
+				// Calculate component dimensions
+				const componentWidth =
+					draggedComponent.size.width === "full" ? 100 : 50; // % of canvas width
+				const componentHeight = draggedComponent.size.height * HUG_HEIGHT; // Height in pixels
 
-					{/* Visual snap indicator */}
+				return (
 					<div
+						key={`drop-zone-${zone.x}-${zone.y}-${index}`}
 						className={cn(
-							"absolute inset-0 rounded-lg border border-dashed",
-							"opacity-40",
-							isValidDrop ? "border-green-300" : "border-red-300",
+							"absolute transition-all duration-200",
+							"border-2 border-solid", // Make sure border is solid and visible
+							isValidDrop
+								? "border-dashed border-blue-500"
+								: "bg-red-200/60 border-red-500",
 						)}
+						style={{
+							left: `${(zone.x / GRID_COLS) * 100}%`,
+							top: `${zone.y * HUG_HEIGHT}px`,
+							width: `${componentWidth}%`,
+							height: `${componentHeight}px`,
+						}}
 					/>
-				</div>
-			))}
+				);
+			})}
 		</div>
 	);
 }
@@ -469,9 +467,21 @@ interface SectorBordersProps {
 }
 
 function SectorBorders({ grid, isDragging }: SectorBordersProps) {
+	const draggedComponentId = useEditStore(
+		(state) => state.drag.draggedComponentId,
+	);
+	const components = useEditStore((state) => state.components);
+	const dropZones = useEditStore((state) => state.drag.dropZones);
+	const isValidDrop = useEditStore((state) => state.drag.isValidDrop);
+
 	if (!isDragging) {
 		return null;
 	}
+
+	// Find the dragged component for preview
+	const draggedComponent = draggedComponentId
+		? components.find((c) => c.id === draggedComponentId)
+		: null;
 
 	return (
 		<div className="absolute inset-0 pointer-events-none z-20">
@@ -497,6 +507,32 @@ function SectorBorders({ grid, isDragging }: SectorBordersProps) {
 					}}
 				/>
 			))}
+
+			{/* Drop Preview - Blue border showing where component will land */}
+			{draggedComponent &&
+				dropZones.length > 0 &&
+				dropZones.map((zone, index) => {
+					const componentWidth =
+						draggedComponent.size.width === "full" ? 100 : 50;
+					const componentHeight = draggedComponent.size.height * HUG_HEIGHT;
+
+					return (
+						<div
+							key={`drop-preview-${zone.x}-${zone.y}-${index}`}
+							className={cn(
+								"absolute transition-all duration-200",
+								"pointer-events-none",
+							)}
+							style={{
+								left: `${(zone.x / GRID_COLS) * 100}%`,
+								top: `${zone.y * HUG_HEIGHT}px`,
+								width: `${componentWidth}%`,
+								height: `${componentHeight}px`,
+								zIndex: 40,
+							}}
+						/>
+					);
+				})}
 
 			{/* Left column highlight */}
 			<div

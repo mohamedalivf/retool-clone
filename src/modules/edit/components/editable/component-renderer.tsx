@@ -98,8 +98,8 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 				isBeingDragged && [
 					"opacity-50", // Fade out while dragging
 					"z-50", // Bring dragged component to top
-					"rotate-2", // Slight rotation for drag feedback
-					"scale-105", // Slightly larger while dragging
+					// "rotate-2", // Slight rotation for drag feedback
+					// "scale-105", // Slightly larger while dragging
 				],
 				// Enhanced hover states (only when not dragging)
 				!isBeingDragged && [
