@@ -31,10 +31,6 @@ export function useCanvasStore() {
 
 	// Resize state
 	const resizeState = useEditStore((state) => state.resize);
-	const isResizing = resizeState.isResizing;
-	const resizedComponentId = resizeState.resizedComponentId;
-	const resizePreview = resizeState.resizePreview;
-	const isValidResize = resizeState.isValidResize;
 
 	// Actions
 	const selectComponent = useEditStore((state) => state.selectComponent);
@@ -80,10 +76,6 @@ export function useCanvasStore() {
 
 		// Resize state
 		resizeState: {
-			isResizing,
-			resizedComponentId,
-			resizePreview,
-			isValidResize,
 			...resizeState, // Include full state for complex operations
 		},
 

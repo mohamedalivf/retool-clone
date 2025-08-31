@@ -88,8 +88,8 @@ export function checkCollisionForCreation(
 export function checkCollisionForDrag(
 	position: Position,
 	size: Size,
-	components: ComponentState[],
-	excludeId?: string,
+	_components: ComponentState[],
+	_excludeId?: string,
 ): boolean {
 
 	if (position.x < 0 || position.x > 1) {
@@ -170,7 +170,7 @@ export function getComponentsInRow(
 export function isValidGridPosition(
 	position: Position,
 	size: Size,
-	gridConfig: GridConfiguration,
+	_gridConfig: GridConfiguration,
 ): boolean {
 
 	if (position.x < 0 || position.x > 1) {
@@ -305,13 +305,12 @@ export function calculateRequiredGridHeight(
 
 export function calculateResponsiveGrid(
 	containerWidth: number,
-	containerHeight: number,
+	_containerHeight: number,
 	baseGridConfig: GridConfiguration,
 ): GridConfiguration {
 
 	const isSmall = containerWidth < 640;
 	const isMedium = containerWidth >= 640 && containerWidth < 1024;
-	const isLarge = containerWidth >= 1024;
 
 	const responsiveConfig: GridConfiguration = {
 		...baseGridConfig,
@@ -333,7 +332,7 @@ export function calculateResponsiveGrid(
 
 export function getOptimalComponentSize(
 	componentType: "text" | "image",
-	contentLength?: number,
+	_contentLength?: number,
 ): Size {
 	switch (componentType) {
 		case "text":
