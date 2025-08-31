@@ -368,10 +368,10 @@ export const DEFAULT_COMPONENT_STYLES: ComponentStyles = {
 		color: "#e5e7eb",
 	},
 	padding: {
-		top: 16,
-		right: 16,
-		bottom: 16,
-		left: 16,
+		top: 0,
+		right: 0,
+		bottom: 0,
+		left: 0,
 	},
 	margin: {
 		top: 0,

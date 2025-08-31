@@ -136,15 +136,15 @@ export function StylesPanel({ component }: StylesPanelProps) {
 							id="padding-top"
 							type="number"
 							min="0"
-							value={styles.padding?.top || 16}
+							value={styles.padding?.top || 0}
 							onChange={(e) =>
 								handleUpdateStyles({
 									padding: {
 										...styles.padding,
 										top: Number.parseInt(e.target.value) || 0,
-										right: styles.padding?.right || 16,
-										bottom: styles.padding?.bottom || 16,
-										left: styles.padding?.left || 16,
+										right: styles.padding?.right || 0,
+										bottom: styles.padding?.bottom || 0,
+										left: styles.padding?.left || 0,
 									},
 								})
 							}
@@ -157,15 +157,15 @@ export function StylesPanel({ component }: StylesPanelProps) {
 							id="padding-right"
 							type="number"
 							min="0"
-							value={styles.padding?.right || 16}
+							value={styles.padding?.right || 0}
 							onChange={(e) =>
 								handleUpdateStyles({
 									padding: {
 										...styles.padding,
-										top: styles.padding?.top || 16,
+										top: styles.padding?.top || 0,
 										right: Number.parseInt(e.target.value) || 0,
-										bottom: styles.padding?.bottom || 16,
-										left: styles.padding?.left || 16,
+										bottom: styles.padding?.bottom || 0,
+										left: styles.padding?.left || 0,
 									},
 								})
 							}
@@ -178,15 +178,15 @@ export function StylesPanel({ component }: StylesPanelProps) {
 							id="padding-bottom"
 							type="number"
 							min="0"
-							value={styles.padding?.bottom || 16}
+							value={styles.padding?.bottom || 0}
 							onChange={(e) =>
 								handleUpdateStyles({
 									padding: {
 										...styles.padding,
-										top: styles.padding?.top || 16,
-										right: styles.padding?.right || 16,
+										top: styles.padding?.top || 0,
+										right: styles.padding?.right || 0,
 										bottom: Number.parseInt(e.target.value) || 0,
-										left: styles.padding?.left || 16,
+										left: styles.padding?.left || 0,
 									},
 								})
 							}
@@ -199,14 +199,14 @@ export function StylesPanel({ component }: StylesPanelProps) {
 							id="padding-left"
 							type="number"
 							min="0"
-							value={styles.padding?.left || 16}
+							value={styles.padding?.left || 0}
 							onChange={(e) =>
 								handleUpdateStyles({
 									padding: {
 										...styles.padding,
-										top: styles.padding?.top || 16,
-										right: styles.padding?.right || 16,
-										bottom: styles.padding?.bottom || 16,
+										top: styles.padding?.top || 0,
+										right: styles.padding?.right || 0,
+										bottom: styles.padding?.bottom || 0,
 										left: Number.parseInt(e.target.value) || 0,
 									},
 								})

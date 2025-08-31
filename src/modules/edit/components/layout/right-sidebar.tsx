@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Database, Palette, Settings, X } from "lucide-react";
-import { useSelectedComponent, useEditStore } from "../../store/use-edit-store";
+import { useEditStore, useSelectedComponent } from "../../store/use-edit-store";
 import { DataPanel } from "../sidebars/data-panel";
 import { PropertiesPanel } from "../sidebars/properties-panel";
 import { StylesPanel } from "../sidebars/styles-panel";

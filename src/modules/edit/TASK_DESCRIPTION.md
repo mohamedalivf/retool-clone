@@ -56,8 +56,8 @@ interface EditStore {
 interface ImageAttributes {
   src: string; // Image URL/path
   alt: string; // Alt text
-  aspectRatio: '1:1' | '16:9' | '4:3' | '3:2' | 'auto';
   objectFit: 'cover' | 'contain' | 'fill' | 'scale-down' | 'none';
+  objectPosition: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   borderRadius: 'none' | 'sm' | 'md' | 'lg' | 'full';
 }
 
@@ -80,14 +80,14 @@ interface TextAttributes {
 - **Default Attributes**:
   - `src: ""` (empty, shows placeholder)
   - `alt: "Image"`
-  - `aspectRatio: "auto"`
   - `objectFit: "cover"`
+  - `objectPosition: "center"`
   - `borderRadius: "none"`
 
 #### Properties Sidebar
 - **Image Source Input**: Text input for image URL/path
-- **Aspect Ratio Selector**: Dropdown with predefined ratios
 - **Object Fit Selector**: Dropdown for CSS object-fit values
+- **Object Position Selector**: Dropdown for CSS object-position values
 - **Border Radius Selector**: Dropdown for border radius options
 - **Alt Text Input**: Text input for accessibility
 

@@ -149,7 +149,7 @@ export function MainCanvas() {
 
 			return !hasCollision;
 		},
-		[components, fixExistingComponentHeights],
+		[fixExistingComponentHeights],
 	);
 
 	// Handle background click to deselect
@@ -506,7 +506,6 @@ export function MainCanvas() {
 					<SectorBorders
 						isDragging={useEditStore((state) => state.drag.isDragging)}
 						isResizing={isResizing}
-						canvasRef={canvasRef}
 					/>
 
 					{/* Empty State */}
@@ -549,7 +548,6 @@ export function MainCanvas() {
 					<SectorBorders
 						isDragging={useEditStore((state) => state.drag.isDragging)}
 						isResizing={isResizing}
-						canvasRef={canvasRef}
 					/>
 				</div>
 
@@ -566,14 +564,9 @@ export function MainCanvas() {
 interface SectorBordersProps {
 	isDragging: boolean;
 	isResizing: boolean;
-	canvasRef: React.RefObject<HTMLDivElement | null>;
 }
 
-function SectorBorders({
-	isDragging,
-	isResizing,
-	canvasRef,
-}: SectorBordersProps) {
+function SectorBorders({ isDragging, isResizing }: SectorBordersProps) {
 	const draggedComponentId = useEditStore(
 		(state) => state.drag.draggedComponentId,
 	);
@@ -631,51 +624,9 @@ function SectorBorders({
 					const componentWidth =
 						draggedComponent.size.width === "full" ? 100 : 50;
 
-					// Calculate actual rendered height based on component type
-					let componentHeight: number;
-					if (draggedComponent.type === "image") {
-						// For images, calculate height based on aspect ratio and width
-						const canvasRect = canvasRef.current?.getBoundingClientRect();
-						if (canvasRect) {
-							const actualWidth = (canvasRect.width * componentWidth) / 100;
-							const aspectRatio =
-								(draggedComponent.attributes as { aspectRatio?: string })
-									.aspectRatio || "16:9";
-
-							// Get aspect ratio value
-							let ratio: number;
-							switch (aspectRatio) {
-								case "1:1":
-									ratio = 1;
-									break;
-								case "16:9":
-									ratio = 16 / 9;
-									break;
-								case "4:3":
-									ratio = 4 / 3;
-									break;
-								case "3:2":
-									ratio = 3 / 2;
-									break;
-								case "21:9":
-									ratio = 21 / 9;
-									break;
-								case "2:1":
-									ratio = 2 / 1;
-									break;
-								default:
-									ratio = 16 / 9;
-							}
-
-							componentHeight = actualWidth / ratio;
-						} else {
-							// Fallback to hug-based height
-							componentHeight = draggedComponent.size.height * HUG_HEIGHT;
-						}
-					} else {
-						// For text components, use hug-based height
-						componentHeight = draggedComponent.size.height * HUG_HEIGHT;
-					}
+					// Calculate height based on component's actual size in hugs
+					// Since we removed aspect ratio control, all components use hug-based height
+					const componentHeight = draggedComponent.size.height * HUG_HEIGHT;
 
 					return (
 						<div
