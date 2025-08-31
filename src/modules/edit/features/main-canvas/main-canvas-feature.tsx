@@ -49,14 +49,10 @@ export function MainCanvasFeature() {
 	const fixExistingComponentHeights = useEditStore(
 		(state) => state.fixExistingComponentHeights,
 	);
-	const fixComponentZIndex = useEditStore((state) => state.fixComponentZIndex);
 	const rightSidebarOpen = useEditStore(
 		(state) => state.sidebars.rightSidebar.isOpen,
 	);
 	const updateComponent = useEditStore((state) => state.updateComponent);
-	const bringComponentToFront = useEditStore(
-		(state) => state.bringComponentToFront,
-	);
 	const isResizing = useEditStore((state) => state.resize.isResizing);
 	const resizeState = useEditStore((state) => state.resize);
 	const updateResize = useEditStore((state) => state.updateResize);
@@ -76,10 +72,7 @@ export function MainCanvasFeature() {
 		} else {
 			fixExistingComponentHeights();
 		}
-
-		// Fix z-index for existing components that might not have it
-		fixComponentZIndex();
-	}, [fixExistingComponentHeights, fixComponentZIndex]);
+	}, [fixExistingComponentHeights]);
 
 	// Also fix heights whenever components array changes (more aggressive)
 	useEffect(() => {
@@ -364,9 +357,6 @@ export function MainCanvasFeature() {
 				updateComponent(componentId, {
 					position: snapPosition,
 				});
-
-				// Bring the dropped component to the front so it appears on top of overlapping components
-				bringComponentToFront(componentId);
 			}
 
 			// Reset drag state
@@ -381,7 +371,7 @@ export function MainCanvasFeature() {
 				},
 			}));
 		},
-		[components, updateComponent, bringComponentToFront, validateDropPosition],
+		[components, updateComponent, validateDropPosition],
 	);
 
 	// Resize mouse tracking
@@ -559,15 +549,13 @@ export function MainCanvasFeature() {
 								alignItems: "start", // Align items to start of their grid area
 							}}
 						>
-							{components
-								.sort((a, b) => a.zIndex - b.zIndex) // Sort by z-index to ensure proper rendering order
-								.map((component) => (
-									<ComponentRenderer
-										key={component.id}
-										component={component}
-										grid={grid}
-									/>
-								))}
+							{components.map((component) => (
+								<ComponentRenderer
+									key={component.id}
+									component={component}
+									grid={grid}
+								/>
+							))}
 						</div>
 					)}
 
@@ -578,15 +566,10 @@ export function MainCanvasFeature() {
 					/>
 				</div>
 
-				{/* @dnd-kit Drag Overlay - empty to let original component handle drag visuals */}
-				<DragOverlay
-					modifiers={[restrictToWindowEdges]}
-					dropAnimation={{
-						duration: 200,
-						easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
-					}}
-				>
-					{/* Empty - we want the original component to be visible, not a clone */}
+				{/* @dnd-kit Drag Overlay for visual feedback */}
+				<DragOverlay modifiers={[restrictToWindowEdges]}>
+					{/* TODO: Render dragged component preview */}
+					{/* Will be implemented in next step */}
 				</DragOverlay>
 			</DndContext>
 		</div>

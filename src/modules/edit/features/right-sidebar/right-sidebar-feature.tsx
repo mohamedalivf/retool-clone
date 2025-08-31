@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { Database, Palette, Settings, X } from "lucide-react";
+import { Database, Palette, Settings } from "lucide-react";
 import { useEditStore, useSelectedComponent } from "../../store/use-edit-store";
 import { DataPanel } from "./components/data-panel";
 import { PropertiesPanel } from "./components/properties-panel";
@@ -47,14 +47,6 @@ export function RightSidebarFeature({
 							<SheetTitle className="text-left">
 								{selectedComponent ? "Component Properties" : "Properties"}
 							</SheetTitle>
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={toggleRightSidebar}
-								className="p-1 h-auto"
-							>
-								<X className="h-4 w-4" />
-							</Button>
 						</div>
 						{selectedComponent && (
 							<p className="text-sm text-muted-foreground text-left">

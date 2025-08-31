@@ -82,7 +82,6 @@ export function createComponent(
 		attributes: { ...defaultAttributes, ...attributes } as ComponentAttributes,
 		styles: { ...DEFAULT_COMPONENT_STYLES, ...styles },
 		status: "active",
-		zIndex: now, // Use timestamp as initial z-index for natural stacking order
 		createdAt: now,
 		updatedAt: now,
 	};
@@ -151,7 +150,6 @@ export function cloneComponent(
 		...component,
 		id: generateComponentId(),
 		position: newPosition,
-		zIndex: now, // New z-index for cloned component
 		createdAt: now,
 		updatedAt: now,
 	};

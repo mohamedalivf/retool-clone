@@ -223,10 +223,10 @@ export function truncateMarkdown(content: string, maxLength: number): string {
 	const lastSpace = truncated.lastIndexOf(" ");
 
 	if (lastSpace > maxLength * 0.8) {
-		return truncated.substring(0, lastSpace) + "...";
+		return `${truncated.substring(0, lastSpace)}...`;
 	}
 
-	return truncated + "...";
+	return `${truncated}...`;
 }
 
 /**

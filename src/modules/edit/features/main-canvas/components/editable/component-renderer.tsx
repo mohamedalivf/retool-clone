@@ -96,18 +96,18 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 				"relative cursor-pointer transition-all duration-300 ease-in-out",
 				"group",
 				isBeingDragged && [
-					"opacity-100", // Keep fully visible while dragging
-					"shadow-2xl", // Add strong shadow to indicate it's being dragged
-					"ring-2 ring-primary/50", // Add ring to show it's active
+					"opacity-50", // Fade out while dragging
+					"z-50", // Bring dragged component to top
 				],
 				!isBeingDragged && [
 					"hover:ring-1 hover:ring-ring/30 hover:ring-offset-1",
-					"hover:shadow-sm",
+					"hover:shadow-sm hover:z-[5]",
 				],
 				isSelected &&
 					!isBeingDragged && [
 						"ring-2 ring-primary/60 ring-offset-1 ring-offset-background",
 						"shadow-md",
+						"z-10", // Bring selected component above others
 					],
 				component.type === "text" && `min-h-[${hugsToPixels(1)}px]`,
 				component.type === "image" && `min-h-[${hugsToPixels(4)}px]`,
@@ -118,11 +118,6 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 			style={{
 				gridColumn,
 				gridRow,
-				zIndex: isBeingDragged
-					? 2147483647 // Maximum z-index for dragged component
-					: isSelected
-						? component.zIndex + 10 // Bring selected component above others
-						: component.zIndex, // Use component's z-index for stacking
 				...style, // Apply drag transform
 			}}
 			onClick={handleClick}

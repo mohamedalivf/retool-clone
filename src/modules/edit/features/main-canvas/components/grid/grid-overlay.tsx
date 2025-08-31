@@ -5,7 +5,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type { GridConfiguration } from "../../store/types";
+import type { GridConfiguration } from "@/modules/edit/store/types";
 
 interface GridOverlayProps {
 	grid: GridConfiguration;
@@ -104,7 +104,10 @@ export function GridOverlay({ grid, className }: GridOverlayProps) {
 					{Array.from({ length: rows }, (_, row) =>
 						Array.from({ length: cols }, (_, col) => (
 							<div
-								key={`cell-${row}-${col}`}
+								key={`cell-${row}-${
+									// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+									col
+								}`}
 								className={cn(
 									"absolute flex items-center justify-center",
 									"border border-border/20 rounded-sm",
