@@ -37,7 +37,6 @@ import { findNextAvailablePosition } from "../utils/grid-calculations";
  */
 export function fixImageComponentHeights(
 	components: ComponentState[],
-	canvasWidth?: number,
 ): ComponentState[] {
 	// Since we're no longer using aspect ratio calculations,
 	// just return components as-is. Height is now controlled manually via resizing.

@@ -134,51 +134,6 @@ function TextProperties({
 
 				<div className="grid grid-cols-2 gap-4">
 					<div>
-						<Label htmlFor="font-size">Font Size</Label>
-						<Select
-							value={attributes.fontSize}
-							onValueChange={(value: TextAttributes["fontSize"]) =>
-								onUpdate({ fontSize: value })
-							}
-						>
-							<SelectTrigger id="font-size" className="mt-1">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="xs">Extra Small</SelectItem>
-								<SelectItem value="sm">Small</SelectItem>
-								<SelectItem value="base">Base</SelectItem>
-								<SelectItem value="lg">Large</SelectItem>
-								<SelectItem value="xl">Extra Large</SelectItem>
-								<SelectItem value="2xl">2X Large</SelectItem>
-								<SelectItem value="3xl">3X Large</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-
-					<div>
-						<Label htmlFor="font-weight">Font Weight</Label>
-						<Select
-							value={attributes.fontWeight}
-							onValueChange={(value: TextAttributes["fontWeight"]) =>
-								onUpdate({ fontWeight: value })
-							}
-						>
-							<SelectTrigger id="font-weight" className="mt-1">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="normal">Normal</SelectItem>
-								<SelectItem value="medium">Medium</SelectItem>
-								<SelectItem value="semibold">Semibold</SelectItem>
-								<SelectItem value="bold">Bold</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
-
-				<div className="grid grid-cols-2 gap-4">
-					<div>
 						<Label htmlFor="text-align">Text Align</Label>
 						<Select
 							value={attributes.textAlign}

@@ -67,7 +67,7 @@ export function MainCanvas() {
 			// Pass actual canvas width for accurate calculations
 			useEditStore.setState((state) => ({
 				...state,
-				components: fixImageComponentHeights(state.components, canvasWidth),
+				components: fixImageComponentHeights(state.components),
 			}));
 		} else {
 			fixExistingComponentHeights();
@@ -81,7 +81,7 @@ export function MainCanvas() {
 			if (canvasWidth) {
 				useEditStore.setState((state) => ({
 					...state,
-					components: fixImageComponentHeights(state.components, canvasWidth),
+					components: fixImageComponentHeights(state.components),
 				}));
 			} else {
 				fixExistingComponentHeights();
