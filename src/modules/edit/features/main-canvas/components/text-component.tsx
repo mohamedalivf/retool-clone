@@ -107,7 +107,6 @@ export const TextComponent = React.memo(function TextComponent({
 	);
 
 	const handleSave = useCallback(() => {
-
 		updateComponent(component.id, {
 			attributes: {
 				...attributes,
@@ -115,7 +114,6 @@ export const TextComponent = React.memo(function TextComponent({
 			},
 		});
 		setIsEditing(false);
-
 	}, [component.id, attributes, editValue, updateComponent]);
 
 	const handleCancel = useCallback(() => {
@@ -197,7 +195,7 @@ export const TextComponent = React.memo(function TextComponent({
 				minHeight: `${HUG_HEIGHT}px`,
 			}}
 			onDoubleClick={handleDoubleClick}
-
+			// biome-ignore lint/a11y/useSemanticElements: <explanation>
 			role="textbox"
 			aria-label={`Text component: ${attributes.content || "Empty text"}`}
 			aria-readonly={!isSelected}
@@ -216,7 +214,6 @@ export const TextComponent = React.memo(function TextComponent({
 				{attributes.content ? (
 					<ReactMarkdown
 						components={{
-
 							p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
 
 							h1: ({ children }) => (

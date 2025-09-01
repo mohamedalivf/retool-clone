@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { HUG_HEIGHT } from "../../../constants/hug-system";
 import type { ComponentState, GridConfiguration } from "../../../store/types";
-import { ComponentRenderer } from "./editable/component-renderer";
+import { ComponentRenderer } from "./component-renderer";
 
 interface CanvasGridProps {
 	components: ComponentState[];
