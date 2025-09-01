@@ -15,9 +15,8 @@ interface UseResizingProps {
 	endResize: () => void;
 }
 
-/**
- * Hook for handling component resizing operations
- */
+
+
 export function useResizing({
 	isResizing,
 	resizeState,
@@ -52,18 +51,18 @@ export function useResizing({
 				resizeState.resizeDirection === "horizontal" ||
 				resizeState.resizeDirection === "both"
 			) {
-				// Handle horizontal resizing
+
 				const relativeX = mouseX - componentX;
 				const halfWidth = columnWidth;
 				const fullWidth = canvasRect.width;
 
 				if (component.size.width === "half") {
-					// Currently half width, check if should become full
+
 					if (relativeX > halfWidth * 0.7) {
 						newWidth = "full";
 					}
 				} else {
-					// Currently full width, check if should become half
+
 					if (relativeX < fullWidth * 0.7) {
 						newWidth = "half";
 					}
@@ -74,7 +73,7 @@ export function useResizing({
 				resizeState.resizeDirection === "vertical" ||
 				resizeState.resizeDirection === "both"
 			) {
-				// Handle vertical resizing
+
 				const relativeY = mouseY - componentY;
 				const newHeightInHugs = Math.max(1, Math.round(relativeY / HUG_HEIGHT));
 				newHeight = newHeightInHugs;
@@ -83,7 +82,7 @@ export function useResizing({
 			const newSize = { width: newWidth, height: newHeight };
 			updateResize(newSize);
 
-			// Update resize preview
+
 			const previewWidth = newWidth === "full" ? canvasRect.width : columnWidth;
 			const previewHeight = newHeight * HUG_HEIGHT;
 
@@ -116,7 +115,7 @@ export function useResizing({
 	}, [isResizing, resizeState, components, updateResize, endResize, canvasRef]);
 
 	return {
-		// This hook primarily manages side effects
-		// The actual resize state is managed by the store
+
+
 	};
 }

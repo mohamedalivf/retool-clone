@@ -1,6 +1,5 @@
-/**
- * Application header with title, controls, and sidebar toggles
- */
+
+
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,7 +20,7 @@ import {
 import { useEditStore } from "../../store/use-edit-store";
 
 export function HeaderFeature() {
-	// Use specific selectors to prevent unnecessary re-renders
+
 	const leftSidebarOpen = useEditStore(
 		(state) => state.sidebars.leftSidebar.isOpen,
 	);
@@ -36,17 +35,17 @@ export function HeaderFeature() {
 	const navigate = useNavigate();
 
 	const handleExport = () => {
-		// TODO: Implement export functionality
+
 		console.log("Export layout");
 	};
 
 	const handleImport = () => {
-		// TODO: Implement import functionality
+
 		console.log("Import layout");
 	};
 
 	const handleSave = () => {
-		// TODO: Implement save functionality
+
 		console.log("Save layout");
 	};
 
@@ -60,9 +59,7 @@ export function HeaderFeature() {
 
 	return (
 		<header className="h-14 bg-background border-b border-border flex items-center justify-between px-4 shrink-0">
-			{/* Left Section */}
 			<div className="flex items-center gap-3">
-				{/* Left Sidebar Toggle */}
 				<Button
 					variant="ghost"
 					size="sm"
@@ -76,7 +73,6 @@ export function HeaderFeature() {
 					<Plus className="h-4 w-4" />
 				</Button>
 
-				{/* Application Title */}
 				<div className="flex items-center gap-2">
 					<div>
 						<h1 className="text-lg font-semibold text-foreground">
@@ -86,9 +82,7 @@ export function HeaderFeature() {
 				</div>
 			</div>
 
-			{/* Center Section - Controls */}
 			<div className="flex items-center gap-1">
-				{/* Undo/Redo */}
 				<Button
 					variant="ghost"
 					size="sm"
@@ -110,7 +104,6 @@ export function HeaderFeature() {
 
 				<div className="w-px h-6 bg-border mx-2" />
 
-				{/* Grid Toggle */}
 				<Button
 					variant="ghost"
 					size="sm"
@@ -126,7 +119,6 @@ export function HeaderFeature() {
 
 				<div className="w-px h-6 bg-border mx-2" />
 
-				{/* File Operations */}
 				<Button
 					variant="ghost"
 					size="sm"
@@ -156,9 +148,7 @@ export function HeaderFeature() {
 				</Button>
 			</div>
 
-			{/* Right Section */}
 			<div className="flex items-center gap-2">
-				{/* Preview Button */}
 				<Button
 					variant="default"
 					size="sm"
@@ -171,7 +161,6 @@ export function HeaderFeature() {
 
 				<div className="w-px h-6 bg-border mx-2" />
 
-				{/* Theme Toggle */}
 				<Button
 					variant="ghost"
 					size="sm"
@@ -181,12 +170,10 @@ export function HeaderFeature() {
 					<Palette className="h-4 w-4" />
 				</Button>
 
-				{/* Settings */}
 				<Button variant="ghost" size="sm" className="p-2" aria-label="Settings">
 					<Settings className="h-4 w-4" />
 				</Button>
 
-				{/* Right Sidebar Toggle */}
 				<Button
 					variant="ghost"
 					size="sm"

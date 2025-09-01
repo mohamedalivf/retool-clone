@@ -13,7 +13,7 @@ interface ComponentRendererProps {
 }
 
 export function ComponentRenderer({ component }: ComponentRendererProps) {
-	// Use custom hook to manage all component state and logic
+
 	const {
 		isSelected,
 		isBeingDragged,
@@ -28,7 +28,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 		handleResizeStart,
 	} = useComponentState({ component });
 
-	// Calculate grid position
+
 	const gridColumn =
 		component.size.width === "full"
 			? "1 / -1"
@@ -36,7 +36,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 				? "1"
 				: "2";
 
-	// For text components, use auto grid row. For images, use span if needed
+
 	const gridRow =
 		component.type === "text"
 			? `${component.position.y + 1}`
@@ -61,7 +61,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 						"shadow-md",
 					],
 				isInsideAnotherComponent && [
-					"hover:ring-2 hover:ring-primary/40", // More prominent hover for nested components
+					"hover:ring-2 hover:ring-primary/40",
 					"hover:shadow-md",
 				],
 				component.type === "text" && `min-h-[${hugsToPixels(1)}px]`,
@@ -73,7 +73,7 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 			style={{
 				gridColumn,
 				gridRow,
-				...dragStyle, // Apply drag transform
+				...dragStyle,
 			}}
 			onClick={handleClick}
 			onKeyDown={handleKeyDown}
@@ -115,9 +115,9 @@ export function ComponentRenderer({ component }: ComponentRendererProps) {
 					"animate-in fade-in-0 slide-in-from-top-1 duration-200",
 				)}
 				title="Drag to reorder component (won't open properties)"
-				onClick={(e) => e.stopPropagation()} // Prevent selection when clicking drag handle
-				onMouseDown={(e) => e.stopPropagation()} // Prevent any selection on mouse down
-				{...dragListeners} // Only the drag handle has drag listeners
+				onClick={(e) => e.stopPropagation()}
+				onMouseDown={(e) => e.stopPropagation()}
+				{...dragListeners}
 			>
 				<GripVertical className="h-3 w-3" />
 			</div>

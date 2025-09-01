@@ -17,9 +17,8 @@ interface UseDragAndDropProps {
 	fixExistingComponentHeights: () => void;
 }
 
-/**
- * Hook for handling drag and drop operations on the canvas
- */
+
+
 export function useDragAndDrop({
 	components,
 	canvasRef,
@@ -29,7 +28,7 @@ export function useDragAndDrop({
 }: UseDragAndDropProps) {
 	const validateDropPosition = useCallback(
 		(component: ComponentState, newPosition: Position): boolean => {
-			// Fix existing component heights before validation
+
 			fixExistingComponentHeights();
 
 			const updatedComponents = useEditStore.getState().components;
@@ -41,12 +40,12 @@ export function useDragAndDrop({
 			}
 
 			if (updatedComponent.size.width === "full") {
-				// Full width components must be at x=0
+
 				if (newPosition.x !== 0) {
 					return false;
 				}
 			} else {
-				// Half width components can be at x=0 or x=1
+
 				if (newPosition.x > 1) {
 					return false;
 				}
@@ -140,7 +139,7 @@ export function useDragAndDrop({
 
 			const draggedComponent = components.find((c) => c.id === componentId);
 			if (!draggedComponent || !canvasRef.current) {
-				// Reset drag state
+
 				useEditStore.setState((state) => ({
 					...state,
 					drag: {
@@ -184,13 +183,13 @@ export function useDragAndDrop({
 			);
 
 			if (isValidPosition) {
-				// Update component position
+
 				updateComponent(componentId, {
 					position: snapPosition,
 				});
 			}
 
-			// Reset drag state
+
 			useEditStore.setState((state) => ({
 				...state,
 				drag: {

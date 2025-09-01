@@ -1,7 +1,5 @@
-/**
- * Preview-only Image component - renders images without edit controls
- * Based on the edit ImageComponent but simplified for read-only display
- */
+
+
 
 import { cn } from "@/lib/utils";
 import { HUG_HEIGHT } from "@/modules/edit/constants/hug-system";
@@ -16,7 +14,7 @@ interface PreviewImageComponentProps {
 	component: ComponentState;
 }
 
-// Image loading states
+
 type ImageLoadingState = "idle" | "loading" | "loaded" | "error";
 
 export const PreviewImageComponent = React.memo(function PreviewImageComponent({
@@ -25,13 +23,13 @@ export const PreviewImageComponent = React.memo(function PreviewImageComponent({
 	const attributes = component.attributes as ImageAttributes;
 	const styles = component.styles;
 
-	// Image loading state management
+
 	const [loadingState, setLoadingState] = useState<ImageLoadingState>("idle");
 	const [isInView, setIsInView] = useState(false);
 	const imgRef = useRef<HTMLImageElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	// Apply component styles
+
 	const componentStyles = {
 		backgroundColor: styles.backgroundColor,
 		borderWidth: styles.border?.width,
@@ -42,22 +40,22 @@ export const PreviewImageComponent = React.memo(function PreviewImageComponent({
 		boxShadow: getShadowValue(styles.shadow),
 	};
 
-	// Get border radius class
+
 	const borderRadiusClass = getBorderRadiusClass(attributes.borderRadius);
 
-	// Validate image source - more flexible for URLs
+
 	const isValidImageUrl = useCallback((url: string): boolean => {
 		try {
 			const parsedUrl = new URL(url);
-			// Accept any valid URL - let the browser handle whether it's actually an image
-			// This allows for dynamic image URLs, APIs, etc.
+
+
 			return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
 		} catch {
 			return false;
 		}
 	}, []);
 
-	// Handle image loading
+
 	const handleImageLoad = useCallback(() => {
 		setLoadingState("loaded");
 	}, []);
@@ -66,7 +64,7 @@ export const PreviewImageComponent = React.memo(function PreviewImageComponent({
 		setLoadingState("error");
 	}, []);
 
-	// Simplified loading - start immediately when component mounts with a valid src
+
 	useEffect(() => {
 		if (attributes.src && isValidImageUrl(attributes.src)) {
 			setIsInView(true);
@@ -79,7 +77,7 @@ export const PreviewImageComponent = React.memo(function PreviewImageComponent({
 
 	const hasValidSrc = attributes.src && isValidImageUrl(attributes.src);
 
-	// Calculate height based on component size in hugs
+
 	const componentHeight = component.size.height * HUG_HEIGHT;
 
 	return (
@@ -88,8 +86,8 @@ export const PreviewImageComponent = React.memo(function PreviewImageComponent({
 			className={cn("w-full bg-white border border-gray-200")}
 			style={{
 				...componentStyles,
-				height: `${componentHeight}px`, // Fixed height based on hugs
-				minHeight: `${HUG_HEIGHT}px`, // Minimum 1 hug
+				height: `${componentHeight}px`,
+				minHeight: `${HUG_HEIGHT}px`,
 			}}
 			role="img"
 			aria-label={
@@ -104,7 +102,6 @@ export const PreviewImageComponent = React.memo(function PreviewImageComponent({
 						borderRadiusClass,
 					)}
 				>
-					{/* Loading State */}
 					{loadingState === "loading" && (
 						<div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
 							<div className="text-center">
@@ -116,7 +113,6 @@ export const PreviewImageComponent = React.memo(function PreviewImageComponent({
 						</div>
 					)}
 
-					{/* Image */}
 					{hasValidSrc && isInView && (
 						<img
 							ref={imgRef}
@@ -139,7 +135,6 @@ export const PreviewImageComponent = React.memo(function PreviewImageComponent({
 						/>
 					)}
 
-					{/* Error State */}
 					{loadingState === "error" && (
 						<div className="absolute inset-0 flex items-center justify-center bg-red-50 z-10">
 							<div className="text-center">
@@ -152,7 +147,6 @@ export const PreviewImageComponent = React.memo(function PreviewImageComponent({
 						</div>
 					)}
 
-					{/* Placeholder State */}
 					{(!hasValidSrc || loadingState === "idle") && (
 						<div
 							className={cn(

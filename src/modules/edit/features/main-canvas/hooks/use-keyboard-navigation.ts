@@ -11,9 +11,8 @@ interface UseKeyboardNavigationProps {
 	toggleComponentWidth: (id: string) => void;
 }
 
-/**
- * Hook for handling keyboard navigation and shortcuts on the canvas
- */
+
+
 export function useKeyboardNavigation({
 	hasComponents,
 	selectedComponentId,
@@ -31,7 +30,7 @@ export function useKeyboardNavigation({
 				? components.findIndex((c) => c.id === selectedComponentId)
 				: -1;
 
-			// Alt + Arrow Left/Right: Toggle component width
+
 			if (
 				e.altKey &&
 				selectedComponentId &&
@@ -45,7 +44,7 @@ export function useKeyboardNavigation({
 			switch (e.key) {
 				case "ArrowDown":
 				case "ArrowRight": {
-					// Navigate to next component
+
 					e.preventDefault();
 					const nextIndex =
 						currentIndex < components.length - 1 ? currentIndex + 1 : 0;
@@ -54,7 +53,7 @@ export function useKeyboardNavigation({
 				}
 				case "ArrowUp":
 				case "ArrowLeft": {
-					// Navigate to previous component
+
 					e.preventDefault();
 					const prevIndex =
 						currentIndex > 0 ? currentIndex - 1 : components.length - 1;
@@ -62,13 +61,13 @@ export function useKeyboardNavigation({
 					break;
 				}
 				case "Escape":
-					// Clear selection
+
 					e.preventDefault();
 					selectComponent(null);
 					break;
 				case "Enter":
 				case " ":
-					// Open right sidebar for selected component
+
 					if (selectedComponentId && !rightSidebarOpen) {
 						e.preventDefault();
 						toggleRightSidebar();

@@ -12,20 +12,20 @@ import type {
 import { GridOverlay } from "./grid-overlay";
 
 interface CanvasOverlaysProps {
-	// Grid overlay props
+
 	showGridLines: boolean;
 	grid: GridConfiguration;
 
-	// Sector borders props
+
 	isDragging: boolean;
 	isResizing: boolean;
 
-	// Drag state
+
 	draggedComponentId: string | null;
 	dropZones: Position[];
 	components: ComponentState[];
 
-	// Resize state
+
 	resizedComponentId: string | null;
 	resizePreview?: {
 		x: number;
@@ -36,9 +36,8 @@ interface CanvasOverlaysProps {
 	isValidResize: boolean;
 }
 
-/**
- * Component that renders all canvas overlays including grid lines and interaction feedback
- */
+
+
 export function CanvasOverlays({
 	showGridLines,
 	grid,
@@ -61,7 +60,6 @@ export function CanvasOverlays({
 
 	return (
 		<>
-			{/* Grid Lines Overlay */}
 			{showGridLines && (
 				<GridOverlay
 					grid={grid}
@@ -69,10 +67,8 @@ export function CanvasOverlays({
 				/>
 			)}
 
-			{/* Sector Borders and Interaction Feedback */}
 			{(isDragging || isResizing) && (
 				<div className="absolute inset-0 pointer-events-none z-20">
-					{/* Vertical center line */}
 					<div
 						className="absolute border-r border-dashed border-primary/30"
 						style={{
@@ -82,7 +78,6 @@ export function CanvasOverlays({
 						}}
 					/>
 
-					{/* Horizontal grid lines */}
 					{Array.from({ length: MAX_GRID_ROWS }, (_, i) => (
 						<div
 							key={`hug-line-row-${i + 1}`}
@@ -95,7 +90,6 @@ export function CanvasOverlays({
 						/>
 					))}
 
-					{/* Drag Drop Zones */}
 					{draggedComponent &&
 						dropZones.length > 0 &&
 						dropZones.map((zone, index) => {
@@ -124,7 +118,6 @@ export function CanvasOverlays({
 							);
 						})}
 
-					{/* Resize Preview */}
 					{isResizing && resizedComponent && resizePreview && (
 						<div
 							className={cn(
@@ -143,7 +136,6 @@ export function CanvasOverlays({
 						/>
 					)}
 
-					{/* Left sector background */}
 					<div
 						className="absolute bg-primary/5"
 						style={{
@@ -154,7 +146,6 @@ export function CanvasOverlays({
 						}}
 					/>
 
-					{/* Right sector background */}
 					<div
 						className="absolute bg-primary/5"
 						style={{

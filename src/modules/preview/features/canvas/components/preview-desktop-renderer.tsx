@@ -1,7 +1,5 @@
-/**
- * Preview Desktop Component Renderer - renders components for desktop view (2-column grid)
- * Uses the original grid positioning logic from edit mode
- */
+
+
 
 import { cn } from "@/lib/utils";
 import { hugsToPixels } from "@/modules/edit/constants/hug-system";
@@ -16,7 +14,7 @@ interface PreviewDesktopRendererProps {
 export function PreviewDesktopRenderer({
 	component,
 }: PreviewDesktopRendererProps) {
-	// Calculate grid position (same logic as edit mode)
+
 	const gridColumn =
 		component.size.width === "full"
 			? "1 / -1"
@@ -24,7 +22,7 @@ export function PreviewDesktopRenderer({
 				? "1"
 				: "2";
 
-	// For text components, use auto grid row. For images, use span if needed
+
 	const gridRow =
 		component.type === "text"
 			? `${component.position.y + 1}`
@@ -34,12 +32,12 @@ export function PreviewDesktopRenderer({
 		<div
 			className={cn(
 				"relative",
-				// Remove all interactive states since this is preview-only
+
 				component.type === "text" && `min-h-[${hugsToPixels(1)}px]`,
 				component.type === "image" && `min-h-[${hugsToPixels(4)}px]`,
-				// Add z-index classes similar to edit mode for proper layering
-				component.type === "text" && "z-10", // Text components get higher z-index
-				component.type === "image" && "z-0", // Image components get lower z-index
+
+				component.type === "text" && "z-10",
+				component.type === "image" && "z-0",
 			)}
 			style={{
 				gridColumn,

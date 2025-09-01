@@ -15,7 +15,7 @@ import { useResizing } from "./hooks/use-resizing";
 export function MainCanvasFeature() {
 	const canvasRef = useRef<HTMLDivElement | null>(null);
 
-	// Consolidated store selectors
+
 	const {
 		components,
 		grid,
@@ -28,7 +28,7 @@ export function MainCanvasFeature() {
 		actions,
 	} = useCanvasStore();
 
-	// Custom hooks for different concerns
+
 	const { handleDragStart, handleDragMove, handleDragEnd } = useDragAndDrop({
 		components,
 		canvasRef,
@@ -85,13 +85,13 @@ export function MainCanvasFeature() {
 						setDroppableRef(node);
 					}}
 					className={cn(
-						// Layout
+
 						"h-full relative",
-						// Background
+
 						"bg-card/30",
-						// Transitions
+
 						"transition-all duration-200 ease-in-out",
-						// Focus states
+
 						"focus-within:bg-card/40",
 						"focus:outline-none focus:ring-2 focus:ring-ring/20 focus:ring-inset",
 					)}
@@ -100,7 +100,6 @@ export function MainCanvasFeature() {
 					role="application"
 					aria-label="Component canvas - click components to select, use drag handles to reorder, arrow keys to navigate"
 				>
-					{/* Canvas Overlays (Grid lines, drag zones, resize previews) */}
 					<CanvasOverlays
 						showGridLines={showGridLines}
 						grid={grid}
@@ -114,10 +113,8 @@ export function MainCanvasFeature() {
 						isValidResize={resizeState.isValidResize}
 					/>
 
-					{/* Empty State */}
 					{!hasComponents && <EmptyState />}
 
-					{/* Component Grid */}
 					<CanvasGrid
 						components={components}
 						grid={grid}

@@ -1,7 +1,5 @@
-/**
- * Preview-only Text component - renders text without edit controls
- * Based on the edit TextComponent but simplified for read-only display
- */
+
+
 
 import { cn } from "@/lib/utils";
 import { HUG_HEIGHT } from "@/modules/edit/constants/hug-system";
@@ -22,7 +20,7 @@ export const PreviewTextComponent = React.memo(function PreviewTextComponent({
 	const attributes = component.attributes as TextAttributes;
 	const styles = component.styles;
 
-	// Apply component styles
+
 	const componentStyles = {
 		backgroundColor: styles.backgroundColor,
 		borderWidth: styles.border?.width,
@@ -43,7 +41,7 @@ export const PreviewTextComponent = React.memo(function PreviewTextComponent({
 			)}
 			style={{
 				...componentStyles,
-				minHeight: `${HUG_HEIGHT}px`, // Minimum 1 hug
+				minHeight: `${HUG_HEIGHT}px`,
 			}}
 			aria-label={`Text component: ${attributes.content || "Empty text"}`}
 		>
@@ -51,7 +49,7 @@ export const PreviewTextComponent = React.memo(function PreviewTextComponent({
 				className={cn(
 					"w-full prose prose-sm max-w-none",
 					`text-${attributes.textAlign}`,
-					// Handle text overflow
+
 					"overflow-hidden",
 					"break-words",
 				)}
@@ -60,9 +58,9 @@ export const PreviewTextComponent = React.memo(function PreviewTextComponent({
 				{attributes.content ? (
 					<ReactMarkdown
 						components={{
-							// Allow natural paragraph styling with reduced margins
+
 							p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-							// Headings with proper hierarchy
+
 							h1: ({ children }) => (
 								<h1 className="text-2xl font-bold mb-2">{children}</h1>
 							),
@@ -81,7 +79,7 @@ export const PreviewTextComponent = React.memo(function PreviewTextComponent({
 							h6: ({ children }) => (
 								<h6 className="text-xs font-medium mb-1">{children}</h6>
 							),
-							// Lists with proper spacing
+
 							ul: ({ children }) => (
 								<ul className="list-disc list-inside mb-2 space-y-1">
 									{children}
@@ -93,7 +91,7 @@ export const PreviewTextComponent = React.memo(function PreviewTextComponent({
 								</ol>
 							),
 							li: ({ children }) => <li>{children}</li>,
-							// Inline elements
+
 							strong: ({ children }) => (
 								<strong className="font-semibold">{children}</strong>
 							),
@@ -103,13 +101,13 @@ export const PreviewTextComponent = React.memo(function PreviewTextComponent({
 									{children}
 								</code>
 							),
-							// Code blocks
+
 							pre: ({ children }) => (
 								<pre className="bg-gray-100 p-2 rounded text-sm font-mono overflow-x-auto mb-2">
 									{children}
 								</pre>
 							),
-							// Links
+
 							a: ({ href, children }) => (
 								<a
 									href={href}
@@ -120,7 +118,7 @@ export const PreviewTextComponent = React.memo(function PreviewTextComponent({
 									{children}
 								</a>
 							),
-							// Blockquotes
+
 							blockquote: ({ children }) => (
 								<blockquote className="border-l-4 border-gray-300 pl-4 italic mb-2">
 									{children}

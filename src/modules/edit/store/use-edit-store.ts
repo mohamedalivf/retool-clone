@@ -1,7 +1,5 @@
-/**
- * Simplified Zustand store for managing the drag-and-drop component editor state
- * This version removes complex middleware to fix infinite re-render issues
- */
+
+
 
 import { create } from "zustand";
 
@@ -27,25 +25,23 @@ import {
 
 import { findNextAvailablePosition } from "../utils/grid-calculations";
 
-// ============================================================================
-// MIGRATION UTILITIES
-// ============================================================================
 
-/**
- * Fix existing image component heights - no longer needed since we use manual sizing
- * Keeping for compatibility but it's essentially a no-op now
- */
+
+
+
+
+
 export function fixImageComponentHeights(
 	components: ComponentState[],
 ): ComponentState[] {
-	// Since we're no longer using aspect ratio calculations,
-	// just return components as-is. Height is now controlled manually via resizing.
+
+
 	return components;
 }
 
-// ============================================================================
-// INITIAL STATE
-// ============================================================================
+
+
+
 
 const initialSelectionState: SelectionState = {
 	selectedComponentId: null,
@@ -82,9 +78,9 @@ const initialResizeState: ResizeState = {
 	isValidResize: false,
 };
 
-// ============================================================================
-// STORE TYPES
-// ============================================================================
+
+
+
 
 interface EditStoreState {
 	components: ComponentState[];
@@ -102,17 +98,17 @@ interface EditStoreState {
 }
 
 interface EditStoreActions {
-	// Component actions
+
 	addComponent: (type: ComponentType, position?: Position) => string;
 	updateComponent: (id: string, updates: Partial<ComponentState>) => void;
 	deleteComponent: (id: string) => void;
 
-	// Selection actions
+
 	selectComponent: (id: string | null) => void;
 	selectComponentForDrag: (id: string) => void;
 	clearSelection: () => void;
 
-	// Resize actions
+
 	startResize: (
 		componentId: string,
 		direction: "horizontal" | "vertical" | "both",
@@ -122,30 +118,30 @@ interface EditStoreActions {
 	cancelResize: () => void;
 	toggleComponentWidth: (componentId: string) => void;
 
-	// Sidebar actions
+
 	toggleLeftSidebar: () => void;
 	toggleRightSidebar: () => void;
 	setRightSidebarTab: (tab: "properties" | "styles" | "data") => void;
 
-	// Settings actions
+
 	updateSettings: (settings: Partial<EditStoreState["settings"]>) => void;
 
-	// Utility actions
+
 	getComponentById: (id: string) => ComponentState | undefined;
 	exportComponents: () => ComponentState[];
 
-	// Migration actions
+
 	fixExistingComponentHeights: () => void;
 }
 
 type EditStoreType = EditStoreState & EditStoreActions;
 
-// ============================================================================
-// STORE CREATION
-// ============================================================================
+
+
+
 
 export const useEditStore = create<EditStoreType>((set, get) => ({
-	// Initial state - migrate existing components to hug system
+
 	components: [],
 	selection: initialSelectionState,
 	sidebars: initialSidebarState,
@@ -159,11 +155,11 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 		theme: "system",
 	},
 
-	// Component actions
+
 	addComponent: (type: ComponentType, position?: Position) => {
 		const state = get();
 
-		// Calculate the correct size for positioning
+
 		const componentSize = createDefaultSize(type);
 
 		const targetPosition =
@@ -249,7 +245,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 		}));
 	},
 
-	// Selection actions
+
 	selectComponent: (id: string | null) => {
 		set((state) => {
 			if (!id) {
@@ -278,7 +274,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 					...state.selection,
 					selectedComponentId: id,
 					selectionHistory: newHistory,
-					isSelectedForDrag: false, // Reset drag flag for normal selection
+					isSelectedForDrag: false,
 				},
 				sidebars: {
 					...state.sidebars,
@@ -305,9 +301,9 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 					...state.selection,
 					selectedComponentId: id,
 					selectionHistory: newHistory,
-					isSelectedForDrag: true, // Mark as selected for drag
+					isSelectedForDrag: true,
 				},
-				// Don't open sidebar when selecting for drag
+
 			};
 		});
 	},
@@ -323,7 +319,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 		}));
 	},
 
-	// Resize actions
+
 	startResize: (
 		componentId: string,
 		direction: "horizontal" | "vertical" | "both",
@@ -367,7 +363,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 				};
 			}
 
-			// Update the component with the new size
+
 			const updatedComponents = state.components.map((component) =>
 				component.id === resizedComponentId
 					? {
@@ -405,7 +401,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 					? {
 							...c,
 							size: { ...c.size, width: newWidth },
-							// Reset position to x=0 if switching to full width
+
 							position:
 								newWidth === "full" ? { ...c.position, x: 0 } : c.position,
 							updatedAt: Date.now(),
@@ -420,7 +416,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 		});
 	},
 
-	// Sidebar actions
+
 	toggleLeftSidebar: () => {
 		set((state) => ({
 			...state,
@@ -461,7 +457,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 		}));
 	},
 
-	// Settings actions
+
 	updateSettings: (settings: Partial<EditStoreState["settings"]>) => {
 		set((state) => ({
 			...state,
@@ -469,7 +465,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 		}));
 	},
 
-	// Utility actions
+
 	getComponentById: (id: string) => {
 		return get().components.find((c) => c.id === id);
 	},
@@ -478,7 +474,7 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 		return get().components;
 	},
 
-	// Migration actions
+
 	fixExistingComponentHeights: () => {
 		set((state) => ({
 			...state,
@@ -487,13 +483,13 @@ export const useEditStore = create<EditStoreType>((set, get) => ({
 	},
 }));
 
-// ============================================================================
-// UTILITY HOOKS (Use direct selectors instead of these for better performance)
-// ============================================================================
 
-// These hooks are kept for backward compatibility but it's recommended to use
-// direct selectors like: useEditStore((state) => state.components)
-// This prevents unnecessary re-renders and improves performance.
+
+
+
+
+
+
 
 export const useSelectedComponent = () => {
 	return useEditStore((state) => {

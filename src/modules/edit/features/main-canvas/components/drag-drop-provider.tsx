@@ -22,9 +22,8 @@ interface DragDropProviderProps {
 	onDragEnd: (event: DragEndEvent) => void;
 }
 
-/**
- * Provider component that wraps the canvas with drag and drop functionality
- */
+
+
 export function DragDropProvider({
 	children,
 	onDragStart,
@@ -53,9 +52,7 @@ export function DragDropProvider({
 		>
 			{children}
 
-			{/* Drag Overlay for visual feedback during drag */}
 			<DragOverlay modifiers={[restrictToWindowEdges]}>
-				{/* Empty overlay - the actual drag preview is handled by the draggable components */}
 			</DragOverlay>
 		</DndContext>
 	);

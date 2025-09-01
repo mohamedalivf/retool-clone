@@ -1,7 +1,5 @@
-/**
- * Preview Canvas Feature - displays components in read-only mode
- * Similar to MainCanvasFeature but without edit controls, drag & drop, or selection
- */
+
+
 
 import { cn } from "@/lib/utils";
 import { HUG_HEIGHT } from "@/modules/edit/constants/hug-system";
@@ -14,32 +12,32 @@ import { StackGroupWrapper } from "./components/stack-group-wrapper";
 export function PreviewCanvasFeature() {
 	const components = usePreviewComponents();
 
-	// Process components to detect and group overlapping components
+
 	const { stackGroups, processedComponents } =
 		processComponentsForStacking(components);
 
-	// Separate individual components from stacked components
+
 	const individualComponents = processedComponents.filter(
 		(component) => !component.stackGroupId,
 	);
 
-	// Sort individual components for proper rendering order
+
 	const sortedIndividualComponents = [...individualComponents].sort((a, b) => {
-		// Primary sort: by row (y position)
+
 		if (a.position.y !== b.position.y) {
 			return a.position.y - b.position.y;
 		}
 
-		// Secondary sort: by column (x position) within the same row
+
 		if (a.position.x !== b.position.x) {
 			return a.position.x - b.position.x;
 		}
 
-		// Tertiary sort: by creation time for components in the same position
+
 		return a.createdAt - b.createdAt;
 	});
 
-	// Sort stack groups by position
+
 	const sortedStackGroups = [...stackGroups].sort((a, b) => {
 		if (a.position.y !== b.position.y) {
 			return a.position.y - b.position.y;
@@ -47,23 +45,23 @@ export function PreviewCanvasFeature() {
 		return a.position.x - b.position.x;
 	});
 
-	// Create a unified rendering list with proper ordering
+
 	const renderingItems: Array<
 		| { type: "component"; component: (typeof sortedIndividualComponents)[0] }
 		| { type: "stackGroup"; stackGroup: (typeof sortedStackGroups)[0] }
 	> = [];
 
-	// Add individual components
+
 	for (const component of sortedIndividualComponents) {
 		renderingItems.push({ type: "component", component });
 	}
 
-	// Add stack groups
+
 	for (const stackGroup of sortedStackGroups) {
 		renderingItems.push({ type: "stackGroup", stackGroup });
 	}
 
-	// Sort all items by position for final rendering order
+
 	renderingItems.sort((a, b) => {
 		const aPos =
 			a.type === "component" ? a.component.position : a.stackGroup.position;
@@ -85,32 +83,30 @@ export function PreviewCanvasFeature() {
 					className={cn(
 						"mx-auto bg-white shadow-sm border border-gray-200",
 						"min-h-full",
-						// Responsive max width
+
 						"max-w-4xl",
 					)}
 				>
 					{!hasComponents && <PreviewEmptyState />}
 
-					{/* Component Grid - Same layout as edit mode but without interactions */}
 					{hasComponents && (
 						<div
 							className={cn(
-								// Grid layout with responsive behavior
+
 								"relative grid",
-								// Desktop: 2 columns, Mobile/Tablet: 1 column
+
 								"grid-cols-1 md:grid-cols-2",
-								// NO GAPS - components should be flush against each other
+
 								"gap-0",
-								// Full height, no padding, no rounded corners
+
 								"h-full min-h-screen",
 							)}
 							style={{
-								gap: "0px", // Force no gap regardless of grid config
-								gridAutoRows: `${HUG_HEIGHT}px`, // Fixed row height = 1 hug
-								alignItems: "start", // Align items to start of their grid area
+								gap: "0px",
+								gridAutoRows: `${HUG_HEIGHT}px`,
+								alignItems: "start",
 							}}
 						>
-							{/* Desktop View - Hidden on mobile */}
 							<div className="hidden md:contents">
 								{renderingItems.map((item) => {
 									if (item.type === "component") {
@@ -122,7 +118,7 @@ export function PreviewCanvasFeature() {
 										);
 									}
 
-									// Get processed components for this stack group
+
 									const stackGroupProcessedComponents =
 										processedComponents.filter(
 											(comp) => comp.stackGroupId === item.stackGroup.id,
@@ -139,10 +135,9 @@ export function PreviewCanvasFeature() {
 								})}
 							</div>
 
-							{/* Mobile View - Hidden on desktop */}
 							<div className="contents md:hidden">
 								{renderingItems.map((item, index) => {
-									// Calculate mobile row start based on previous items' heights
+
 									let mobileRowStart = 1;
 									for (let i = 0; i < index; i++) {
 										const prevItem = renderingItems[i];
@@ -163,7 +158,7 @@ export function PreviewCanvasFeature() {
 										);
 									}
 
-									// Get processed components for this stack group
+
 									const stackGroupProcessedComponents =
 										processedComponents.filter(
 											(comp) => comp.stackGroupId === item.stackGroup.id,
