@@ -1,5 +1,3 @@
-
-
 import { Button } from "@/components/ui/button";
 import {
 	Sheet,
@@ -9,9 +7,8 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { Database, Palette, Settings } from "lucide-react";
+import { Palette, Settings } from "lucide-react";
 import { useEditStore, useSelectedComponent } from "../../store/use-edit-store";
-import { DataPanel } from "./components/data-panel";
 import { PropertiesPanel } from "./components/properties-panel";
 import { StylesPanel } from "./components/styles-panel";
 
@@ -64,26 +61,28 @@ export function RightSidebarFeature({
 								className="h-full flex flex-col"
 							>
 								{}
-								<TabsList className="grid w-full grid-cols-3 m-4 mb-0">
-									<TabsTrigger
-										value="properties"
-										className="flex items-center gap-2"
-									>
-										<Settings className="h-4 w-4" />
-										<span className="hidden sm:inline">Properties</span>
-									</TabsTrigger>
-									<TabsTrigger
-										value="styles"
-										className="flex items-center gap-2"
-									>
-										<Palette className="h-4 w-4" />
-										<span className="hidden sm:inline">Styles</span>
-									</TabsTrigger>
-									<TabsTrigger value="data" className="flex items-center gap-2">
+								<div className="px-4 pt-4">
+									<TabsList className="grid w-full grid-cols-2">
+										<TabsTrigger
+											value="properties"
+											className="flex items-center gap-2"
+										>
+											<Settings className="h-4 w-4" />
+											<span className="hidden sm:inline">Properties</span>
+										</TabsTrigger>
+										<TabsTrigger
+											value="styles"
+											className="flex items-center gap-2"
+										>
+											<Palette className="h-4 w-4" />
+											<span className="hidden sm:inline">Styles</span>
+										</TabsTrigger>
+										{/* <TabsTrigger value="data" className="flex items-center gap-2">
 										<Database className="h-4 w-4" />
 										<span className="hidden sm:inline">Data</span>
-									</TabsTrigger>
-								</TabsList>
+									</TabsTrigger> */}
+									</TabsList>
+								</div>
 
 								{}
 								<div className="flex-1 overflow-y-auto">
@@ -93,9 +92,9 @@ export function RightSidebarFeature({
 									<TabsContent value="styles" className="m-0 p-4">
 										<StylesPanel component={selectedComponent} />
 									</TabsContent>
-									<TabsContent value="data" className="m-0 p-4">
+									{/* <TabsContent value="data" className="m-0 p-4">
 										<DataPanel component={selectedComponent} />
-									</TabsContent>
+									</TabsContent> */}
 								</div>
 							</Tabs>
 						) : (
